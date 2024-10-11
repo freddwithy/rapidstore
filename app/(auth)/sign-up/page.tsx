@@ -30,13 +30,17 @@ import {
 } from "@/components/ui/input-otp";
 import { useSignUp } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {} from "next/router";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+
+const passwordValidation = new RegExp(
+  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+);
 
 const formSchema = z
   .object({
@@ -51,9 +55,9 @@ const formSchema = z
       .min(8, {
         message: "La contraseña debe tener al menos 8 caracteres",
       })
-      .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/, {
+      .regex(passwordValidation, {
         message:
-          "La contraseña debe contener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial",
+          "La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial",
       }),
     confirmPassword: z.string().min(8, {
       message: "La contraseña debe tener al menos 8 caracteres",
@@ -78,6 +82,8 @@ const Page = () => {
     error: "",
   });
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingVerify, setLoadingVerify] = useState(false);
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -97,9 +103,14 @@ const Page = () => {
     },
   });
 
+  console.log(verification);
+  console.log(formVerify.getValues("code"));
+  console.log(form.getValues("password"));
+
   const onSignUp = async () => {
     if (!isLoaded) return;
     try {
+      setLoading(true);
       await signUp.create({
         emailAddress: form.getValues("email"),
         password: form.getValues("password"),
@@ -114,8 +125,11 @@ const Page = () => {
         ...verification,
         state: "pending",
       });
+
+      setLoading(false);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
+      setLoading(false);
       toast.error("Error al crear la cuenta", err.errors[0].message);
     }
   };
@@ -123,8 +137,9 @@ const Page = () => {
   const onVerify = async () => {
     if (!isLoaded) return;
     try {
+      setLoadingVerify(true);
       const completeSignUp = await signUp.attemptEmailAddressVerification({
-        code: verification.code,
+        code: formVerify.getValues("code"),
       });
 
       if (completeSignUp.status === "complete") {
@@ -133,7 +148,7 @@ const Page = () => {
           body: JSON.stringify({
             username: form.getValues("username"),
             email: form.getValues("email"),
-            password: form.getValues("password"),
+            clerkId: completeSignUp.createdSessionId,
           }),
         });
 
@@ -142,10 +157,13 @@ const Page = () => {
         });
         setVerification({
           ...verification,
-          state: "succes",
+          state: "success",
         });
-        router.push("/home");
+
+        setLoadingVerify(false);
+        setShowSuccessModal(true);
       } else {
+        setLoadingVerify(false);
         setVerification({
           ...verification,
           state: "error",
@@ -154,6 +172,7 @@ const Page = () => {
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
+      setLoadingVerify(false);
       setVerification({
         ...verification,
         state: "error",
@@ -198,7 +217,7 @@ const Page = () => {
                     <FormItem>
                       <FormLabel>Correo Electronico</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -206,12 +225,12 @@ const Page = () => {
                 />
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -224,24 +243,19 @@ const Page = () => {
                     <FormItem>
                       <FormLabel>Confirma tu Contraseña</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="password" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button className="w-full">Crear cuenta</Button>
+                <Button className="w-full gap-2">
+                  {loading && <LoaderCircle className="size-5 animate-spin" />}
+                  Crear cuenta
+                </Button>
               </form>
             </Form>
-            <Dialog
-              modal
-              open={verification.state === "pending"}
-              onOpenChange={() => {
-                if (verification.state === "success") {
-                  setShowSuccessModal(true);
-                }
-              }}
-            >
+            <Dialog modal open={verification.state === "pending"}>
               <DialogContent className="w-3/4">
                 <DialogHeader className="text-start">
                   <DialogTitle>Verifica tu correo</DialogTitle>
@@ -275,14 +289,20 @@ const Page = () => {
                         </FormItem>
                       )}
                     />
-                    <Button type="submit" className="w-full">
+                    <Button type="submit" className="w-full gap-2">
+                      {loadingVerify && (
+                        <LoaderCircle className="size-5 animate-spin" />
+                      )}
                       Verificar
                     </Button>
                   </form>
                 </Form>
               </DialogContent>
             </Dialog>
-            <Dialog open={showSuccessModal}>
+            <Dialog
+              open={showSuccessModal}
+              onOpenChange={() => router.push("/home")}
+            >
               <DialogContent className="w-3/4">
                 <DialogHeader className="flex items-center justify-center space-y-4">
                   <CheckCircle className="size-12 text-green-500" />
