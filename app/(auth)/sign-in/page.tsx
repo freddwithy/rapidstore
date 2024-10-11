@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import {} from "next/router";
 import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const formSchema = z.object({
@@ -57,11 +58,26 @@ const Page = () => {
           session: signInAttempt.createdSessionId,
         });
         router.push("/home");
+        toast.success("Sesión iniciada");
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
       }
-    } catch (err) {
-      console.error(err);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      if (err.errors[0].code === "form_password_incorrect") {
+        toast.error("Contraseña incorrecta");
+      }
+      if (err.errors[0].code === "form_identifier_not_found") {
+        toast.error("Usuario no encontrado");
+      }
+
+      if (err.errors[0].code === "form_too_many_attempts") {
+        toast.error("Demasiados intentos fallidos");
+      }
+
+      if (err.errors[0].code === "session_exists") {
+        toast.error("La sesión ya existe");
+      }
     }
   }, [form, isLoaded, router, signIn, setActive]);
 
@@ -86,19 +102,19 @@ const Page = () => {
                     <FormItem>
                       <FormLabel>Correo Electronico</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="email" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
                 />
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="password"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input type="password" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
