@@ -82,49 +82,50 @@ const Page = () => {
   }, [form, isLoaded, router, signIn, setActive]);
 
   return (
-    <section className="h-dvh w-full">
-      <div className="flex items-center justify-center h-full">
-        <Card className="w-3/4 md:w-[600px]">
-          <CardHeader>
-            <CardTitle>Inicia sesión</CardTitle>
-            <CardDescription>Inicia sesión con tu cuenta</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSignIn)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Correo Electronico</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contraseña</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <Button className="w-full">Entrar</Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-      </div>
+    <section className="flex items-center justify-center h-dvh bg-stone-200">
+      <Card className="w-3/4 md:w-[600px]">
+        <CardHeader>
+          <CardTitle>Inicia sesión</CardTitle>
+          <CardDescription>Inicia sesión con tu cuenta</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSignIn)} className="space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Correo Electronico</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <Button className="w-full">Entrar</Button>
+            </form>
+          </Form>
+          <p className="text-center text-sm">
+            ¿Aún no tienes una cuenta?{" "}
+            <a href="/sign-up" className="text-blue-800 font-semibold">
+              Regístrate
+            </a>{" "}
+          </p>
+        </CardContent>
+      </Card>
     </section>
   );
 };

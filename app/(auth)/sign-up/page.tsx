@@ -103,10 +103,6 @@ const Page = () => {
     },
   });
 
-  console.log(verification);
-  console.log(formVerify.getValues("code"));
-  console.log(form.getValues("password"));
-
   const onSignUp = async () => {
     if (!isLoaded) return;
     try {
@@ -148,7 +144,7 @@ const Page = () => {
           body: JSON.stringify({
             username: form.getValues("username"),
             email: form.getValues("email"),
-            clerkId: completeSignUp.createdSessionId,
+            clerkId: completeSignUp.createdUserId,
           }),
         });
 
@@ -182,137 +178,138 @@ const Page = () => {
   };
 
   return (
-    <section className="h-dvh w-full">
-      <div className="flex items-center justify-center h-full">
-        <Card className="w-3/4 md:w-[600px]">
-          <CardHeader>
-            <CardTitle>Create una cuenta</CardTitle>
-            <CardDescription>
-              Primero create una cuenta para poder empezar.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSignUp)}
-                className="space-y-2"
-              >
-                <FormField
-                  control={form.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre de usuario</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Correo Electronico</FormLabel>
-                      <FormControl>
-                        <Input type="email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contraseña</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirma tu Contraseña</FormLabel>
-                      <FormControl>
-                        <Input type="password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button className="w-full gap-2">
-                  {loading && <LoaderCircle className="size-5 animate-spin" />}
-                  Crear cuenta
-                </Button>
-              </form>
-            </Form>
-            <Dialog modal open={verification.state === "pending"}>
-              <DialogContent className="w-3/4">
-                <DialogHeader className="text-start">
-                  <DialogTitle>Verifica tu correo</DialogTitle>
-                  <DialogDescription>
-                    Por favor, confirma tu correo para poder iniciar sesión.
-                  </DialogDescription>
-                </DialogHeader>
-                <Form {...formVerify}>
-                  <form
-                    onSubmit={form.handleSubmit(onVerify)}
-                    className="space-y-4"
-                  >
-                    <FormField
-                      control={formVerify.control}
-                      name="code"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Código de verificación</FormLabel>
-                          <FormControl>
-                            <InputOTP maxLength={6} {...field}>
-                              <InputOTPGroup className="w-full">
-                                <InputOTPSlot index={0} />
-                                <InputOTPSlot index={1} />
-                                <InputOTPSlot index={2} />
-                                <InputOTPSlot index={3} />
-                                <InputOTPSlot index={4} />
-                                <InputOTPSlot index={5} />
-                              </InputOTPGroup>
-                            </InputOTP>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <Button type="submit" className="w-full gap-2">
-                      {loadingVerify && (
-                        <LoaderCircle className="size-5 animate-spin" />
-                      )}
-                      Verificar
-                    </Button>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
-            <Dialog
-              open={showSuccessModal}
-              onOpenChange={() => router.push("/home")}
-            >
-              <DialogContent className="w-3/4">
-                <DialogHeader className="flex items-center justify-center space-y-4">
-                  <CheckCircle className="size-12 text-green-500" />
-                  <DialogTitle>Verificación exitosa</DialogTitle>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </CardContent>
-        </Card>
-      </div>
+    <section className="flex items-center justify-center h-dvh bg-stone-200">
+      <Card className="w-3/4 md:w-[600px]">
+        <CardHeader>
+          <CardTitle>Create una cuenta</CardTitle>
+          <CardDescription>
+            Primero create una cuenta para poder empezar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSignUp)} className="space-y-2">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre de usuario</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Correo Electronico</FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirma tu Contraseña</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button className="w-full gap-2">
+                {loading && <LoaderCircle className="size-5 animate-spin" />}
+                Crear cuenta
+              </Button>
+            </form>
+          </Form>
+          <Dialog modal open={verification.state === "pending"}>
+            <DialogContent className="w-3/4">
+              <DialogHeader className="text-start">
+                <DialogTitle>Verifica tu correo</DialogTitle>
+                <DialogDescription>
+                  Por favor, confirma tu correo para poder iniciar sesión.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...formVerify}>
+                <form
+                  onSubmit={form.handleSubmit(onVerify)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={formVerify.control}
+                    name="code"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Código de verificación</FormLabel>
+                        <FormControl>
+                          <InputOTP maxLength={6} {...field}>
+                            <InputOTPGroup className="w-full">
+                              <InputOTPSlot index={0} />
+                              <InputOTPSlot index={1} />
+                              <InputOTPSlot index={2} />
+                              <InputOTPSlot index={3} />
+                              <InputOTPSlot index={4} />
+                              <InputOTPSlot index={5} />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full gap-2">
+                    {loadingVerify && (
+                      <LoaderCircle className="size-5 animate-spin" />
+                    )}
+                    Verificar
+                  </Button>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          <Dialog
+            open={showSuccessModal}
+            onOpenChange={() => router.push("/home")}
+          >
+            <DialogContent className="w-3/4">
+              <DialogHeader className="flex items-center justify-center space-y-4">
+                <CheckCircle className="size-12 text-green-500" />
+                <DialogTitle>Verificación exitosa</DialogTitle>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+          <p className="text-center text-sm">
+            ¿Ya tienes una cuenta?{" "}
+            <a href="/sign-in" className="text-blue-800 font-semibold">
+              Inicia sesión
+            </a>{" "}
+          </p>
+        </CardContent>
+      </Card>
     </section>
   );
 };
