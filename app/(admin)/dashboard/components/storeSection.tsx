@@ -17,7 +17,7 @@ interface StoreSectionProps {
 
 const StoreSection: React.FC<StoreSectionProps> = ({ store }) => {
   return (
-    <Card className="mt-4 p-2">
+    <Card className="mt-4 p-2 shadow-none">
       <CardHeader>
         <CardTitle>Tu tienda</CardTitle>
         <CardDescription>

@@ -7,7 +7,7 @@ interface HeaderProps {
 }
 const Header: React.FC<HeaderProps> = ({ username, profileImageUrl }) => {
   return (
-    <Card className="p-4">
+    <Card className="p-4 shadow-none">
       <div className="space-y-2">
         <div className="overflow-hidden rounded-full size-16">
           <Image
@@ -19,7 +19,7 @@ const Header: React.FC<HeaderProps> = ({ username, profileImageUrl }) => {
         </div>
         <h2 className="text-medium tracking-tight text-stone-700">
           Bienvenido{" "}
-          <p className="text-2xl text-blue-900 font-semibold">{username}</p>
+          <p className="text-2xl text-yellow-900 font-semibold">{username}</p>
         </h2>
       </div>
     </Card>
