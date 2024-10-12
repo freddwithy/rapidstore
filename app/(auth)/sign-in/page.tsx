@@ -57,7 +57,7 @@ const Page = () => {
         await setActive({
           session: signInAttempt.createdSessionId,
         });
-        router.push("/home");
+        router.push("/dashboard");
         toast.success("Sesión iniciada");
       } else {
         console.error(JSON.stringify(signInAttempt, null, 2));
@@ -82,7 +82,7 @@ const Page = () => {
   }, [form, isLoaded, router, signIn, setActive]);
 
   return (
-    <section className="flex items-center justify-center h-dvh bg-stone-200">
+    <section className="flex items-center justify-center h-dvh bg-yellow-50">
       <Card className="w-3/4 md:w-[600px]">
         <CardHeader>
           <CardTitle>Inicia sesión</CardTitle>
@@ -120,7 +120,7 @@ const Page = () => {
           </Form>
           <p className="text-center text-sm">
             ¿Aún no tienes una cuenta?{" "}
-            <a href="/sign-up" className="text-blue-800 font-semibold">
+            <a href="/sign-up" className="text-yellow-800 font-semibold">
               Regístrate
             </a>{" "}
           </p>

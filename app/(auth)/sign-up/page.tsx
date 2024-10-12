@@ -178,7 +178,7 @@ const Page = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-dvh bg-stone-200">
+    <section className="flex items-center justify-center h-dvh bg-yellow-50">
       <Card className="w-3/4 md:w-[600px]">
         <CardHeader>
           <CardTitle>Create una cuenta</CardTitle>
@@ -293,7 +293,7 @@ const Page = () => {
           </Dialog>
           <Dialog
             open={showSuccessModal}
-            onOpenChange={() => router.push("/home")}
+            onOpenChange={() => router.push("/dashboard")}
           >
             <DialogContent className="w-3/4">
               <DialogHeader className="flex items-center justify-center space-y-4">
@@ -304,7 +304,7 @@ const Page = () => {
           </Dialog>
           <p className="text-center text-sm">
             ¿Ya tienes una cuenta?{" "}
-            <a href="/sign-in" className="text-blue-800 font-semibold">
+            <a href="/sign-in" className="text-yellow-800 font-semibold">
               Inicia sesión
             </a>{" "}
           </p>
