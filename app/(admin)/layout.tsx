@@ -9,5 +9,5 @@ export default async function Layout({
   const { userId } = auth();
   if (!userId) redirect("/sign-in");
 
-  return <div className="bg-sky-50">{children}</div>;
+  return <div>{children}</div>;
 }
