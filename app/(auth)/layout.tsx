@@ -9,5 +9,5 @@ export default async function Layout({
 }) {
   const { userId } = auth();
   if (userId) redirect("/dashboard");
-  return <>{children}</>;
+  return <div className="bg-white">{children}</div>;
 }

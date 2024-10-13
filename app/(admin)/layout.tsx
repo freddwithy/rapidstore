@@ -9,5 +9,5 @@ export default async function Layout({
   const { userId } = auth();
   if (!userId) redirect("/sign-in");
 
-  return <>{children}</>;
+  return <div className="bg-white">{children}</div>;
 }

@@ -178,7 +178,7 @@ const Page = () => {
   };
 
   return (
-    <section className="flex items-center justify-center h-dvh bg-yellow-50">
+    <section className="flex items-center justify-center h-dvh">
       <Card className="w-3/4 md:w-[600px]">
         <CardHeader>
           <CardTitle>Create una cuenta</CardTitle>
