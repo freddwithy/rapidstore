@@ -13,12 +13,11 @@ const Page = async () => {
       ownerId: user?.id,
     },
   });
-
   return (
     <section className="w-full h-dvh p-4">
       <Header username={user?.username} profileImageUrl={user?.imageUrl} />
-      <StoreSection store={store} />
-      <UserButton />
+      <StoreSection store={store} ownerId={user?.id} />
+      <UserButton afterSwitchSessionUrl="/sign-in" />
     </section>
   );
 };
