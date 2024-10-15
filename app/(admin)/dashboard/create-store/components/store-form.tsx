@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -54,6 +55,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, onClose }) => {
     },
   });
 
+  const router = useRouter();
+
   console.log(form.getValues());
   const createStore = async (data: z.infer<typeof storeFormScheme>) => {
     try {
@@ -78,6 +81,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, onClose }) => {
       toast.success("Tienda creada correctamente");
       setLoading(false);
       onClose?.();
+      router.refresh();
       return response;
     } catch (error) {
       setLoading(false);
