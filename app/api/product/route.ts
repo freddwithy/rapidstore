@@ -13,7 +13,6 @@ export async function POST(request: Request) {
       !price ||
       !discount ||
       !storeId ||
-      !images ||
       !categories
     ) {
       return NextResponse.json(
