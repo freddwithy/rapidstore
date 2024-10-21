@@ -19,7 +19,7 @@ import {
 import { Store } from "@prisma/client";
 import { AlertCircle, Link2 } from "lucide-react";
 import React, { useState } from "react";
-import StoreForm from "../create-store/components/store-form";
+import StoreForm from "../(forms)/store-form";
 interface StoreSectionProps {
   store: Store | null;
   ownerId: string | undefined;

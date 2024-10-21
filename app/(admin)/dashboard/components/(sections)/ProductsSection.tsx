@@ -20,7 +20,7 @@ import { Prisma } from "@prisma/client";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
-import ProductForm from "../create-store/components/product-form";
+import ProductForm from "../(forms)/product-form";
 type ProductsWithImages = Prisma.ProductsGetPayload<{
   include: {
     images: true;

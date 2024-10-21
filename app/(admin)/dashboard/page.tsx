@@ -3,8 +3,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
 import { UserButton } from "@clerk/nextjs";
 import Header from "./components/Header";
-import StoreSection from "./components/StoreSection";
-import ProductsSection from "./components/ProductsSection";
+import StoreSection from "./components/(sections)/StoreSection";
+import ProductsSection from "./components/(sections)/ProductsSection";
 
 const Page = async () => {
   const user = await currentUser();

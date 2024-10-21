@@ -11,7 +11,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Trash } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -34,12 +35,13 @@ const ProductFormScheme = z.object({
     message: "El precio es requerido",
   }),
   discount: z.string(),
-  images: z.array(z.string()),
+  images: z.any(),
   categories: z.array(z.string()),
 });
 
 const ProductForm: React.FC<ProductFormProps> = ({ onClose, storeId }) => {
   const [loading, setLoading] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
 
   const form = useForm<z.infer<typeof ProductFormScheme>>({
     resolver: zodResolver(ProductFormScheme),
@@ -48,14 +50,55 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, storeId }) => {
       description: "",
       price: "",
       discount: "",
-      images: [],
+      images: "",
       categories: [],
     },
   });
 
   const router = useRouter();
 
-  console.log(form.getValues());
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement & {
+      files: FileList;
+    };
+
+    if (target.files) {
+      setLoading(true);
+      const file = target.files[0];
+      const imageUrl = await uploadToCloudinary(file);
+
+      if (imageUrl) {
+        setImages([...images, imageUrl]);
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+      toast.error("Error al seleccionar la imagen");
+    }
+  };
+
+  const uploadToCloudinary = async (file: File) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "ruqmlhen");
+    const response = await fetch(
+      "https://api.cloudinary.com/v1_1/dxyfhaiu2/image/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      toast.error("Error al subir la imagen");
+      return;
+    } else {
+      toast.success("Imagen subida correctamente");
+      const data = await response.json();
+      return data.secure_url;
+    }
+  };
+
   const createStore = async (data: z.infer<typeof ProductFormScheme>) => {
     try {
       setLoading(true);
@@ -66,13 +109,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, storeId }) => {
           description: data.description,
           price: data.price,
           discount: data.discount,
-          images: data.images,
+          images: images,
           categories: data.categories,
           storeId: storeId,
         }),
       });
 
       if (!response.ok) {
+        setLoading(false);
         toast.error("Error al crear la tienda");
         return;
       }
@@ -147,6 +191,34 @@ const ProductForm: React.FC<ProductFormProps> = ({ onClose, storeId }) => {
                     {...field}
                     className="h-24"
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="flex items-center gap-x-2">
+            {images.length > 0
+              ? images.map((image) => (
+                  <div
+                    key={image}
+                    className="border border-stone-300 rounded-md overflow-hidden size-24 relative"
+                  >
+                    <button className="absolute top-1 right-1 flex items-center justify-center rounded-full bg-white p-1">
+                      <Trash className=" text-red-500 size-4" />
+                    </button>
+                    <Image src={image} width={100} height={100} alt="product" />
+                  </div>
+                ))
+              : null}
+          </div>
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Imagen</FormLabel>
+                <FormControl onChange={handleFileChange}>
+                  <Input type="file" placeholder="Imagen" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
