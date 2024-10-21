@@ -29,7 +29,7 @@ const Page = async () => {
       <Header username={user?.username} profileImageUrl={user?.imageUrl} />
       <StoreSection store={store} ownerId={user?.id} />
       {store && <ProductsSection products={products} storeId={store.id} />}
-      <UserButton afterSwitchSessionUrl="/sign-in" />
+      <UserButton />
     </section>
   );
 };
