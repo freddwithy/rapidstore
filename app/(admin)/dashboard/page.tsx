@@ -1,9 +1,10 @@
 import React from "react";
-import Header from "./components/header";
 import { currentUser } from "@clerk/nextjs/server";
-import StoreSection from "./components/storeSection";
 import prismadb from "@/lib/prismadb";
 import { UserButton } from "@clerk/nextjs";
+import ProductsSection from "./components/ProductsSection";
+import Header from "./components/Header";
+import StoreSection from "./components/StoreSection";
 
 const Page = async () => {
   const user = await currentUser();
@@ -13,10 +14,21 @@ const Page = async () => {
       ownerId: user?.id,
     },
   });
+
+  const products = await prismadb.products.findMany({
+    where: {
+      storeId: store?.id,
+    },
+    include: {
+      images: true,
+    },
+  });
+
   return (
-    <section className="w-full h-dvh p-4">
+    <section className="w-full h-dvh p-4 space-y-6">
       <Header username={user?.username} profileImageUrl={user?.imageUrl} />
       <StoreSection store={store} ownerId={user?.id} />
+      {store && <ProductsSection products={products} storeId={store.id} />}
       <UserButton afterSwitchSessionUrl="/sign-in" />
     </section>
   );
