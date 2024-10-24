@@ -52,7 +52,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
         <CardContent>
           {products.length > 0 ? (
             <div>
-              <ScrollArea className="max-h-[300px]">
+              <ScrollArea className={`${products.length > 4 && "h-[300px]"}`}>
                 <div className="flex flex-col gap-y-2">
                   {products.map((product) => (
                     <div

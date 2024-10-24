@@ -24,7 +24,7 @@ model User {
 
 model Store {
   id          String     @id @default(uuid())
-  owner       User       @relation(fields: [ownerId], references: [clerk_id])
+  owner       User       @relation(fields: [ownerId], references: [clerk_id], onDelete: Cascade)
   ownerId     String
   name        String     @unique
   url         String
@@ -44,7 +44,7 @@ model Products {
   description String
   images      Image[]
   categories  Category[]
-  store       Store      @relation(fields: [storeId], references: [id])
+  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
 }
 
@@ -60,7 +60,7 @@ model Category {
 model Image {
   id        String   @id @default(uuid())
   url       String
-  product   Products @relation(fields: [productId], references: [id])
+  product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 

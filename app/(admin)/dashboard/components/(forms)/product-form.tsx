@@ -89,9 +89,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const router = useRouter();
 
-  console.log("category-form", form.watch("categories"));
-  console.log("images-form", form.watch("images"));
-
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {
       files: FileList;
