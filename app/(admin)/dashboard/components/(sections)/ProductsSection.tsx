@@ -58,7 +58,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
                     className="w-full border border-stone-300 p-2 flex rounded-md gap-x-2 items-center justify-center"
                     key={product.id}
                   >
-                    <div>
+                    <div className="size-11 overflow-hidden border-stone-300 border rounded-md">
                       {product.images.length > 0 ? (
                         <Image
                           src={product.images[0].url}
