@@ -51,7 +51,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
         </CardHeader>
         <CardContent>
           {products.length > 0 ? (
-            <ScrollArea className="h-[300px]">
+            <ScrollArea className="max-h-[300px]">
               <div className="flex flex-col gap-y-2">
                 {products.map((product) => (
                   <div
@@ -71,17 +71,23 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-semibold leading-none">Telefono 2</p>
-                      <span className="text-sm text-stone-500">Gs. 30.000</span>
+                      <p className="font-semibold leading-none">
+                        {product.name}
+                      </p>
+                      <span className="text-sm text-stone-500">
+                        Gs. {product.price}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
+              <Button className="mt-4" onClick={() => setIsOpen(true)}>
+                Añadir
+              </Button>
             </ScrollArea>
           ) : (
             <div className="space-y-2">
               <p className="text-stone-500">Todavía no hay productos</p>
-              <Button onClick={() => setIsOpen(true)}>Añadir</Button>
             </div>
           )}
         </CardContent>
@@ -94,7 +100,11 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
               Detalla el producto que quieras añadir
             </DrawerDescription>
           </DrawerHeader>
-          <ProductForm storeId={storeId} categories={categories} />
+          <ProductForm
+            storeId={storeId}
+            categories={categories}
+            onClose={() => setIsOpen(false)}
+          />
           <DrawerFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar

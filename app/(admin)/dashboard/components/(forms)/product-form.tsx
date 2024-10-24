@@ -49,11 +49,18 @@ const ProductFormScheme = z.object({
   description: z.string().min(1, {
     message: "La descripción es requerida",
   }),
-  price: z.string().min(1, {
-    message: "El precio es requerido",
+  price: z.coerce
+    .number()
+    .min(1, {
+      message: "El precio es requerido",
+    })
+    .max(99999999, {
+      message: "El precio no puede ser mayor a 99.999.999 Gs.",
+    }),
+  discount: z.coerce.number().max(100, {
+    message: "El descuento no puede ser mayor a 100%",
   }),
-  discount: z.string(),
-  images: z.array(z.string()),
+  images: z.any(),
   categories: z.any().refine((value) => value.length > 0, {
     message: "Debe seleccionar al menos una categoría",
   }),
@@ -73,14 +80,17 @@ const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: "",
       description: "",
-      price: "",
-      discount: "",
+      price: 0,
+      discount: 0,
       images: [],
-      categories: [],
+      categories: "",
     },
   });
 
   const router = useRouter();
+
+  console.log("category-form", form.watch("categories"));
+  console.log("images-form", form.watch("images"));
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {
@@ -91,6 +101,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
       setLoadingImage(true);
       const file = target.files[0];
       const imageUrl = await uploadToCloudinary(file);
+
+      //valdidate image format
+      const allowedFormats = ["jpg", "jpeg", "png", "webp"];
+      const extension = file.name.split(".").pop();
+      if (!allowedFormats.includes(extension as string)) {
+        setLoadingImage(false);
+        toast.error("Formato de imagen no permitido");
+        return;
+      }
 
       if (imageUrl) {
         setImages([...images, imageUrl]);
@@ -134,21 +153,19 @@ const ProductForm: React.FC<ProductFormProps> = ({
           description: data.description,
           price: data.price,
           discount: data.discount,
-          images: {
-            url: images,
-          },
-          categories: data.categories,
+          images: images,
+          categoryId: data.categories,
           storeId: storeId,
         }),
       });
 
       if (!response.ok) {
         setLoading(false);
-        toast.error("Error al crear la tienda");
+        toast.error("Error al crear el producto");
         return;
       }
 
-      toast.success("Tienda creada correctamente");
+      toast.success("Producto creado correctamente");
       setLoading(false);
       onClose?.();
       router.refresh();
@@ -156,7 +173,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     } catch (error) {
       setLoading(false);
       console.log(error);
-      toast.error("Error al crear la tienda");
+      toast.error("Error al crear el producto");
     }
   };
   return (
@@ -319,6 +336,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       <Input
                         className="opacity-0 h-24"
                         type="file"
+                        accept="image/*"
                         {...field}
                       />
                     </div>
@@ -331,6 +349,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       <Input
                         className="opacity-0 h-24"
                         type="file"
+                        accept="image/*"
                         {...field}
                       />
                     </div>

@@ -40,19 +40,14 @@ const CategoriesSection: React.FC<CategoriesSectionProps> = ({
         </CardHeader>
         <CardContent>
           {categories.length > 0 ? (
-            <ScrollArea className="h-[300px]">
+            <ScrollArea className="max-h-[300px]">
               <div className="flex flex-col gap-y-2">
                 {categories.map((category) => (
                   <div
                     className="w-full border border-stone-300 p-2 flex flex-col rounded-md gap-x-2 items-start justify-center"
                     key={category.id}
                   >
-                    <p className="font-semibold leading-none">
-                      {category.name}
-                    </p>
-                    <span className="text-sm text-stone-500">
-                      {category.description}
-                    </span>
+                    <p className="text-stone-700 text-sm">{category.name}</p>
                   </div>
                 ))}
               </div>
