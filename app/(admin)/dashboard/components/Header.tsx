@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card";
 import Image from "next/image";
 
 interface HeaderProps {
@@ -7,7 +6,7 @@ interface HeaderProps {
 }
 const Header: React.FC<HeaderProps> = ({ username, profileImageUrl }) => {
   return (
-    <Card className="p-4">
+    <div className="p-4">
       <div className="space-y-2">
         <div className="overflow-hidden rounded-full size-16">
           <Image
@@ -22,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({ username, profileImageUrl }) => {
           <p className="text-2xl text-primary font-semibold">{username}</p>
         </h2>
       </div>
-    </Card>
+    </div>
   );
 };
 

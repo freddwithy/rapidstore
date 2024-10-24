@@ -33,7 +33,7 @@ const Page = async () => {
   });
 
   return (
-    <section className="w-full h-dvh p-4 space-y-6">
+    <section className="w-full h-dvh p-4 space-y-2">
       <Header username={user?.username} profileImageUrl={user?.imageUrl} />
       <StoreSection store={store} ownerId={user?.id} />
       {store && (

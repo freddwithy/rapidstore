@@ -51,40 +51,42 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
         </CardHeader>
         <CardContent>
           {products.length > 0 ? (
-            <ScrollArea className="max-h-[300px]">
-              <div className="flex flex-col gap-y-2">
-                {products.map((product) => (
-                  <div
-                    className="w-full border border-stone-300 p-2 flex rounded-md gap-x-2 items-center justify-center"
-                    key={product.id}
-                  >
-                    <div className="size-11 overflow-hidden border-stone-300 border rounded-md">
-                      {product.images.length > 0 ? (
-                        <Image
-                          src={product.images[0].url}
-                          width={44}
-                          height={44}
-                          alt="product image"
-                        />
-                      ) : (
-                        <ImageIcon className="size-11 text-stone-400" />
-                      )}
+            <div>
+              <ScrollArea className="max-h-[300px]">
+                <div className="flex flex-col gap-y-2">
+                  {products.map((product) => (
+                    <div
+                      className="w-full border border-stone-300 p-2 flex rounded-md gap-x-2 items-center justify-center"
+                      key={product.id}
+                    >
+                      <div className="size-11 overflow-hidden border-stone-300 border rounded-md">
+                        {product.images.length > 0 ? (
+                          <Image
+                            src={product.images[0].url}
+                            width={44}
+                            height={44}
+                            alt="product image"
+                          />
+                        ) : (
+                          <ImageIcon className="size-11 text-stone-400" />
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold leading-none">
+                          {product.name}
+                        </p>
+                        <span className="text-sm text-stone-500">
+                          Gs. {product.price}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold leading-none">
-                        {product.name}
-                      </p>
-                      <span className="text-sm text-stone-500">
-                        Gs. {product.price}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </ScrollArea>
               <Button className="mt-4" onClick={() => setIsOpen(true)}>
                 Añadir
               </Button>
-            </ScrollArea>
+            </div>
           ) : (
             <div className="space-y-2">
               <p className="text-stone-500">Todavía no hay productos</p>
