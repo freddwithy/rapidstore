@@ -16,23 +16,26 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Prisma } from "@prisma/client";
+import { Category, Prisma } from "@prisma/client";
 import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 import ProductForm from "../(forms)/product-form";
-type ProductsWithImages = Prisma.ProductsGetPayload<{
+type ProductsWithImagesAndCategories = Prisma.ProductsGetPayload<{
   include: {
     images: true;
+    categories: true;
   };
 }>;
 
 interface ProductsSectionProps {
-  products: ProductsWithImages[];
+  categories: Category[];
+  products: ProductsWithImagesAndCategories[];
   storeId: string | undefined;
 }
 
 const ProductsSection: React.FC<ProductsSectionProps> = ({
+  categories,
   products,
   storeId,
 }) => {
@@ -91,7 +94,7 @@ const ProductsSection: React.FC<ProductsSectionProps> = ({
               Detalla el producto que quieras añadir
             </DrawerDescription>
           </DrawerHeader>
-          <ProductForm storeId={storeId} />
+          <ProductForm storeId={storeId} categories={categories} />
           <DrawerFooter>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancelar
