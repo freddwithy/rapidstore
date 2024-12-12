@@ -34,18 +34,24 @@ model Store {
   city        String
   products    Products[]
   categories  Category[]
+  variants    Variant[]
+  colors      Color[]
+  orders      Order[]
 }
 
 model Products {
-  id          String     @id @default(uuid())
-  name        String
-  price       Int
-  discount    Int?
-  description String
-  images      Image[]
-  categories  Category[]
-  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId     String
+  id            String         @id @default(uuid())
+  name          String
+  price         Int
+  discount      Int?
+  description   String
+  images        Image[]
+  categories    Category[]
+  variants      Variant[]
+  colors        Color[]
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId       String
+  orderProducts OrderProduct[]
 }
 
 model Category {
@@ -64,7 +70,72 @@ model Image {
   productId String
 }
 
+model Variant {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  product     Products @relation(fields: [productId], references: [id])
+  productId   String
+  store       Store    @relation(fields: [storeId], references: [id])
+  storeId     String
+}
+
+model Color {
+  id        String   @id @default(uuid())
+  name      String
+  value     String
+  product   Products @relation(fields: [productId], references: [id])
+  productId String
+  store     Store    @relation(fields: [storeId], references: [id])
+  storeId   String
+}
+
+model Order {
+  id            String       @id @default(uuid())
+  customer      Customer     @relation(fields: [customerId], references: [id])
+  customerId    String
+  store         Store        @relation(fields: [storeId], references: [id])
+  storeId       String
+  total         Int
+  status        OrderStatus  @default(PENDIENTE)
+  paymentStatus OrderPayment @default(PENDIENTE)
+}
+
+model OrderProduct {
+  id        String   @id @default(uuid())
+  product   Products @relation(fields: [productId], references: [id])
+  productId String
+  qty       Int
+  total     Int
+}
+
+model Customer {
+  id         String  @id @default(uuid())
+  name       String
+  lastName   String
+  ruc        String
+  rucName    String
+  tel        Int
+  city       String
+  direction1 String
+  direction2 String
+  email      String
+  orders     Order[]
+}
+
 enum UserType {
   FREE
   PRO
+}
+
+enum OrderStatus {
+  PENDIENTE
+  ENTREGADO
+  CANCELADO
+}
+
+enum OrderPayment {
+  PENDIENTE
+  PAGO_PARCIAL
+  PAGADO
 }

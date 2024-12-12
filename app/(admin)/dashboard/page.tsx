@@ -1,11 +1,9 @@
 import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
-import { UserButton } from "@clerk/nextjs";
 import Header from "./components/Header";
-import StoreSection from "./components/(sections)/StoreSection";
-import ProductsSection from "./components/(sections)/ProductsSection";
-import CategoriesSection from "./components/(sections)/categories-section";
+import StatsCard from "@/components/stats-card";
+import { Layers2, Package } from "lucide-react";
 
 const Page = async () => {
   const user = await currentUser();
@@ -33,21 +31,26 @@ const Page = async () => {
   });
 
   return (
-    <section className="w-full h-dvh p-4 space-y-2">
-      <Header username={user?.username} profileImageUrl={user?.imageUrl} />
-      <StoreSection store={store} ownerId={user?.id} />
-      {store && (
-        <>
-          <ProductsSection
-            products={products}
-            storeId={store.id}
-            categories={categories}
-          />
-          <CategoriesSection categories={categories} storeId={store.id} />
-        </>
-      )}
-      <UserButton />
-    </section>
+    <div className="w-full flex flex-col">
+      <Header />
+      <section className="w-full p-2 grid md:grid-cols-3 gap-2 grid-rows-2">
+        <StatsCard
+          title="Productos"
+          value={products.length.toString()}
+          icon={<Package className="text-zinc-700 size-20" />}
+        />
+        <StatsCard
+          title="Categorias"
+          value={categories.length.toString()}
+          icon={<Layers2 className="text-zinc-700 size-20" />}
+        />
+        <StatsCard
+          title="Categorias"
+          value={categories.length.toString()}
+          icon={<Layers2 className="text-zinc-700 size-20" />}
+        />
+      </section>
+    </div>
   );
 };
 

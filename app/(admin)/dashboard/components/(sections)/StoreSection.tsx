@@ -30,7 +30,7 @@ const StoreSection: React.FC<StoreSectionProps> = ({ store, ownerId }) => {
 
   return (
     <section>
-      <Card className="mt-4">
+      <Card>
         <CardHeader>
           <CardTitle>Tu tienda</CardTitle>
           <CardDescription>
@@ -57,7 +57,7 @@ const StoreSection: React.FC<StoreSectionProps> = ({ store, ownerId }) => {
           {store && (
             <>
               <a
-                href={`http://localhost:3000/${store.url}`}
+                href={`/${store.url}`}
                 className="border border-blue-200 p-4 rounded-md flex items-center"
               >
                 <div className="flex-1">
@@ -70,7 +70,9 @@ const StoreSection: React.FC<StoreSectionProps> = ({ store, ownerId }) => {
                 </div>
                 <Link2 className="text-muted-foreground" />
               </a>
-              <Button className="mt-4 w-full">Editar</Button>
+              <Button onClick={() => setIsOpen(true)} className="mt-4 w-full">
+                Editar
+              </Button>
             </>
           )}
         </CardContent>
@@ -78,7 +80,9 @@ const StoreSection: React.FC<StoreSectionProps> = ({ store, ownerId }) => {
       <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerContent>
           <DrawerHeader className="text-left">
-            <DrawerTitle>Crea tu tienda</DrawerTitle>
+            <DrawerTitle>
+              {store ? "Editar tienda" : "Crear tienda"}
+            </DrawerTitle>
             <DrawerDescription>
               Detalla la información de tu tienda.
             </DrawerDescription>
