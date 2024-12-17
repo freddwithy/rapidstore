@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "RapidStore",
@@ -17,7 +18,10 @@ export default function RootLayout({
     <ClerkProvider afterSignOutUrl={"/sign-in"}>
       <html lang="es">
         <body>
-          {children}
+          <ThemeProvider attribute="class" defaultTheme="system">
+            {children}
+          </ThemeProvider>
+
           <Toaster />
         </body>
       </html>
