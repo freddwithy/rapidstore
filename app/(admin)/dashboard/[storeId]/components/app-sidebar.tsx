@@ -41,8 +41,8 @@ import {
   ChevronDown,
   ChevronsUpDown,
   CreditCard,
-  Home,
   Inbox,
+  LayoutDashboard,
   List,
   LogOut,
   Package,
@@ -57,9 +57,9 @@ import { redirect } from "next/navigation";
 
 const items = [
   {
-    title: "Inicio",
-    url: "/",
-    icon: Home,
+    title: "Tablero",
+    url: "/dashboard",
+    icon: LayoutDashboard,
   },
   {
     title: "Inbox",
@@ -74,22 +74,22 @@ const products = {
   items: [
     {
       title: "Productos",
-      url: "/products",
+      url: "products",
       icon: Package,
     },
     {
       title: "Colores",
-      url: "/products/colors",
+      url: "products/colors",
       icon: Palette,
     },
     {
       title: "Variantes",
-      url: "/products/variants",
+      url: "products/variants",
       icon: Boxes,
     },
     {
       title: "Categorías",
-      url: "/products/categories",
+      url: "products/categories",
       icon: List,
     },
   ],

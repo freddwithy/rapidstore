@@ -1,9 +1,9 @@
 import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
-import Header from "./components/Header";
 import StatsCard from "@/components/stats-card";
 import { Layers2, Package } from "lucide-react";
+import Header from "./components/header";
 
 const Page = async () => {
   const user = await currentUser();
