@@ -1,12 +1,6 @@
 import StoreCard from "@/components/stores-card";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import prismadb from "@/lib/prismadb";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
