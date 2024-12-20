@@ -1,16 +1,22 @@
+import { ModeToggle } from "@/components/mode-toggle";
 import StoreCard from "@/components/stores-card";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import prismadb from "@/lib/prismadb";
 import { UserButton } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
 
 const DashboardPage = async () => {
   const { userId } = auth();
   if (!userId) return redirect("/sign-in");
+
+  const user = await prismadb.user.findUnique({
+    where: {
+      clerk_id: userId,
+    },
+  });
 
   const stores = await prismadb.store.findMany({
     where: {
@@ -34,7 +40,10 @@ const DashboardPage = async () => {
             Desde aquí podrás gestionar tus tiendas.
           </p>
         </div>
-        <UserButton />
+        <div className="flex items-center gap-x-2">
+          <UserButton />
+          <ModeToggle />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -42,14 +51,15 @@ const DashboardPage = async () => {
           stores.map((store) => {
             return <StoreCard store={store} key={store.id} />;
           })}
-        <Card className="">
-          <CardContent className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center">
-              <Plus className="size-20 text-muted-foreground" />
-              <Button variant="secondary">Agregar tienda</Button>
-            </div>
-          </CardContent>
-        </Card>
+        {user?.user_type === "PRO" && (
+          <Link
+            href=""
+            className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40"
+          >
+            <Plus className="size-20" />
+            <p>Agregar tienda</p>
+          </Link>
+        )}
       </div>
     </div>
   );
