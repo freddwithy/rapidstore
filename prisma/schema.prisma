@@ -126,6 +126,7 @@ model Customer {
 enum UserType {
   FREE
   PRO
+  PREMIUM
 }
 
 enum OrderStatus {

@@ -9,10 +9,11 @@ import {
   CardTitle,
 } from "./ui/card";
 import { Button } from "./ui/button";
-import { Prisma } from "@prisma/client";
+import { Prisma, User } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { Badge } from "./ui/badge";
-import { ClipboardPen, Package } from "lucide-react";
+import { Package } from "lucide-react";
+import { Progress } from "./ui/progress";
 
 type StoreWithRelations = Prisma.StoreGetPayload<{
   include: {
@@ -24,10 +25,16 @@ type StoreWithRelations = Prisma.StoreGetPayload<{
 
 interface StoreCardProps {
   store: StoreWithRelations;
+  user: User | null;
 }
 
-const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
+const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
   const router = useRouter();
+
+  const maxProducts = user?.user_type === "FREE" ? 10 : 100;
+
+  const progress = (store.products.length / maxProducts) * 100;
+
   return (
     <Card key={store.id}>
       <CardHeader>
@@ -45,14 +52,16 @@ const StoreCard: React.FC<StoreCardProps> = ({ store }) => {
         </div>
       </CardHeader>
       <CardContent>
-        <p className="flex items-center">
-          <Package className="size-4 mr-2" />
-          {store.products.length} Productos.
-        </p>
-        <p className="flex items-center">
-          <ClipboardPen className="size-4 mr-2" />
-          {store.orders.length} Pedidos.
-        </p>
+        <div className="space-y-2">
+          <p className="font-semibold text-sm">Productos en tienda:</p>
+          <Progress value={progress} />
+          <div className="flex justify-between">
+            <p className="flex items-center gap-x-1 text-sm text-muted-foreground">
+              {store.products.length} <Package className="size-4" />{" "}
+            </p>
+            <p className="text-sm text-muted-foreground">{maxProducts}</p>
+          </div>
+        </div>
       </CardContent>
       <CardFooter>
         <Button onClick={() => router.push(`dashboard/${store.id}`)}>
