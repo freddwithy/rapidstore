@@ -69,7 +69,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
               <BadgeCheck />
               Cuenta
             </DropdownMenuItem>

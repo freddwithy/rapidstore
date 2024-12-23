@@ -75,9 +75,8 @@ const DashboardPage = async () => {
               Actualiza al{" "}
               <a
                 href="/dashboard/upgrade"
-                className="hover:underline text-primary group relative"
+                className="hover:underline text-primary"
               >
-                <Sparkle className="size-4 absolute opacity-0 group-hover:opacity-100 transition-all -top-4 -right-3 text-yellow-500" />
                 Plan Pro
               </a>{" "}
               para agregar más tiendas.
