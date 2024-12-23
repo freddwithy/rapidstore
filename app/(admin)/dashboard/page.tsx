@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import UserMenu from "@/components/user-menu";
 import prismadb from "@/lib/prismadb";
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { Plus, Sparkle } from "lucide-react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
