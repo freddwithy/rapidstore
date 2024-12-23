@@ -42,10 +42,10 @@ const DashboardPage = async () => {
         <div className="flex items-center gap-4">
           <UserMenu imageUrl={user?.imageUrl} userDb={userDb} />
           <div>
-            <h2 className="text-2xl font-semibold flex items-center gap-x-2">
+            <h2 className="text-lg md:text-2xl font-semibold flex items-center gap-x-2">
               Bienvenido {userDb?.username}!<Badge>{userDb?.user_type}</Badge>
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base">
               Desde aquí podrás gestionar tus tiendas.
             </p>
           </div>
