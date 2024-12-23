@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +12,6 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { BadgeCheck, LogOut, Sparkles } from "lucide-react";
 import { User } from "@prisma/client";
-import AlertCustomDialog from "./alert-dialog";
-import { useClerk } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -26,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "./ui/alert-dialog";
+import { useClerk } from "@clerk/nextjs";
 
 interface UserMenuProps {
   userDb: User | null;
@@ -33,12 +32,9 @@ interface UserMenuProps {
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
-  const [open, setOpen] = useState(false);
-  const clerk = useClerk();
   const router = useRouter();
-
-  const onSignOut = () => {
-    setOpen(false);
+  const clerk = useClerk();
+  const handleLogout = async () => {
     clerk.signOut();
     router.refresh();
   };
@@ -57,7 +53,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="mt-2">
+        <DropdownMenuContent align="end" className="mt-1">
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="group"
@@ -90,7 +86,9 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                    <AlertDialogAction>Continuar</AlertDialogAction>
+                    <AlertDialogAction onClick={handleLogout}>
+                      Continuar
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
@@ -98,13 +96,6 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <AlertCustomDialog
-        onClose={() => setOpen(!open)}
-        open={open}
-        action={() => onSignOut()}
-        title="Cerrar Sesión"
-        description="¿Estás seguro que deseas cerrar sesión?"
-      />
     </>
   );
 };
