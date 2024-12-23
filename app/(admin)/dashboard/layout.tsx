@@ -56,7 +56,7 @@ export default async function DashboardLayout({
                 </NavigationMenuItem>
                 <NavigationMenuItem>
                   <Link href="/dashboard/upgrade" legacyBehavior passHref>
-                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-sky-950 px-4 py-2 text-sm font-medium transition-colors hover:bg-sky-900 hover:text-accent-foreground focus:bg-sky-900 focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 gap-x-2">
+                    <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md dark:bg-sky-950 bg-sky-100 px-4 py-2 text-sm font-medium transition-colors dark:hover:bg-sky-900 hover:bg-sky-200 hover:text-accent-foreground focus:bg-sky-900 focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 gap-x-2">
                       Actualizar cuenta
                       <Sparkle className="size-4" />
                     </NavigationMenuLink>
