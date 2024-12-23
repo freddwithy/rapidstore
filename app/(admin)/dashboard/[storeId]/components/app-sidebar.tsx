@@ -36,7 +36,6 @@ import {
   CreditCard,
   Layers,
   LayoutDashboard,
-  List,
   LogOut,
   Package,
   Palette,

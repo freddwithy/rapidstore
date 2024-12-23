@@ -57,7 +57,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="mt-2">
+        <DropdownMenuContent align="end" className="mt-2">
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="group"

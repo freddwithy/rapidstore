@@ -36,7 +36,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
   const progress = (store.products.length / maxProducts) * 100;
 
   return (
-    <Card key={store.id}>
+    <Card key={store.id} className="bg-primary-foreground">
       <CardHeader>
         <CardTitle>{store.name}</CardTitle>
         <CardDescription>{store.description}</CardDescription>
