@@ -1,10 +1,6 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,9 +22,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Store } from "@prisma/client";
@@ -38,10 +31,10 @@ import {
   BadgeCheck,
   Bell,
   Boxes,
-  ChevronDown,
   ChevronsUpDown,
+  ClipboardCheck,
   CreditCard,
-  Inbox,
+  Layers,
   LayoutDashboard,
   List,
   LogOut,
@@ -62,9 +55,9 @@ const items = [
     icon: LayoutDashboard,
   },
   {
-    title: "Inbox",
-    url: "/inbox",
-    icon: Inbox,
+    title: "Pedidos",
+    url: "/orders",
+    icon: ClipboardCheck,
   },
 ];
 
@@ -79,18 +72,18 @@ const products = {
     },
     {
       title: "Colores",
-      url: "products/colors",
+      url: "/colors",
       icon: Palette,
     },
     {
       title: "Variantes",
-      url: "products/variants",
+      url: "/variants",
       icon: Boxes,
     },
     {
       title: "Categorías",
-      url: "products/categories",
-      icon: List,
+      url: "/categories",
+      icon: Layers,
     },
   ],
 };
@@ -145,7 +138,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 {stores.map((store, index) => (
                   <DropdownMenuItem
                     key={store.name}
-                    onClick={() => redirect(`/${store.id}/dashboard`)}
+                    onClick={() => redirect(`/dashboard/${store.id}`)}
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-sm border">
@@ -180,38 +173,23 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-              <Collapsible className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <products.icon />
-                      {products.title}
-                      <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {products.items.map((item) => (
-                        <SidebarMenuSubItem key={item.title}>
-                          <SidebarMenuSubButton asChild>
-                            <Link href={item.url}>
-                              <item.icon />
-                              <span>{item.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
+              {products.items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <Link href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
-              </Collapsible>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
