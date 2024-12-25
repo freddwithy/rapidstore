@@ -9,15 +9,18 @@ import {
 } from "@/components/ui/card";
 
 import prismadb from "@/lib/prismadb";
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import React from "react";
+import DashboardHeader from "./components/header";
 
 const DashboardPage = async () => {
   const { userId } = auth();
   if (!userId) return redirect("/sign-in");
+
+  const user = await currentUser();
 
   const userDb = await prismadb.user.findUnique({
     where: {
@@ -39,47 +42,52 @@ const DashboardPage = async () => {
   });
 
   return (
-    <div className="gap-4 flex flex-col">
-      <Card>
-        <CardHeader>
-          <CardTitle>Adminitrador de tiendas</CardTitle>
-          <CardDescription>
-            Desde aquí podrás gestionar tus tiendas.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {stores &&
-              stores.map((store) => {
-                return <StoreCard user={userDb} store={store} key={store.id} />;
-              })}
-            {userDb?.user_type === "PRO" ? (
-              <Link
-                href=""
-                className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40"
-              >
-                <Plus className="size-20" />
-                <p>Agregar tienda</p>
-              </Link>
-            ) : (
-              <div className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40">
-                <Plus className="size-20" />
-                <p className="text-center max-w-48">
-                  Actualiza al{" "}
-                  <a
-                    href="/dashboard/upgrade"
-                    className="hover:underline text-primary"
-                  >
-                    Plan Pro
-                  </a>{" "}
-                  para agregar más tiendas.
-                </p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <DashboardHeader user={user} userDb={userDb} />
+      <div className="gap-4 flex flex-col">
+        <Card>
+          <CardHeader>
+            <CardTitle>Adminitrador de tiendas</CardTitle>
+            <CardDescription>
+              Desde aquí podrás gestionar tus tiendas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {stores &&
+                stores.map((store) => {
+                  return (
+                    <StoreCard user={userDb} store={store} key={store.id} />
+                  );
+                })}
+              {userDb?.user_type === "PRO" ? (
+                <Link
+                  href=""
+                  className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40"
+                >
+                  <Plus className="size-20" />
+                  <p>Agregar tienda</p>
+                </Link>
+              ) : (
+                <div className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40">
+                  <Plus className="size-20" />
+                  <p className="text-center max-w-48">
+                    Actualiza al{" "}
+                    <a
+                      href="/dashboard/upgrade"
+                      className="hover:underline text-primary"
+                    >
+                      Plan Pro
+                    </a>{" "}
+                    para agregar más tiendas.
+                  </p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 
