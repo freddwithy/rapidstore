@@ -1,18 +1,7 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export default clerkMiddleware();
-
-export const config = {
-  matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
-    "/(api|trpc)(.*)",
-  ],
-};
-
-export async function middleware(req: NextRequest) {
+export default clerkMiddleware(async (auth, req) => {
   const url = req.nextUrl;
   let hostname = req.headers.get("host") || "";
 
@@ -20,7 +9,7 @@ export async function middleware(req: NextRequest) {
   hostname = hostname.split(":")[0];
 
   // Define allowed domains (including main domain and localhost)
-  const allowedDomains = ["tudominio.ar", "www.tudominio.ar", "localhost"];
+  const allowedDomains = ["giddi.shop", "www.giddi.shop", "localhost"];
 
   // Check if the current hostname is in the list of allowed domains
   const isMainDomain = allowedDomains.includes(hostname);
@@ -60,4 +49,13 @@ export async function middleware(req: NextRequest) {
   console.log("Middleware: Invalid subdomain or domain, returning 404");
   // If none of the above conditions are met, return a 404 response
   return new NextResponse(null, { status: 404 });
-}
+});
+
+export const config = {
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
+};
