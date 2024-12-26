@@ -10,5 +10,5 @@ export default async function DashboardLayout({
   const { userId } = auth();
   if (!userId) return;
 
-  return <div className="gap-4 flex flex-col">{children}</div>;
+  return <div className="px-4">{children}</div>;
 }

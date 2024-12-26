@@ -1,4 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
+import { Badge } from "@/components/ui/badge";
 
 import {
   NavigationMenu,
@@ -11,7 +12,7 @@ import UserMenu from "@/components/user-menu";
 import { User as ClerkUser } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
 
-import { Badge, Sparkle } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -22,7 +23,7 @@ interface DashboardProps {
 
 const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
   return (
-    <div className="flex justify-between items-center">
+    <div className="flex justify-between items-center py-4">
       <div className="flex items-center gap-4">
         <div>
           <NavigationMenu>
@@ -30,7 +31,7 @@ const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
               <NavigationMenuItem>
                 <Link href="/dashboard" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                    Dashboard
+                    Inicio
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
