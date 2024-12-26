@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "dev:proxy": "cross-env NODE_ENV=development concurrently \"next dev\" \"node ./proxy-server.js\""
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.1",
@@ -30,6 +31,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
+    "http-proxy": "^1.18.1",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.468.0",
     "next": "14.2.16",

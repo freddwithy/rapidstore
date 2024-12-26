@@ -22,6 +22,18 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/:path*",
+        destination: "/:path*",
+      },
+      {
+        source: "/",
+        destination: "/api/store",
+      }
+    ];
+  }
 };
 
 export default nextConfig;
