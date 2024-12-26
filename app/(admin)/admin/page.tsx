@@ -12,13 +12,12 @@ import prismadb from "@/lib/prismadb";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import React from "react";
 import DashboardHeader from "./components/header";
 
-const DashboardPage = async () => {
+const AdminPage = async () => {
   const { userId } = auth();
-  if (!userId) return redirect("/sign-in");
+  if (!userId) return null;
 
   const user = await currentUser();
 
@@ -91,4 +90,4 @@ const DashboardPage = async () => {
   );
 };
 
-export default DashboardPage;
+export default AdminPage;

@@ -20,6 +20,12 @@ const nextConfig = {
         port: "",
         pathname: "/**",
       },
+       {
+        protocol: "https",
+        hostname: "static.vecteezy.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {
