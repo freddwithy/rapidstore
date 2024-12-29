@@ -1,10 +1,4 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import prismadb from "@/lib/prismadb";
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
