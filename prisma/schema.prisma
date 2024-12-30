@@ -37,6 +37,7 @@ model Store {
   variants    Variant[]
   colors      Color[]
   orders      Order[]
+  customers   Customer[]
 }
 
 model Products {
@@ -59,7 +60,7 @@ model Category {
   name        String
   description String?
   products    Products[]
-  store       Store      @relation(fields: [storeId], references: [id])
+  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
 }
 
@@ -76,7 +77,7 @@ model Variant {
   description String
   product     Products @relation(fields: [productId], references: [id])
   productId   String
-  store       Store    @relation(fields: [storeId], references: [id])
+  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
 }
 
@@ -86,7 +87,7 @@ model Color {
   value     String
   product   Products @relation(fields: [productId], references: [id])
   productId String
-  store     Store    @relation(fields: [storeId], references: [id])
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId   String
 }
 
@@ -94,7 +95,7 @@ model Order {
   id            String       @id @default(uuid())
   customer      Customer     @relation(fields: [customerId], references: [id])
   customerId    String
-  store         Store        @relation(fields: [storeId], references: [id])
+  store         Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId       String
   total         Int
   status        OrderStatus  @default(PENDIENTE)
@@ -121,6 +122,8 @@ model Customer {
   direction2 String
   email      String
   orders     Order[]
+  store      Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId    String
 }
 
 enum UserType {
