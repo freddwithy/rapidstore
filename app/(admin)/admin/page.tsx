@@ -9,21 +9,21 @@ import {
 } from "@/components/ui/card";
 
 import prismadb from "@/lib/prismadb";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import DashboardHeader from "./components/header";
 
 const AdminPage = async () => {
   const { userId } = auth();
   if (!userId) return null;
 
-  const user = await currentUser();
-
   const userDb = await prismadb.user.findUnique({
     where: {
       clerk_id: userId,
+    },
+    include: {
+      store: true,
     },
   });
 
@@ -42,7 +42,6 @@ const AdminPage = async () => {
 
   return (
     <>
-      <DashboardHeader user={user} userDb={userDb} />
       <div className="gap-4 flex flex-col">
         <Card>
           <CardHeader>
@@ -59,9 +58,10 @@ const AdminPage = async () => {
                     <StoreCard user={userDb} store={store} key={store.id} />
                   );
                 })}
-              {userDb?.user_type === "PRO" ? (
+              {(userDb?.user_type === "PRO" && userDb.store.length >= 4) ||
+              userDb?.store.length === 0 ? (
                 <Link
-                  href=""
+                  href="/admin/create-store"
                   className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40"
                 >
                   <Plus className="size-20" />

@@ -27,6 +27,7 @@ model Store {
   owner       User       @relation(fields: [ownerId], references: [clerk_id], onDelete: Cascade)
   ownerId     String
   name        String     @unique
+  tenant      String?    @unique
   url         String
   description String?
   ruc         String?
