@@ -42,25 +42,68 @@ export async function GET(req: NextRequest) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, url, location, city, ownerId } = body;
+    const { name, description, url, location, city, ruc, ownerId } = body;
 
-    if (!name || !description || !url || !location || !city || !ownerId) {
+    if (!name) {
+      console.log("Missing Name Field");
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing Name Field" },
         { status: 400 }
       );
     }
 
-    const existingStore = await prismadb.store.findUnique({
+    if (!description) {
+      console.log("Missing description Field");
+      return NextResponse.json(
+        { error: "Missing description Field" },
+        { status: 400 }
+      );
+    }
+
+    if (!url) {
+      console.log("Missing url Field");
+      return NextResponse.json({ error: "Missing url Field" }, { status: 400 });
+    }
+
+    if (!location) {
+      console.log("Missing location Field");
+      return NextResponse.json(
+        { error: "Missing location Field" },
+        { status: 400 }
+      );
+    }
+
+    if (!city) {
+      console.log("Missing city Field");
+      return NextResponse.json(
+        { error: "Missing city Field" },
+        { status: 400 }
+      );
+    }
+
+    if (!ruc) {
+      console.log("Missing ruc Field");
+      return NextResponse.json({ error: "Missing ruc Field" }, { status: 400 });
+    }
+
+    if (!ownerId) {
+      console.log("Missing ownerId Field");
+      return NextResponse.json(
+        { error: "Missing ownerId Field" },
+        { status: 400 }
+      );
+    }
+
+    const existingStore = await prismadb.store.findFirst({
       where: {
-        name,
+        url,
       },
     });
 
     if (existingStore) {
       return NextResponse.json(
         { error: "Store already exists" },
-        { status: 400 }
+        { status: 402 }
       );
     }
 
@@ -71,6 +114,7 @@ export async function POST(request: Request) {
         url,
         location,
         city,
+        ruc,
         ownerId,
       },
     });

@@ -20,6 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+
 import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -47,6 +48,9 @@ const storeFormScheme = z.object({
   city: z.string().min(1, {
     message: "La ciudad es requerida",
   }),
+  ruc: z.string().min(1, {
+    message: "El número de RUC es requerido",
+  }),
 });
 
 const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
@@ -60,6 +64,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
       url: "",
       location: "",
       city: "",
+      ruc: "",
     },
   });
 
@@ -77,6 +82,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
           url: data.url,
           location: data.location,
           city: data.city,
+          ruc: data.ruc,
           ownerId,
         }),
       });
@@ -88,12 +94,13 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
 
       toast.success("Tienda creada correctamente");
       setLoading(false);
-      router.refresh();
+      router.push("/admin");
       return response;
     } catch (error) {
       setLoading(false);
       console.log(error);
       toast.error("Error al crear la tienda");
+      router.refresh();
     }
   };
   return (
@@ -183,6 +190,19 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
             />
             <FormField
               control={form.control}
+              name="ruc"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RUC</FormLabel>
+                  <FormControl>
+                    <Input placeholder="RUC/CI" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="city"
               render={({ field }) => (
                 <FormItem>
@@ -198,7 +218,12 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
         </Form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" disabled={loading} className="w-full">
+        <Button
+          type="submit"
+          onClick={form.handleSubmit(createStore)}
+          disabled={loading}
+          className="w-full md:w-auto"
+        >
           {loading && <LoaderCircle className="mr-2 size-4 animate-spin" />}
           Guardar
         </Button>
