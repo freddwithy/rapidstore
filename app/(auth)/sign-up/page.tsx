@@ -179,7 +179,7 @@ const Page = () => {
 
   return (
     <section className="flex items-center justify-center h-dvh">
-      <Card className="w-3/4 md:w-[600px]">
+      <Card className="md:w-[400px] lg:w-[500px]">
         <CardHeader>
           <CardTitle>Create una cuenta</CardTitle>
           <CardDescription>
@@ -188,7 +188,7 @@ const Page = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSignUp)} className="space-y-2">
+            <form onSubmit={form.handleSubmit(onSignUp)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="username"
@@ -304,7 +304,10 @@ const Page = () => {
           </Dialog>
           <p className="text-center text-sm">
             ¿Ya tienes una cuenta?{" "}
-            <a href="/sign-in" className="text-yellow-800 font-semibold">
+            <a
+              href="/sign-in"
+              className="text-muted-foreground hover:underline"
+            >
               Inicia sesión
             </a>{" "}
           </p>

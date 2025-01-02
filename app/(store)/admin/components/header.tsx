@@ -1,6 +1,5 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { Badge } from "@/components/ui/badge";
-
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -11,8 +10,6 @@ import {
 import UserMenu from "@/components/user-menu";
 import { User as ClerkUser } from "@clerk/nextjs/server";
 import { User } from "@prisma/client";
-
-import { Sparkle } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -29,24 +26,16 @@ const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link href="/dashboard" legacyBehavior passHref>
+                <Link href="/admin" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Inicio
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <Link href="/dashboard/profile" legacyBehavior passHref>
+                <Link href="/admin/profile" legacyBehavior passHref>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                     Perfil
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/dashboard/upgrade" legacyBehavior passHref>
-                  <NavigationMenuLink className="group inline-flex h-9 w-max items-center justify-center rounded-md dark:bg-sky-950 bg-sky-100 px-4 py-2 text-sm font-medium transition-colors dark:hover:bg-sky-900 hover:bg-sky-200 hover:text-accent-foreground focus:bg-sky-900 focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 gap-x-2">
-                    Actualizar cuenta
-                    <Sparkle className="size-4" />
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>

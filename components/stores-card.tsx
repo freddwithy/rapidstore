@@ -36,7 +36,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
   const progress = (store.products.length / maxProducts) * 100;
 
   return (
-    <Card key={store.id} className="bg-primary-foreground">
+    <Card key={store.id} className="bg-secondary">
       <CardHeader>
         <CardTitle>{store.name}</CardTitle>
         <CardDescription>{store.description}</CardDescription>
@@ -64,7 +64,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={() => router.push(`admin/${store.id}`)}>
+        <Button onClick={() => router.push(`/admin/${store.id}`)}>
           Administrar
         </Button>
       </CardFooter>
