@@ -18,9 +18,9 @@ const ProfilePage = async () => {
     <div className=" gap-4 flex flex-col">
       <Card>
         <CardHeader>
-          <CardTitle>Configura tu tienda</CardTitle>
+          <CardTitle>Configura tu cuenta</CardTitle>
           <CardDescription>
-            Desde aquí podrás gestionar tu cuenta.
+            Desde aquí podrás gestionar tu cuenta de usuario y tu perfil.
           </CardDescription>
         </CardHeader>
       </Card>
