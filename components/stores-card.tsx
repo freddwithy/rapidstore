@@ -64,7 +64,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button onClick={() => router.push(`/admin/${store.id}`)}>
+        <Button onClick={() => router.push(`/manage/${store.id}`)}>
           Administrar
         </Button>
       </CardFooter>

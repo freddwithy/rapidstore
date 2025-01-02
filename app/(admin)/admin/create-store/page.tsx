@@ -13,7 +13,16 @@ const CreatePage = async () => {
     where: {
       clerk_id: userId,
     },
+    include: {
+      store: true,
+    },
   });
+
+  if (!userDb) return redirect("/sign-in");
+
+  if (userDb?.user_type !== "PRO" && userDb?.store.length >= 1) {
+    return redirect("/admin/upgrade");
+  }
 
   return (
     <div className=" gap-4 flex flex-col">

@@ -1,4 +1,15 @@
 "use client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 import {
@@ -24,6 +35,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { useClerk } from "@clerk/nextjs";
 import { Store } from "@prisma/client";
 import {
   Archive,
@@ -45,7 +57,7 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const items = [
   {
@@ -102,6 +114,8 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
   profileImage,
 }) => {
   const { isMobile } = useSidebar();
+  const clerk = useClerk();
+  const router = useRouter();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -120,7 +134,9 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                     <span className="truncate font-semibold">
                       {store?.name}
                     </span>
-                    <span className="truncate text-xs">{userType}</span>
+                    <span className="truncate text-xs">
+                      {store?.description}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto" />
                 </SidebarMenuButton>
@@ -137,7 +153,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 {stores.map((store, index) => (
                   <DropdownMenuItem
                     key={store.name}
-                    onClick={() => redirect(`/dashboard/${store.id}`)}
+                    onClick={() => router.replace(`/manage/${store.id}`)}
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-sm border">
@@ -149,7 +165,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 ))}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => redirect("/create-store")}
+                  onClick={() => router.push("/admin/create-store")}
                   className="gap-2 p-2"
                 >
                   <div className="flex size-6 items-center justify-center rounded-md border bg-background">
@@ -262,9 +278,29 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <LogOut />
-                  Cerrar sesión
+                <DropdownMenuItem asChild>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <div className="flex gap-x-1.5 items-center cursor-default px-2.5 rounded-sm py-1.5 hover:bg-accent text-sm">
+                        <LogOut className="size-4" />
+                        Cerrar sesión
+                      </div>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cerrar sesión</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          ¿Estás seguro que deseas cerrar sesión?
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => clerk.signOut()}>
+                          Continuar
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

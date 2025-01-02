@@ -43,7 +43,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="icon" variant="ghost">
-            <Avatar className="rounded-lg size-11">
+            <Avatar className="rounded-lg size-10">
               <AvatarImage src={imageUrl} alt={userDb?.username} />
               <AvatarFallback className="rounded-lg">
                 <p className="uppercase font-semibold">
@@ -57,15 +57,15 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="group"
-              onClick={() => router.push("/dashboard/upgrade")}
+              onClick={() => router.push("/admin/upgrade")}
             >
-              <Sparkles className="group-hover:text-yellow-500 transition-colors group-hover:animate-pulse" />
+              <Sparkles />
               Actualizar a Plan Pro
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => router.push("/dashboard/profile")}>
+            <DropdownMenuItem onClick={() => router.push("/admin/profile")}>
               <BadgeCheck />
               Cuenta
             </DropdownMenuItem>
