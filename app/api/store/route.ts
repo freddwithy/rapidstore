@@ -100,6 +100,28 @@ export async function POST(request: Request) {
       },
     });
 
+    const user = await prismadb.user.findFirst({
+      where: {
+        id: ownerId,
+      },
+      include: {
+        store: true,
+      },
+    });
+
+    if (!user) {
+      console.log("User not found");
+      return NextResponse.json({ error: "User not found" }, { status: 401 });
+    }
+
+    if (user?.user_type !== "PRO" && user.store.length > 0) {
+      console.log("User is not a PRO user");
+      return NextResponse.json(
+        { error: "User is not a PRO user" },
+        { status: 401 }
+      );
+    }
+
     if (existingStore) {
       return NextResponse.json(
         { error: "Store already exists" },
@@ -115,7 +137,11 @@ export async function POST(request: Request) {
         location,
         city,
         ruc,
-        ownerId,
+        owner: {
+          connect: {
+            id: ownerId,
+          },
+        },
       },
     });
 

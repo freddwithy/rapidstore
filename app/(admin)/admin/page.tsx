@@ -29,23 +29,23 @@ const AdminPage = async () => {
 
   const stores = await prismadb.store.findMany({
     where: {
-      owner: {
-        clerk_id: userId,
-      },
+      ownerId: userDb?.id,
     },
     include: {
-      categories: true,
       products: true,
+      categories: true,
       orders: true,
     },
   });
+
+  console.log(userDb?.store);
 
   return (
     <>
       <div className="gap-4 flex flex-col">
         <Card>
           <CardHeader>
-            <CardTitle>Adminitrador de tiendas</CardTitle>
+            <CardTitle>Administrador de tiendas</CardTitle>
             <CardDescription>
               Desde aquí podrás gestionar tus tiendas.
             </CardDescription>
@@ -58,8 +58,8 @@ const AdminPage = async () => {
                     <StoreCard user={userDb} store={store} key={store.id} />
                   );
                 })}
-              {(userDb?.user_type === "PRO" && userDb.store.length >= 4) ||
-              userDb?.store.length === 0 ? (
+              {(userDb?.user_type === "PRO" && stores.length < 4) ||
+              stores.length === 0 ? (
                 <Link
                   href="/admin/create-store"
                   className="border rounded-xl flex flex-col items-center justify-center text-muted-foreground min-h-40"
