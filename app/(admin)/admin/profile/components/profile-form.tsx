@@ -10,6 +10,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormField,
@@ -36,7 +44,7 @@ const formSchema = z.object({
   username: z.string().min(1, {
     message: "El nombre de usuario es requerido",
   }),
-  profileURL: z.string(),
+  profileURL: z.string().optional(),
 });
 
 const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
@@ -138,21 +146,45 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl onChange={handleFileChange}>
-                      <div className="flex flex-col items-center">
-                        <Button variant="outline">
-                          {loadingImage ? (
-                            <LoaderCircle className="animate-spin size-4" />
-                          ) : (
-                            <Upload className="size-4" />
-                          )}{" "}
-                          Subir foto
-                        </Button>
-                        <Input
-                          className="opacity-0"
-                          type="file"
-                          accept="image/*"
-                          {...field}
-                        />
+                      <div className="flex flex-col items-center relative">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" type="button">
+                              {loadingImage ? (
+                                <LoaderCircle className="animate-spin size-4" />
+                              ) : (
+                                <Upload className="size-4" />
+                              )}{" "}
+                              Subir foto
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Subir foto de perfil</DialogTitle>
+                              <DialogDescription>
+                                Selecciona una imagen para tu perfil.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <Card className="p-4 flex flex-col items-center justify-center h-24 gap-y-1 relative">
+                              {loadingImage ? (
+                                <LoaderCircle className="animate-spin size-5" />
+                              ) : (
+                                <Upload className="size-5 text-muted-foreground" />
+                              )}
+                              <p className="text-sm text-muted-foreground">
+                                {loadingImage
+                                  ? "Cargando..."
+                                  : "Arrastra o selecciona una imagen"}
+                              </p>
+                              <Input
+                                className="opacity-0 absolute h-24"
+                                type="file"
+                                accept="image/*"
+                                {...field}
+                              />
+                            </Card>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </FormControl>
                     <FormMessage />
