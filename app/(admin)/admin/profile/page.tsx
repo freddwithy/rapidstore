@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 
 import { redirect } from "next/navigation";
 import React from "react";
@@ -10,6 +10,8 @@ const ProfilePage = async () => {
   const { userId } = auth();
   if (!userId) return redirect("/sign-in");
 
+  const user = await currentUser();
+
   const userDb = await prismadb.user.findUnique({
     where: {
       clerk_id: userId,
@@ -18,7 +20,7 @@ const ProfilePage = async () => {
 
   return (
     <div className=" gap-4 flex flex-col">
-      <ProfileForm userDb={userDb} />
+      <ProfileForm userDb={userDb} imageUrl={user?.imageUrl} />
     </div>
   );
 };
