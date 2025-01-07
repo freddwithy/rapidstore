@@ -44,7 +44,7 @@ const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
         </div>
       </div>
       <div className="flex items-center gap-x-4">
-        <div className="flex items-center gap-4">
+        <div className="items-center gap-4 md:flex hidden">
           <div className="flex flex-col justify-center text-right">
             <h2 className="leading-none text-muted-foreground text-sm">
               Bienvenido

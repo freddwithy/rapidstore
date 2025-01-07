@@ -1,4 +1,5 @@
 "use client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@prisma/client";
-import { LoaderCircle, Upload } from "lucide-react";
+import { AlertCircle, LoaderCircle, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -50,6 +51,7 @@ const formSchema = z.object({
 const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
   const [loading, setLoading] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
+  const [open, setOpen] = useState(false);
 
   const router = useRouter();
 
@@ -57,6 +59,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       username: userDb?.username || "",
+      profileURL: "",
     },
   });
 
@@ -88,16 +91,20 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
 
       if (updateProfile.ok) {
         setLoadingImage(false);
+        setOpen(false);
         router.refresh();
+        form.resetField("profileURL");
         toast.error("Imagen subida correctamente");
         return;
       } else {
         setLoadingImage(false);
+        form.resetField("profileURL");
         toast.error("Error al subir la imagen");
         return;
       }
     } else {
       setLoadingImage(false);
+      form.resetField("profileURL");
       toast.error("Error al seleccionar la imagen");
     }
   };
@@ -130,11 +137,29 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
           Desde aquí podrás gestionar tu cuenta de usuario y tu perfil.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {userDb?.user_type === "FREE" && (
+          <Alert className="bg-accent">
+            <AlertCircle className="size-4" />
+            <AlertTitle>Eres un usuario FREE</AlertTitle>
+            <AlertDescription>
+              Si quieres más funciones, compra una suscripción{" "}
+              <a
+                className="hover:underline text-muted-foreground"
+                href="/admin/upgrade"
+              >
+                aquí
+              </a>
+            </AlertDescription>
+          </Alert>
+        )}
         <Form {...form}>
-          <form className="flex gap-14" onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="w-92 flex flex-col items-center justify-center gap-y-4 mt-8">
-              <Avatar className="size-40">
+          <form
+            className="flex flex-col md:flex-row gap-14"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <div className="md:w-92 flex flex-col items-center justify-center gap-y-4 mt-8">
+              <Avatar className="size-32 md:size-40">
                 <AvatarImage src={imageUrl} alt={userDb?.username} />
                 <AvatarFallback className="bg-primary">
                   {userDb?.username.slice(0, 2)}
@@ -147,9 +172,13 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
                   <FormItem>
                     <FormControl onChange={handleFileChange}>
                       <div className="flex flex-col items-center relative">
-                        <Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" type="button">
+                            <Button
+                              variant="outline"
+                              onClick={() => setOpen(true)}
+                              type="button"
+                            >
                               {loadingImage ? (
                                 <LoaderCircle className="animate-spin size-4" />
                               ) : (
@@ -165,7 +194,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
                                 Selecciona una imagen para tu perfil.
                               </DialogDescription>
                             </DialogHeader>
-                            <Card className="p-4 flex flex-col items-center justify-center h-24 gap-y-1 relative">
+                            <Card className="p-4 flex flex-col items-center justify-center h-40 gap-y-1 relative">
                               {loadingImage ? (
                                 <LoaderCircle className="animate-spin size-5" />
                               ) : (
@@ -177,7 +206,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
                                   : "Arrastra o selecciona una imagen"}
                               </p>
                               <Input
-                                className="opacity-0 absolute h-24"
+                                className="opacity-0 absolute h-40 cursor-pointer"
                                 type="file"
                                 accept="image/*"
                                 {...field}
