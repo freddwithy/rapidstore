@@ -2,8 +2,15 @@ import React from "react";
 import { currentUser } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
 import StatsCard from "@/components/stats-card";
-import { Layers2, Package } from "lucide-react";
+import { ClipboardCheck, Layers2, Package } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const Page = async ({
   params,
@@ -45,8 +52,14 @@ const Page = async ({
   }
 
   return (
-    <div className="w-full flex flex-col">
-      <section className="w-full p-2 grid md:grid-cols-3 gap-2 grid-rows-2">
+    <div className="w-full flex flex-col p-4 gap-y-2">
+      <div className="p-4">
+        <h2 className="text-xl text-muted-foreground">Tus ingresos totales</h2>
+        <p className="text-4xl font-semibold bg-gradient-to-r from-blue-500 to-pink-500  bg-clip-text text-transparent">
+          Gs. 20.000.000
+        </p>
+      </div>
+      <section className="w-full grid md:grid-cols-3 gap-2">
         <StatsCard
           title="Productos"
           value={store?.products.length.toString()}
@@ -60,9 +73,16 @@ const Page = async ({
         <StatsCard
           title="Pedidos"
           value={store?.orders.length.toString()}
-          icon={<Layers2 className="text-zinc-700 size-20" />}
+          icon={<ClipboardCheck className="text-zinc-700 size-20" />}
         />
       </section>
+      <Card>
+        <CardHeader>
+          <CardTitle>Ultimos pedidos</CardTitle>
+          <CardDescription>Aqui puedes ver tus ultimos pedidos</CardDescription>
+        </CardHeader>
+        <CardContent></CardContent>
+      </Card>
     </div>
   );
 };

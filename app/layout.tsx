@@ -3,6 +3,12 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Poppins } from "next/font/google";
+
+const roboto = Poppins({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
   title: "RapidStore",
@@ -17,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider afterSignOutUrl={"/sign-in"}>
       <html lang="es">
-        <body>
+        <body className={roboto.className}>
           <ThemeProvider attribute="class" defaultTheme="system">
             {children}
           </ThemeProvider>

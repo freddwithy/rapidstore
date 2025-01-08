@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
-import { cn } from "@/lib/utils";
+import { cn, uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category } from "@prisma/client";
 import { CaretSortIcon } from "@radix-ui/react-icons";
@@ -115,28 +115,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
     } else {
       setLoadingImage(false);
       toast.error("Error al seleccionar la imagen");
-    }
-  };
-
-  const uploadToCloudinary = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ruqmlhen");
-    const response = await fetch(
-      "https://api.cloudinary.com/v1_1/dxyfhaiu2/image/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
-
-    if (!response.ok) {
-      toast.error("Error al subir la imagen");
-      return;
-    } else {
-      toast.success("Imagen subida correctamente");
-      const data = await response.json();
-      return data.secure_url;
     }
   };
 

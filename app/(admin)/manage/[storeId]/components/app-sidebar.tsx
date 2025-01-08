@@ -100,6 +100,11 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
         icon: Package,
       },
       {
+        title: "Categorías",
+        url: `/manage/${store?.id}/categories`,
+        icon: Layers,
+      },
+      {
         title: "Colores",
         url: `/manage/${store?.id}/colors`,
         icon: Palette,
@@ -108,11 +113,6 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
         title: "Variantes",
         url: `/manage/${store?.id}/variants`,
         icon: Boxes,
-      },
-      {
-        title: "Categorías",
-        url: `/manage/${store?.id}/categories`,
-        icon: Layers,
       },
     ],
   };
