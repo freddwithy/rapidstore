@@ -19,17 +19,20 @@ export default function PlanComparison({
   const plans = [
     {
       subscription: {
-        name: "PRIMERA TIENDA",
+        name: "GRATUITO",
         key: "FREE",
       },
       description: "Para comenzar tu negocio en línea",
       price: "0",
       features: [
-        { text: "Crear 1 tienda", available: true },
+        { text: "Una tienda online", available: true },
         { text: "Hasta 10 productos", available: true },
-        { text: "3 categorías", available: true },
-        { text: "Crear pedidos manualmente", available: false },
-        { text: "Variantes de productos", available: false },
+        { text: "Hasta 3 categorías", available: true },
+        { text: "Gestión de pedidos", available: true },
+        { text: "Gestión de inventario", available: true },
+        { text: "Hasta 3 variantes", available: false },
+        { text: "Descuentos y promociones", available: false },
+        { text: "Atención al cliente 24hs", available: false },
       ],
     },
     {
@@ -38,13 +41,16 @@ export default function PlanComparison({
         key: "PREMIUM",
       },
       description: "Para negocios en crecimiento",
-      price: "59.000",
+      price: "79.000",
       features: [
-        { text: "Crear 1 tienda", available: true },
-        { text: "Hasta 50 productos por tienda", available: true },
-        { text: "10 categorías por tienda", available: true },
-        { text: "Crear pedidos manualmente", available: true },
-        { text: "Hasta 3 variantes por producto", available: true },
+        { text: "Una tienda online", available: true },
+        { text: "Productos ilimitados", available: true },
+        { text: "Categorías ilimitadas", available: true },
+        { text: "Gestión de pedidos", available: true },
+        { text: "Gestión de inventario", available: true },
+        { text: "Variantes ilimitadas", available: true },
+        { text: "Descuentos y promociones", available: true },
+        { text: "Atención al cliente 24hs", available: true },
       ],
     },
     {
@@ -52,14 +58,17 @@ export default function PlanComparison({
         name: "ENTUSIASTA",
         key: "PRO",
       },
-      description: "Para negocios en crecimiento",
+      description: "Gestiona varias tiendas de manera eficiente",
       price: "149.000",
       features: [
-        { text: "Crear hasta 5 tiendas", available: true },
+        { text: "Hasta 5 tiendas online", available: true },
         { text: "Productos ilimitados", available: true },
         { text: "Categorías ilimitadas", available: true },
-        { text: "Crear pedidos manualmente", available: true },
+        { text: "Gestión de pedidos", available: true },
+        { text: "Gestión de inventario", available: true },
         { text: "Variantes ilimitadas", available: true },
+        { text: "Descuentos y promociones", available: true },
+        { text: "Atención al cliente 24hs", available: true },
       ],
     },
   ];
@@ -69,7 +78,7 @@ export default function PlanComparison({
       {plans.map((plan) => (
         <Card
           key={plan.subscription?.key}
-          className={`${planProp === plan.subscription?.key ? "border-primary" : ""}`}
+          className={`${planProp === plan.subscription?.key ? "border-primary" : ""} flex flex-col justify-between`}
         >
           <CardHeader>
             <CardTitle>{plan.subscription?.name}</CardTitle>

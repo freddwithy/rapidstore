@@ -141,7 +141,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
         {userDb?.user_type === "FREE" && (
           <Alert className="bg-accent">
             <AlertCircle className="size-4" />
-            <AlertTitle>Eres un usuario FREE</AlertTitle>
+            <AlertTitle>Eres un usuario GRATUITO</AlertTitle>
             <AlertDescription>
               Si quieres más funciones, compra una suscripción{" "}
               <a
@@ -161,8 +161,8 @@ const ProfileForm: React.FC<ProfileFormProps> = ({ userDb, imageUrl }) => {
             <div className="md:w-92 flex flex-col items-center justify-center gap-y-4 mt-8">
               <Avatar className="size-32 md:size-40">
                 <AvatarImage src={imageUrl} alt={userDb?.username} />
-                <AvatarFallback className="bg-primary">
-                  {userDb?.username.slice(0, 2)}
+                <AvatarFallback className="text-xl font-semibold">
+                  {userDb?.username.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <FormField
