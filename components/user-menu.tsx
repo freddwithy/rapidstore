@@ -43,7 +43,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ userDb, imageUrl }) => {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="icon" variant="ghost">
-            <Avatar className="rounded-lg size-10">
+            <Avatar className="rounded-md size-8">
               <AvatarImage src={imageUrl} alt={userDb?.username} />
               <AvatarFallback className="rounded-lg">
                 <p className="uppercase font-semibold">

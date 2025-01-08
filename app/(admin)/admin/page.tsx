@@ -73,7 +73,7 @@ const AdminPage = async () => {
                   <p className="text-center max-w-48">
                     Actualiza al{" "}
                     <a
-                      href="/dashboard/upgrade"
+                      href="/admin/upgrade"
                       className="hover:underline text-primary"
                     >
                       Plan Pro
