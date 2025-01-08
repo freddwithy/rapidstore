@@ -3,7 +3,6 @@ import { currentUser } from "@clerk/nextjs/server";
 import prismadb from "@/lib/prismadb";
 import StatsCard from "@/components/stats-card";
 import { Layers2, Package } from "lucide-react";
-import Header from "./components/header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const Page = async ({
@@ -47,7 +46,6 @@ const Page = async ({
 
   return (
     <div className="w-full flex flex-col">
-      <Header />
       <section className="w-full p-2 grid md:grid-cols-3 gap-2 grid-rows-2">
         <StatsCard
           title="Productos"

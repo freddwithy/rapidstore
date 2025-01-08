@@ -5,6 +5,7 @@ import prismadb from "@/lib/prismadb";
 import AppSidebar from "./components/app-sidebar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import Header from "./components/header";
 
 export default async function Layout({
   children,
@@ -54,7 +55,7 @@ export default async function Layout({
   });
 
   return (
-    <div>
+    <div className="flex h-dvh">
       <SidebarProvider>
         <AppSidebar
           store={store}
@@ -63,7 +64,10 @@ export default async function Layout({
           username={userDb?.username}
           profileImage={user?.imageUrl}
         />
-        {children}
+        <div className="w-full">
+          <Header />
+          {children}
+        </div>
       </SidebarProvider>
     </div>
   );
