@@ -59,46 +59,6 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const items = [
-  {
-    title: "Tablero",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Pedidos",
-    url: "/orders",
-    icon: ClipboardCheck,
-  },
-];
-
-const products = {
-  title: "Inventario",
-  icon: Archive,
-  items: [
-    {
-      title: "Productos",
-      url: "products",
-      icon: Package,
-    },
-    {
-      title: "Colores",
-      url: "/colors",
-      icon: Palette,
-    },
-    {
-      title: "Variantes",
-      url: "/variants",
-      icon: Boxes,
-    },
-    {
-      title: "Categorías",
-      url: "/categories",
-      icon: Layers,
-    },
-  ],
-};
-
 interface AppSidebarpProps {
   store: Store | undefined | null;
   stores: Store[];
@@ -116,6 +76,46 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
   const { isMobile } = useSidebar();
   const clerk = useClerk();
   const router = useRouter();
+
+  const items = [
+    {
+      title: "Tablero",
+      url: `/manage/${store?.id}`,
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Pedidos",
+      url: `/manage/${store?.id}/orders`,
+      icon: ClipboardCheck,
+    },
+  ];
+
+  const products = {
+    title: "Inventario",
+    icon: Archive,
+    items: [
+      {
+        title: "Productos",
+        url: `/manage/${store?.id}/products`,
+        icon: Package,
+      },
+      {
+        title: "Colores",
+        url: `/manage/${store?.id}/colors`,
+        icon: Palette,
+      },
+      {
+        title: "Variantes",
+        url: `/manage/${store?.id}/variants`,
+        icon: Boxes,
+      },
+      {
+        title: "Categorías",
+        url: `/manage/${store?.id}/categories`,
+        icon: Layers,
+      },
+    ],
+  };
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>

@@ -4,31 +4,46 @@ import prismadb from "@/lib/prismadb";
 import StatsCard from "@/components/stats-card";
 import { Layers2, Package } from "lucide-react";
 import Header from "./components/header";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-const Page = async () => {
+const Page = async ({
+  params,
+}: {
+  params: {
+    storeId: string;
+  };
+}) => {
+  const storeId = params.storeId;
   const user = await currentUser();
+
+  const userDb = await prismadb.user.findUnique({
+    where: {
+      clerk_id: user?.id,
+    },
+  });
 
   const store = await prismadb.store.findFirst({
     where: {
-      ownerId: user?.id,
-    },
-  });
-
-  const products = await prismadb.products.findMany({
-    where: {
-      storeId: store?.id,
+      id: storeId,
+      ownerId: userDb?.id,
     },
     include: {
-      images: true,
+      products: true,
       categories: true,
+      orders: true,
     },
   });
 
-  const categories = await prismadb.category.findMany({
-    where: {
-      storeId: store?.id,
-    },
-  });
+  if (!store) {
+    return (
+      <Alert>
+        <AlertTitle>Tienda no encontrada</AlertTitle>
+        <AlertDescription>
+          La tienda no ha sido encontrada o no pertenece al usuario.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col">
@@ -36,17 +51,17 @@ const Page = async () => {
       <section className="w-full p-2 grid md:grid-cols-3 gap-2 grid-rows-2">
         <StatsCard
           title="Productos"
-          value={products.length.toString()}
+          value={store?.products.length.toString()}
           icon={<Package className="text-zinc-700 size-20" />}
         />
         <StatsCard
           title="Categorias"
-          value={categories.length.toString()}
+          value={store?.categories.length.toString()}
           icon={<Layers2 className="text-zinc-700 size-20" />}
         />
         <StatsCard
-          title="Categorias"
-          value={categories.length.toString()}
+          title="Pedidos"
+          value={store?.orders.length.toString()}
           icon={<Layers2 className="text-zinc-700 size-20" />}
         />
       </section>
