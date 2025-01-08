@@ -42,9 +42,9 @@ export default function PlanComparison({
       features: [
         { text: "Crear 1 tienda", available: true },
         { text: "Hasta 50 productos por tienda", available: true },
-        { text: "10 categorías", available: true },
+        { text: "10 categorías por tienda", available: true },
         { text: "Crear pedidos manualmente", available: true },
-        { text: "Hasta 5 variantes por producto", available: true },
+        { text: "Hasta 3 variantes por producto", available: true },
       ],
     },
     {
@@ -53,7 +53,7 @@ export default function PlanComparison({
         key: "PRO",
       },
       description: "Para negocios en crecimiento",
-      price: "129.000",
+      price: "149.000",
       features: [
         { text: "Crear hasta 5 tiendas", available: true },
         { text: "Productos ilimitados", available: true },

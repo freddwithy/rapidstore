@@ -45,7 +45,7 @@ const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
                   <NavigationMenuLink
                     className={`${navigationMenuTriggerStyle()} dark:bg-blue-900 dark:hover:bg-blue-800 bg-blue-500 hover:bg-blue-400 text-white hover:text-white`}
                   >
-                    PRO <Rocket className="size-4 ml-1" />
+                    MEJORAR PLAN <Rocket className="size-4 ml-1" />
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
