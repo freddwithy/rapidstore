@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 
 const roboto = Poppins({
   weight: ["400", "500", "700"],
@@ -26,6 +27,7 @@ export default function RootLayout({
         <body className={roboto.className}>
           <ThemeProvider attribute="class" defaultTheme="system">
             {children}
+            <Analytics />
           </ThemeProvider>
 
           <Toaster />
