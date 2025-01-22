@@ -17,7 +17,6 @@ const OrderPage = async ({
     orderId: string;
   };
 }) => {
-  const orderId = params.orderId;
   const storeId = params.storeId;
 
   const customers = await prismadb.customer.findMany({
