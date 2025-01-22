@@ -11,6 +11,7 @@ import prismadb from "@/lib/prismadb";
 
 const CustomersPage = async ({ params }: { params: { storeId: string } }) => {
   const storeId = params.storeId;
+
   const customers = await prismadb.customer.findMany({
     where: {
       storeId,
@@ -27,9 +28,9 @@ const CustomersPage = async ({ params }: { params: { storeId: string } }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Pedidos</CardTitle>
+        <CardTitle>Clientes</CardTitle>
         <CardDescription>
-          Aquí podrás ver y editar los pedidos de tu tienda.
+          Aquí podrás ver y editar los clientes de tu tienda.
         </CardDescription>
       </CardHeader>
       <CardContent>

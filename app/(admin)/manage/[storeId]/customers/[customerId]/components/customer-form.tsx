@@ -1,67 +1,69 @@
 "use client";
-import Combobox from "@/components/ui/combobox";
+
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Customer, Products } from "@prisma/client";
-import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const CustomerFormSchema = z.object({
-  customer: z.string().min(1, {
+  name: z.string().min(1, {
     message: "El nombre es requerido",
   }),
-  status: z.string().min(1, {
-    message: "El estado es requerido",
+  lastName: z.string().min(1, {
+    message: "El apellido es requerido",
   }),
-  paymentStatus: z.string().min(1, {
-    message: "El estado de pago es requerido",
+  ruc: z.string().min(1, {
+    message: "El RUC es requerido",
   }),
-  product: z.string().min(1, {
-    message: "Los productos son requeridos",
+  rucName: z.string().min(1, {
+    message: "La Razon Social es requerida",
+  }),
+  tel: z.string().min(1, {
+    message: "El numero de telefono es requerido",
+  }),
+  city: z.string().min(1, {
+    message: "La ciudad es requerida",
+  }),
+  direction1: z.string().min(1, {
+    message: "La direccion es requerida",
+  }),
+  direction2: z.string().min(1, {
+    message: "La direccion es requerida",
+  }),
+  email: z.string().min(1, {
+    message: "El email es requerido",
   }),
 });
 
 interface CustomerFormProps {
-  products: Products[];
-  customers: Customer[];
   storeId: string;
 }
 
-const CustomerForm: React.FC<CustomerFormProps> = ({
-  customers,
-  storeId,
-  products,
-}) => {
+const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
   const form = useForm<z.infer<typeof CustomerFormSchema>>({
     resolver: zodResolver(CustomerFormSchema),
     defaultValues: {
-      customer: "",
-      status: "",
-      paymentStatus: "",
+      name: "",
+      lastName: "",
+      ruc: "",
+      rucName: "",
+      tel: "",
+      city: "",
+      direction1: "",
+      direction2: "",
+      email: "",
     },
   });
 
-  const customer = customers?.find(
-    (customer) => customer.id === form.watch("customer")
-  );
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit((data) => console.log(data))}>
@@ -69,123 +71,12 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <FormField
               control={form.control}
-              name="customer"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cliente</FormLabel>
+                  <FormLabel>Nombre</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {customers?.map((customer) => (
-                          <Combobox
-                            key={customer.id}
-                            field={field}
-                            items={
-                              customers.map((item) => {
-                                return {
-                                  name: item.rucName,
-                                  id: item.id,
-                                };
-                              }) || []
-                            }
-                            placeholder="Seleccione un cliente"
-                          />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    ¿No ve el cliente?{" "}
-                    <Link
-                      className="text-primary font-semibold hover:underline"
-                      href={`/manage/${storeId}/customers/new`}
-                    >
-                      Crea uno
-                    </Link>
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            <div>
-              <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <Input readOnly value={customer?.name || ""} />
-              </FormItem>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="product"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Productos</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {products?.map((product) => (
-                          <Combobox
-                            key={product.id}
-                            field={field}
-                            items={
-                              products.map((item) => {
-                                return {
-                                  name: item.name,
-                                  id: item.id,
-                                };
-                              }) || []
-                            }
-                            placeholder="Seleccione un producto"
-                          />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    ¿No ve el producto?{" "}
-                    <Link
-                      className="text-primary font-semibold hover:underline"
-                      href={`/manage/${storeId}/products/new`}
-                    >
-                      Crea uno
-                    </Link>
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estado</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDIENTE">Pendiente</SelectItem>
-                        <SelectItem value="ENTREGADO">Completado</SelectItem>
-                        <SelectItem value="CANCELADO">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -193,24 +84,38 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="paymentStatus"
+              name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Estado de pago</FormLabel>
+                  <FormLabel>Apellido</FormLabel>
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PAGADO">Pendiente</SelectItem>
-                        <SelectItem value="PAGO_PARCIAL">Completado</SelectItem>
-                        <SelectItem value="PENDIENTE">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="ruc"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>RUC</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="rucName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Razon Social</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
