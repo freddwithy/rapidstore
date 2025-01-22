@@ -88,6 +88,11 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
       url: `/manage/${store?.id}/orders`,
       icon: ClipboardCheck,
     },
+    {
+      title: "Clientes",
+      url: `/manage/${store?.id}/customers`,
+      icon: User,
+    },
   ];
 
   const products = {

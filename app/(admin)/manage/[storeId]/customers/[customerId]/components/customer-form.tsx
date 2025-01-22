@@ -24,7 +24,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-const OrderFormSchema = z.object({
+const CustomerFormSchema = z.object({
   customer: z.string().min(1, {
     message: "El nombre es requerido",
   }),
@@ -39,19 +39,19 @@ const OrderFormSchema = z.object({
   }),
 });
 
-interface OrderFormProps {
+interface CustomerFormProps {
   products: Products[];
   customers: Customer[];
   storeId: string;
 }
 
-const OrderForm: React.FC<OrderFormProps> = ({
+const CustomerForm: React.FC<CustomerFormProps> = ({
   customers,
   storeId,
   products,
 }) => {
-  const form = useForm<z.infer<typeof OrderFormSchema>>({
-    resolver: zodResolver(OrderFormSchema),
+  const form = useForm<z.infer<typeof CustomerFormSchema>>({
+    resolver: zodResolver(CustomerFormSchema),
     defaultValues: {
       customer: "",
       status: "",
@@ -223,4 +223,4 @@ const OrderForm: React.FC<OrderFormProps> = ({
   );
 };
 
-export default OrderForm;
+export default CustomerForm;
