@@ -7,27 +7,38 @@ import {
 } from "@/components/ui/card";
 import React from "react";
 import CustomerForm from "./components/customer-form";
+import prismadb from "@/lib/prismadb";
 
 const OrderPage = async ({
   params,
 }: {
   params: {
     storeId: string;
-    orderId: string;
+    customerId: string;
   };
 }) => {
-  const storeId = params.storeId;
+  const { storeId, customerId } = params;
+
+  const customer = await prismadb.customer.findUnique({
+    where: {
+      id: customerId,
+    },
+  });
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Crea un cliente</CardTitle>
+        <CardTitle>
+          {customer?.id ? "Editar cliente" : "Crear cliente"}
+        </CardTitle>
         <CardDescription>
-          Controla todos los datos de tus clientes
+          {customer?.id
+            ? "Aqui podrás editar los datos del cliente."
+            : "Aqui podrás crear un nuevo cliente."}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <CustomerForm storeId={storeId} />
+        <CustomerForm initialData={customer} storeId={storeId} />
       </CardContent>
     </Card>
   );

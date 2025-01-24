@@ -1,17 +1,24 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import { Customer } from "@prisma/client";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 const CustomerFormSchema = z.object({
@@ -27,7 +34,7 @@ const CustomerFormSchema = z.object({
   rucName: z.string().min(1, {
     message: "La Razon Social es requerida",
   }),
-  tel: z.string().min(1, {
+  tel: z.coerce.number().min(1, {
     message: "El numero de telefono es requerido",
   }),
   city: z.string().min(1, {
@@ -46,29 +53,91 @@ const CustomerFormSchema = z.object({
 
 interface CustomerFormProps {
   storeId: string;
+  initialData: Customer | null;
 }
 
-const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
+const CustomerForm: React.FC<CustomerFormProps> = ({
+  storeId,
+  initialData,
+}) => {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const form = useForm<z.infer<typeof CustomerFormSchema>>({
     resolver: zodResolver(CustomerFormSchema),
     defaultValues: {
-      name: "",
-      lastName: "",
-      ruc: "",
-      rucName: "",
-      tel: "",
-      city: "",
-      direction1: "",
-      direction2: "",
-      email: "",
+      name: initialData?.name || "",
+      lastName: initialData?.lastName || "",
+      ruc: initialData?.ruc || "",
+      rucName: initialData?.rucName || "",
+      tel: initialData?.tel || 0,
+      city: initialData?.city || "",
+      direction1: initialData?.direction1 || "",
+      direction2: initialData?.direction2 || "",
+      email: initialData?.email || "",
     },
   });
 
+  const onSubmit = async (data: z.infer<typeof CustomerFormSchema>) => {
+    if (!initialData) {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/customer`, {
+          method: "POST",
+          body: JSON.stringify({
+            ...data,
+            storeId,
+          }),
+        });
+
+        if (!res.ok) {
+          setLoading(false);
+          toast.error("Error al crear el cliente");
+          return;
+        } else {
+          toast.success("Cliente creado correctamente");
+          setLoading(false);
+          router.push(`/manage/${storeId}/customers`);
+          return res;
+        }
+      } catch {
+        setLoading(false);
+        toast.error("Error al crear el cliente");
+        return;
+      }
+    } else {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/customer/${initialData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            ...data,
+            storeId,
+          }),
+        });
+
+        if (!res.ok) {
+          setLoading(false);
+          toast.error("Error al actualizar el cliente");
+          return;
+        } else {
+          toast.success("Cliente actualizado correctamente");
+          setLoading(false);
+          router.push(`/manage/${storeId}/customers`);
+          return res;
+        }
+      } catch {
+        setLoading(false);
+        toast.error("Error al actualizar el cliente");
+        return;
+      }
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => console.log(data))}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="name"
@@ -79,6 +148,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>El nombre del cliente</FormDescription>
                 </FormItem>
               )}
             />
@@ -92,6 +162,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>El apellido del cliente</FormDescription>
                 </FormItem>
               )}
             />
@@ -105,6 +176,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>El RUC del cliente</FormDescription>
                 </FormItem>
               )}
             />
@@ -118,10 +190,88 @@ const CustomerForm: React.FC<CustomerFormProps> = ({}) => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
+                  <FormDescription>La Razon Social del cliente</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tel"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telefono</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>El telefono del cliente</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>El email del cliente</FormDescription>
                 </FormItem>
               )}
             />
           </div>
+          <Separator />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="city"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Ciudad</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>La ciudad del cliente</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="direction1"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Direccion 1</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>La direccion del cliente</FormDescription>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="direction2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Direccion 2</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                  <FormDescription>La direccion del cliente</FormDescription>
+                </FormItem>
+              )}
+            />
+          </div>
+          <Button disabled={loading} type="submit">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Guardar
+          </Button>
         </div>
       </form>
     </Form>
