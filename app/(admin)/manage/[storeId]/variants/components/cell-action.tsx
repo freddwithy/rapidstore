@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CustomerColumn } from "./columns";
+import { VariantColumn } from "./columns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AlertModal } from "@/components/modals/alert-modal";
 
 interface CellActionProps {
-  data: CustomerColumn;
+  data: VariantColumn;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -28,21 +28,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success("ID del cliente copiado al portapapeles.");
+    toast.success("ID de la variante copiada al portapapeles.");
   };
 
   const onDelete = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/customer/${data.id}`, {
+      const res = await fetch(`/api/variant/${data.id}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Cliente eliminado");
+        toast.success("Variante eliminada");
         router.refresh();
       }
     } catch (error) {
-      toast.error("No se pudo eliminar el cliente");
+      toast.error("No se pudo eliminar la variante");
       console.log(error);
     } finally {
       setLoading(false);
@@ -57,8 +57,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onClose={() => setOpen(false)}
         onConfirm={onDelete}
         loading={loading}
-        title="Eliminar cliente"
-        description="¿Estas seguro de querer eliminar el cliente?"
+        title="Eliminar variante"
+        description="¿Estas seguro de querer eliminar esta variante?"
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

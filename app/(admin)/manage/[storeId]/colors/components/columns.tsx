@@ -5,30 +5,23 @@ import { CellAction } from "./cell-action";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
-export type CustomerColumn = {
+export type ColorColumn = {
   id: string;
-  rucName: string;
-  ruc: string;
-  email: string;
-  tel: number;
+  name: string;
+  value: string;
 };
 
-export const columns: ColumnDef<CustomerColumn>[] = [
+export const columns: ColumnDef<ColorColumn>[] = [
   {
-    accessorKey: "rucName",
-    header: "Razon Social",
+    accessorKey: "name",
+    header: "Color",
   },
   {
-    accessorKey: "ruc",
-    header: "RUC",
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-  },
-  {
-    accessorKey: "tel",
-    header: "Telefono",
+    accessorKey: "value",
+    header: "Valor",
+    cell: ({ row }) => (
+      <div className={`bg-${row.original.value} size-6 rounded-full`} />
+    ),
   },
   {
     accessorKey: "id",

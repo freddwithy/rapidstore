@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +17,7 @@ interface AlertCustomDialogProps {
   action: () => void;
   open: boolean;
   onClose: () => void;
+  loading?: boolean;
 }
 
 const AlertCustomDialog: React.FC<AlertCustomDialogProps> = ({
@@ -24,9 +26,20 @@ const AlertCustomDialog: React.FC<AlertCustomDialogProps> = ({
   action,
   open,
   onClose,
+  loading,
 }) => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
-    <AlertDialog open={open}>
+    <AlertDialog open={open} onOpenChange={onClose}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -35,8 +48,12 @@ const AlertCustomDialog: React.FC<AlertCustomDialogProps> = ({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={onClose}>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={action}>Continuar</AlertDialogAction>
+          <AlertDialogCancel disabled={loading} onClick={onClose}>
+            Cancelar
+          </AlertDialogCancel>
+          <AlertDialogAction disabled={loading} onClick={action}>
+            Continuar
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

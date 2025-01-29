@@ -72,12 +72,12 @@ model Image {
 }
 
 model Variant {
-  id          String   @id @default(uuid())
+  id          String    @id @default(uuid())
   name        String
   description String
-  product     Products @relation(fields: [productId], references: [id])
-  productId   String
-  store       Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product     Products? @relation(fields: [productId], references: [id])
+  productId   String?
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
 }
 

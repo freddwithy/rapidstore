@@ -89,10 +89,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           }),
         });
 
-        if (res.ok) {
+        if (!res.ok) {
           setLoading(false);
+          toast.error("Error al crear el cliente");
+          return;
+        } else {
           toast.success("Cliente creado correctamente");
+          setLoading(false);
           router.push(`/manage/${storeId}/customers`);
+          return res;
         }
       } catch {
         setLoading(false);
@@ -110,10 +115,15 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           }),
         });
 
-        if (res.ok) {
+        if (!res.ok) {
           setLoading(false);
+          toast.error("Error al actualizar el cliente");
+          return;
+        } else {
           toast.success("Cliente actualizado correctamente");
+          setLoading(false);
           router.push(`/manage/${storeId}/customers`);
+          return res;
         }
       } catch {
         setLoading(false);

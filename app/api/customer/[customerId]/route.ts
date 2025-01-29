@@ -61,3 +61,33 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  request: Request,
+  params: { params: { customerId: string } }
+) {
+  try {
+    const { customerId } = params.params;
+
+    if (!customerId) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const customer = await prismadb.customer.delete({
+      where: {
+        id: customerId,
+      },
+    });
+
+    return NextResponse.json({ customer }, { status: 200 });
+  } catch (err) {
+    console.log("[CUSTOMER_DELETE]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
