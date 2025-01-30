@@ -4,9 +4,16 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, ownerId } = body;
+    const { name, description, storeId } = body;
 
-    if (!name || !description || !ownerId) {
+    if (!storeId) {
+      return NextResponse.json(
+        { error: "Missing required storeId" },
+        { status: 400 }
+      );
+    }
+
+    if (!name || !description) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -17,7 +24,7 @@ export async function POST(request: Request) {
       data: {
         name,
         description,
-        storeId: ownerId,
+        storeId,
       },
     });
 

@@ -44,9 +44,7 @@ const StoreCard: React.FC<StoreCardProps> = ({ store, user }) => {
           {store.categories.length > 0 &&
             store.categories
               .map((category) => (
-                <Badge variant="secondary" key={category.id}>
-                  {category.name}
-                </Badge>
+                <Badge key={category.id}>{category.name}</Badge>
               ))
               .slice(0, 4)}
         </div>

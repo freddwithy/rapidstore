@@ -6,22 +6,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import CustomerForm from "./components/customer-form";
 import prismadb from "@/lib/prismadb";
+import CategoryForm from "./components/category-form";
 
 const OrderPage = async ({
   params,
 }: {
   params: {
     storeId: string;
-    customerId: string;
+    categoryId: string;
   };
 }) => {
-  const { storeId, customerId } = params;
+  const { storeId, categoryId } = params;
 
-  const customer = await prismadb.customer.findUnique({
+  const category = await prismadb.category.findUnique({
     where: {
-      id: customerId,
+      id: categoryId,
     },
   });
 
@@ -29,16 +29,16 @@ const OrderPage = async ({
     <Card>
       <CardHeader>
         <CardTitle>
-          {customer?.id ? "Editar cliente" : "Crear cliente"}
+          {category?.id ? "Editar categoría" : "Crear categoría"}
         </CardTitle>
         <CardDescription>
-          {customer?.id
-            ? "Aqui podrás editar los datos del cliente."
-            : "Aqui podrás crear un nuevo cliente."}
+          {category?.id
+            ? "Aqui podrás editar los datos de la catería."
+            : "Aqui podrás crear una nueva categoría."}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <CustomerForm initialData={customer} storeId={storeId} />
+        <CategoryForm initialData={category} storeId={storeId} />
       </CardContent>
     </Card>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CategoryColumn } from "./columns";
+import { ProductColumn } from "./columns";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,7 +16,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AlertModal } from "@/components/modals/alert-modal";
 
 interface CellActionProps {
-  data: CategoryColumn;
+  data: ProductColumn;
 }
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
@@ -28,21 +28,21 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 
   const onCopy = (id: string) => {
     navigator.clipboard.writeText(id);
-    toast.success("ID de la categoría copiada al portapapeles.");
+    toast.success("ID de la variante copiada al portapapeles.");
   };
 
   const onDelete = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`/api/category/${data.id}`, {
+      const res = await fetch(`/api/product/${data.id}`, {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Categoría eliminada");
+        toast.success("Producto eliminad0");
         router.refresh();
       }
     } catch (error) {
-      toast.error("No se pudo eliminar la categoría");
+      toast.error("No se pudo eliminar el producto");
       console.log(error);
     } finally {
       setLoading(false);
@@ -57,8 +57,8 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         onClose={() => setOpen(false)}
         onConfirm={onDelete}
         loading={loading}
-        title="Eliminar categoría"
-        description="¿Estas seguro de querer eliminar esta categoría?"
+        title="Eliminar producto"
+        description="¿Estas seguro de querer eliminar este producto?"
       />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
-import { columns, CategoryColumn } from "./columns";
+import { columns, ProductColumn } from "./columns";
 import { DataTable } from "@/components/data-table";
 import {
   Tooltip,
@@ -12,8 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-interface CategoryProps {
-  data: CategoryColumn[];
+interface ProductProps {
+  data: ProductColumn[];
   disableButton?: boolean;
 }
 
@@ -24,7 +24,7 @@ const searchFilters = [
   },
 ];
 
-export const CategoryClient: React.FC<CategoryProps> = ({
+export const VariantClient: React.FC<ProductProps> = ({
   data,
   disableButton = false,
 }) => {
@@ -43,7 +43,7 @@ export const CategoryClient: React.FC<CategoryProps> = ({
               Agregar nuevo
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Agrega una nueva categoría</TooltipContent>
+          <TooltipContent>Agrega un nuevo producto</TooltipContent>
         </Tooltip>
       </div>
       <DataTable filterOptions={searchFilters} columns={columns} data={data} />

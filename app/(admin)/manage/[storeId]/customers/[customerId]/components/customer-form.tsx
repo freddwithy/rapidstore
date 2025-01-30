@@ -93,6 +93,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           setLoading(false);
           toast.success("Cliente creado correctamente");
           router.push(`/manage/${storeId}/customers`);
+          router.refresh();
         }
       } catch {
         setLoading(false);
@@ -114,6 +115,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           setLoading(false);
           toast.success("Cliente actualizado correctamente");
           router.push(`/manage/${storeId}/customers`);
+          router.refresh();
         }
       } catch {
         setLoading(false);

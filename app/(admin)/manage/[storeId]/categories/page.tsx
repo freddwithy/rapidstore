@@ -6,38 +6,37 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import { CustomerClient } from "./components/client";
+import { CategoryClient } from "./components/client";
 import prismadb from "@/lib/prismadb";
 
-const CustomersPage = async ({ params }: { params: { storeId: string } }) => {
+const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
   const storeId = params.storeId;
 
-  const customers = await prismadb.customer.findMany({
+  const categories = await prismadb.category.findMany({
     where: {
       storeId,
     },
   });
 
-  const formattedData = customers.map((customer) => ({
-    id: customer.id,
-    rucName: customer.rucName,
-    ruc: customer.ruc,
-    email: customer.email,
-    tel: customer.tel,
+  const formattedData = categories.map((category) => ({
+    id: category.id,
+    name: category.name,
+    description: category.description,
   }));
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Clientes</CardTitle>
+        <CardTitle>Categorías de productos</CardTitle>
         <CardDescription>
-          Aquí podrás ver y editar los clientes de tu tienda.
+          Aquí podrás ver y editar las categorías de los productos de tu tienda.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <CustomerClient data={formattedData} />
+        <CategoryClient data={formattedData} />
       </CardContent>
     </Card>
   );
 };
 
-export default CustomersPage;
+export default CategoriesPage;

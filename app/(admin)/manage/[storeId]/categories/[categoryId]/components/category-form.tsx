@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Variant } from "@prisma/client";
+import { Category } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -20,7 +20,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const VariantFormSchema = z.object({
+const CategoryFormSchema = z.object({
   name: z.string().min(1, {
     message: "El nombre es requerido",
   }),
@@ -29,27 +29,30 @@ const VariantFormSchema = z.object({
   }),
 });
 
-interface VariantFormProps {
+interface CategoryFormProps {
   storeId: string;
-  initialData: Variant | null;
+  initialData: Category | null;
 }
 
-const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
+const CategoryForm: React.FC<CategoryFormProps> = ({
+  storeId,
+  initialData,
+}) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const form = useForm<z.infer<typeof VariantFormSchema>>({
-    resolver: zodResolver(VariantFormSchema),
+  const form = useForm<z.infer<typeof CategoryFormSchema>>({
+    resolver: zodResolver(CategoryFormSchema),
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof VariantFormSchema>) => {
+  const onSubmit = async (data: z.infer<typeof CategoryFormSchema>) => {
     if (!initialData) {
       try {
         setLoading(true);
-        const res = await fetch(`/api/variant`, {
+        const res = await fetch(`/api/category`, {
           method: "POST",
           body: JSON.stringify({
             ...data,
@@ -59,19 +62,19 @@ const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
 
         if (res.ok) {
           setLoading(false);
-          toast.success("Variante creada correctamente");
-          router.push(`/manage/${storeId}/variants`);
+          toast.success("Categoría creada correctamente");
+          router.push(`/manage/${storeId}/categories`);
           router.refresh();
         }
       } catch {
         setLoading(false);
-        toast.error("Error al crear el variante");
+        toast.error("Error al crear la categoría");
         return;
       }
     } else {
       try {
         setLoading(true);
-        const res = await fetch(`/api/variant/${initialData.id}`, {
+        const res = await fetch(`/api/category/${initialData.id}`, {
           method: "PATCH",
           body: JSON.stringify({
             ...data,
@@ -81,13 +84,13 @@ const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
 
         if (res.ok) {
           setLoading(false);
-          toast.success("Variante actualizada correctamente");
-          router.push(`/manage/${storeId}/variants`);
+          toast.success("Categoría actualizada correctamente");
+          router.push(`/manage/${storeId}/categories`);
           router.refresh();
         }
       } catch {
         setLoading(false);
-        toast.error("Error al actualizar la variante");
+        toast.error("Error al actualizar la categoría");
         return;
       }
     }
@@ -108,7 +111,7 @@ const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>El nombre de la variante</FormDescription>
+                  <FormDescription>El nombre de la categoría</FormDescription>
                 </FormItem>
               )}
             />
@@ -123,7 +126,7 @@ const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
                   </FormControl>
                   <FormMessage />
                   <FormDescription>
-                    La descripción de la variante
+                    La descripción de la categoría
                   </FormDescription>
                 </FormItem>
               )}
@@ -139,4 +142,4 @@ const VariantForm: React.FC<VariantFormProps> = ({ storeId, initialData }) => {
   );
 };
 
-export default VariantForm;
+export default CategoryForm;

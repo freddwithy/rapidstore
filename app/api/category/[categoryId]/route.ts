@@ -3,33 +3,33 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   request: Request,
-  params: { params: { colorId: string } }
+  params: { params: { categoryId: string } }
 ) {
   try {
     const body = await request.json();
-    const { colorId } = params.params;
-    const { name, value } = body;
+    const { categoryId } = params.params;
+    const { name, description } = body;
 
-    if (!name || !value) {
+    if (!name || !description) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const color = await prismadb.color.update({
+    const category = await prismadb.category.update({
       where: {
-        id: colorId,
+        id: categoryId,
       },
       data: {
         name,
-        value,
+        description,
       },
     });
 
-    return NextResponse.json({ color }, { status: 200 });
+    return NextResponse.json({ category }, { status: 200 });
   } catch (err) {
-    console.log("[COLOR_PATCH]", err);
+    console.log("[CATEGORY_PATCH]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
@@ -39,27 +39,27 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  params: { params: { colorId: string } }
+  params: { params: { categoryId: string } }
 ) {
   try {
-    const { colorId } = params.params;
+    const { categoryId } = params.params;
 
-    if (!colorId) {
+    if (!categoryId) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const color = await prismadb.color.delete({
+    const category = await prismadb.category.delete({
       where: {
-        id: colorId,
+        id: categoryId,
       },
     });
 
-    return NextResponse.json({ color }, { status: 200 });
+    return NextResponse.json({ category }, { status: 200 });
   } catch (err) {
-    console.log("[COLOR_DELETE]", err);
+    console.log("[CATEGORY_DELETE]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

@@ -57,15 +57,11 @@ const ColorForm: React.FC<ColorFormProps> = ({ storeId, initialData }) => {
           }),
         });
 
-        if (!res.ok) {
-          setLoading(false);
-          toast.error("Error al crear el color");
-          return;
-        } else {
+        if (res.ok) {
           toast.success("Color creado correctamente");
           setLoading(false);
           router.push(`/manage/${storeId}/colors`);
-          return res;
+          router.refresh();
         }
       } catch {
         setLoading(false);
@@ -83,15 +79,11 @@ const ColorForm: React.FC<ColorFormProps> = ({ storeId, initialData }) => {
           }),
         });
 
-        if (!res.ok) {
-          setLoading(false);
-          toast.error("Error al actualizar el color");
-          return;
-        } else {
+        if (res.ok) {
           toast.success("Color actualizado correctamente");
           setLoading(false);
           router.push(`/manage/${storeId}/colors`);
-          return res;
+          router.refresh();
         }
       } catch {
         setLoading(false);

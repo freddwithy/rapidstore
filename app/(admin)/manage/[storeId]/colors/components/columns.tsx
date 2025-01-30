@@ -20,7 +20,13 @@ export const columns: ColumnDef<ColorColumn>[] = [
     accessorKey: "value",
     header: "Valor",
     cell: ({ row }) => (
-      <div className={`bg-${row.original.value} size-6 rounded-full`} />
+      <div className="flex items-center gap-x-2">
+        <div
+          className={`size-6 rounded-lg p-2 items-center flex`}
+          style={{ backgroundColor: row.original.value }}
+        />
+        <p>{row.original.value}</p>
+      </div>
     ),
   },
   {

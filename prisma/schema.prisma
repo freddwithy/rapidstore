@@ -72,38 +72,39 @@ model Image {
 }
 
 model Variant {
-  id          String    @id @default(uuid())
+  id          String     @id @default(uuid())
   name        String
   description String
-  product     Products? @relation(fields: [productId], references: [id])
-  productId   String?
-  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products    Products[]
+  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
 }
 
 model Color {
-  id        String   @id @default(uuid())
-  name      String
-  value     String
-  product   Products @relation(fields: [productId], references: [id])
-  productId String
-  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId   String
+  id       String     @id @default(uuid())
+  name     String
+  value    String
+  products Products[]
+  store    Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId  String
 }
 
 model Order {
-  id            String       @id @default(uuid())
-  customer      Customer     @relation(fields: [customerId], references: [id])
+  id            String         @id @default(uuid())
+  customer      Customer       @relation(fields: [customerId], references: [id])
   customerId    String
-  store         Store        @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId       String
   total         Int
-  status        OrderStatus  @default(PENDIENTE)
-  paymentStatus OrderPayment @default(PENDIENTE)
+  orderProducts OrderProduct[]
+  status        OrderStatus    @default(PENDIENTE)
+  paymentStatus OrderPayment   @default(PENDIENTE)
 }
 
 model OrderProduct {
   id        String   @id @default(uuid())
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
   product   Products @relation(fields: [productId], references: [id])
   productId String
   qty       Int
