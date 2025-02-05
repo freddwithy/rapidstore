@@ -20,6 +20,9 @@ model User {
   username  String
   user_type UserType @default(FREE)
   store     Store[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Store {
@@ -32,61 +35,95 @@ model Store {
   ruc         String?
   location    String
   city        String
-  products    Products[]
+  products    Product[]
   categories  Category[]
   variants    Variant[]
   colors      Color[]
   orders      Order[]
   customers   Customer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-model Products {
-  id            String         @id @default(uuid())
-  name          String
-  price         Int
-  discount      Int?
-  description   String
-  images        Image[]
-  categories    Category[]
-  variants      Variant[]
-  colors        Color[]
-  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId       String
-  orderProducts OrderProduct[]
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  isArchived  Boolean          @default(false)
+  isFeatured  Boolean          @default(false)
+  description String
+  category    Category         @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  variants    VariantProduct[]
+  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId     String
+  images      Image[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Category {
-  id          String     @id @default(uuid())
+  id          String    @id @default(cuid())
   name        String
   description String?
-  products    Products[]
-  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products    Product[]
+  store       Store     @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Image {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   url       String
-  product   Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
 
 model Variant {
-  id          String     @id @default(uuid())
+  id          String           @id @default(cuid())
   name        String
   description String
-  products    Products[]
-  store       Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products    VariantProduct[]
+  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Color {
-  id       String     @id @default(uuid())
+  id       String           @id @default(cuid())
   name     String
   value    String
-  products Products[]
-  store    Store      @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  products VariantProduct[]
+  store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VariantProduct {
+  id           String         @id @default(cuid())
+  sku          String         @unique
+  price        Int
+  salePrice    Int
+  stock        Int            @default(0)
+  product      Product        @relation(fields: [productId], references: [id])
+  productId    String
+  color        Color          @relation(fields: [colorId], references: [id])
+  colorId      String
+  variant      Variant        @relation(fields: [variantId], references: [id])
+  variantId    String
+  OrderProduct OrderProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, colorId, variantId])
 }
 
 model Order {
@@ -99,16 +136,24 @@ model Order {
   orderProducts OrderProduct[]
   status        OrderStatus    @default(PENDIENTE)
   paymentStatus OrderPayment   @default(PENDIENTE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderProduct {
-  id        String   @id @default(uuid())
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
-  product   Products @relation(fields: [productId], references: [id])
+  product   VariantProduct @relation(fields: [productId], references: [id])
   productId String
   qty       Int
   total     Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, orderId])
 }
 
 model Customer {
@@ -125,6 +170,9 @@ model Customer {
   orders     Order[]
   store      Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId    String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum UserType {

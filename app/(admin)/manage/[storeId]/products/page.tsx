@@ -6,15 +6,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import { VariantClient } from "./components/client";
+import { ProductClient } from "./components/client";
 import prismadb from "@/lib/prismadb";
 
 const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
   const storeId = params.storeId;
 
-  const products = await prismadb.products.findMany({
+  const products = await prismadb.product.findMany({
     where: {
       storeId,
+    },
+    include: {
+      category: true,
+      variants: {
+        include: {
+          color: true,
+          variant: true,
+          images: true,
+        },
+      },
     },
   });
 
@@ -22,7 +32,11 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
     id: product.id,
     name: product.name,
     description: product.description,
-    price: product.price,
+    category: product.category.name || "Sin categoría",
+    isArchived: product.isArchived,
+    isFeatured: product.isFeatured,
+    image: product.variants[0].images[0].url || "",
+    variants: product.variants.length || 0,
   }));
   return (
     <Card>
@@ -33,7 +47,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <VariantClient data={formattedData} />
+        <ProductClient data={formattedData} />
       </CardContent>
     </Card>
   );

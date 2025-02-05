@@ -37,14 +37,17 @@ const OrderPage = async ({
     },
   });
 
-  const product = await prismadb.products.findUnique({
+  const product = await prismadb.product.findUnique({
     where: {
       id: productId,
     },
     include: {
-      colors: true,
-      variants: true,
-      categories: true,
+      variants: {
+        include: {
+          color: true,
+          variant: true,
+        },
+      },
     },
   });
 

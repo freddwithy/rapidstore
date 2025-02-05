@@ -1,4 +1,5 @@
 "use client";
+import { DataTable } from "@/components/data-table";
 import Combobox from "@/components/ui/combobox";
 import {
   Form,
@@ -10,19 +11,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Customer, Products } from "@prisma/client";
+import { Color, Customer, Prisma, Variant } from "@prisma/client";
 import Link from "next/link";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { columns } from "./columns";
+import useItem from "@/hooks/use-item";
 
 const OrderFormSchema = z.object({
   customer: z.string().min(1, {
@@ -39,8 +36,17 @@ const OrderFormSchema = z.object({
   }),
 });
 
+type ProductWithVariants = Prisma.ProductsGetPayload<{
+  include: {
+    variants: true;
+    colors: true;
+  };
+}>;
+
 interface OrderFormProps {
-  products: Products[];
+  products: ProductWithVariants[];
+  variants: Variant[];
+  colors: Color[];
   customers: Customer[];
   storeId: string;
 }
@@ -49,7 +55,11 @@ const OrderForm: React.FC<OrderFormProps> = ({
   customers,
   storeId,
   products,
+  variants,
+  colors,
 }) => {
+  const { addItems, removeAll, items } = useItem();
+
   const form = useForm<z.infer<typeof OrderFormSchema>>({
     resolver: zodResolver(OrderFormSchema),
     defaultValues: {
@@ -59,164 +69,94 @@ const OrderForm: React.FC<OrderFormProps> = ({
     },
   });
 
+  const searchFilters = [
+    {
+      title: "Producto",
+      filter: "name",
+    },
+    {
+      title: "Variante",
+      filter: "variant",
+    },
+    {
+      title: "Color",
+      filter: "color",
+    },
+  ];
+
   const customer = customers?.find(
     (customer) => customer.id === form.watch("customer")
   );
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => console.log(data))}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <FormField
-              control={form.control}
-              name="customer"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cliente</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {customers?.map((customer) => (
-                          <Combobox
-                            key={customer.id}
-                            field={field}
-                            items={
-                              customers.map((item) => {
-                                return {
-                                  name: item.rucName,
-                                  id: item.id,
-                                };
-                              }) || []
-                            }
-                            placeholder="Seleccione un cliente"
-                          />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    ¿No ve el cliente?{" "}
-                    <Link
-                      className="text-primary font-semibold hover:underline"
-                      href={`/manage/${storeId}/customers/new`}
-                    >
-                      Crea uno
-                    </Link>
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            <div>
+      <form
+        onSubmit={form.handleSubmit((data) => console.log(data))}
+        className="space-y-4"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <FormField
+            control={form.control}
+            name="customer"
+            render={({ field }) => (
               <FormItem>
-                <FormLabel>Nombre</FormLabel>
-                <Input readOnly value={customer?.name || ""} />
+                <FormLabel>Cliente</FormLabel>
+                <FormControl>
+                  <Combobox
+                    field={field}
+                    placeholder="Busca un cliente"
+                    items={customers.map((item) => {
+                      return {
+                        id: item.id,
+                        name: item.rucName,
+                      };
+                    })}
+                  />
+                </FormControl>
+                <FormMessage />
+                <FormDescription>
+                  ¿No ve el cliente?{" "}
+                  <Link
+                    className="text-primary font-semibold hover:underline"
+                    href={`/manage/${storeId}/customers/new`}
+                  >
+                    Crea uno
+                  </Link>
+                </FormDescription>
               </FormItem>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="product"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Productos</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {products?.map((product) => (
-                          <Combobox
-                            key={product.id}
-                            field={field}
-                            items={
-                              products.map((item) => {
-                                return {
-                                  name: item.name,
-                                  id: item.id,
-                                };
-                              }) || []
-                            }
-                            placeholder="Seleccione un producto"
-                          />
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>
-                    ¿No ve el producto?{" "}
-                    <Link
-                      className="text-primary font-semibold hover:underline"
-                      href={`/manage/${storeId}/products/new`}
-                    >
-                      Crea uno
-                    </Link>
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estado</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PENDIENTE">Pendiente</SelectItem>
-                        <SelectItem value="ENTREGADO">Completado</SelectItem>
-                        <SelectItem value="CANCELADO">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="paymentStatus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Estado de pago</FormLabel>
-                  <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="PAGADO">Pendiente</SelectItem>
-                        <SelectItem value="PAGO_PARCIAL">Completado</SelectItem>
-                        <SelectItem value="PENDIENTE">Cancelado</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+            )}
+          />
+          <FormItem>
+            <FormLabel>Nombre</FormLabel>
+            <Input readOnly value={customer?.name || ""} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>Apellido</FormLabel>
+            <Input readOnly value={customer?.lastName || ""} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>Telefono</FormLabel>
+            <Input readOnly value={customer?.tel || ""} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>Correo</FormLabel>
+            <Input readOnly value={customer?.email || ""} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>RUC</FormLabel>
+            <Input readOnly value={customer?.ruc || ""} />
+          </FormItem>
+          <FormItem>
+            <FormLabel>Ciudad</FormLabel>
+            <Input readOnly value={customer?.city || ""} />
+          </FormItem>
+        </div>
+        <Separator />
+        <div>
+          <DataTable
+            filterOptions={searchFilters}
+            columns={columns}
+            data={formattedOrderProducts}
+          />
         </div>
       </form>
     </Form>

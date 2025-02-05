@@ -22,9 +22,21 @@ const searchFilters = [
     title: "Nombre",
     filter: "name",
   },
+  {
+    title: "Categoria",
+    filter: "category",
+  },
+  {
+    title: "Colores",
+    filter: "colors",
+  },
+  {
+    title: "Variantes",
+    filter: "variants",
+  },
 ];
 
-export const VariantClient: React.FC<ProductProps> = ({
+export const ProductClient: React.FC<ProductProps> = ({
   data,
   disableButton = false,
 }) => {

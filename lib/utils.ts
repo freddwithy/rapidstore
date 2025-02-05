@@ -6,6 +6,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const formatter = new Intl.NumberFormat("es-PY", {
+  style: "currency",
+  currency: "PYG",
+});
+
+export const phoneFormatter = new Intl.NumberFormat("es-PY", {
+  style: "decimal",
+  maximumFractionDigits: 0,
+  minimumFractionDigits: 0,
+  useGrouping: false,
+});
+
 export const uploadToCloudinary = async (file: File) => {
   const formData = new FormData();
   formData.append("file", file);

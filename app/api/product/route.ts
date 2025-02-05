@@ -1,11 +1,36 @@
 import prismadb from "@/lib/prismadb";
+import { VariantProduct } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, description, price, discount, storeId, images, categoryId } =
-      body;
+    const {
+      name,
+      description,
+      isArchived,
+      isFeatured,
+      storeId,
+      images,
+      category,
+      variants,
+    } = body;
+
+    if (!category) {
+      console.log("Missing category");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!variants) {
+      console.log("Missing variants");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     if (!name) {
       console.log("Missing name");
@@ -23,14 +48,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!price) {
-      console.log("Missing price");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     if (!storeId) {
       console.log("Missing storeId");
       return NextResponse.json(
@@ -39,28 +56,43 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!categoryId) {
-      console.log("Missing categoryId");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const product = await prismadb.products.create({
+    const product = await prismadb.product.create({
       data: {
         name,
         description,
-        price,
-        discount,
-        storeId,
+        isArchived,
+        isFeatured,
+        store: {
+          connect: {
+            id: storeId,
+          },
+        },
         images: {
           create: images.map((image: string) => ({
             url: image,
           })),
         },
-        categories: {
-          connect: [{ id: categoryId }],
+        category: {
+          connect: {
+            id: category,
+          },
+        },
+        variants: {
+          create: variants.map((variant: VariantProduct) => ({
+            color: {
+              connect: {
+                id: variant,
+              },
+            },
+            variant: {
+              connect: {
+                id: variant,
+              },
+            },
+            price: variant.price,
+            salePrice: variant.salePrice,
+            stock: variant.stock,
+          })),
         },
       },
     });

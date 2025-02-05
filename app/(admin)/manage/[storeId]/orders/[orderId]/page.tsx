@@ -29,6 +29,10 @@ const OrderPage = async ({
     where: {
       storeId,
     },
+    include: {
+      variants: true,
+      colors: true,
+    },
   });
 
   return (
@@ -37,13 +41,7 @@ const OrderPage = async ({
         <CardTitle>Crea un pedido</CardTitle>
         <CardDescription>Crea un pedido</CardDescription>
       </CardHeader>
-      <CardContent>
-        <OrderForm
-          products={products}
-          storeId={storeId}
-          customers={customers}
-        />
-      </CardContent>
+      <CardContent></CardContent>
     </Card>
   );
 };

@@ -3,6 +3,8 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 interface OrderProduct {
   productId: string;
+  variantId: string;
+  colorId: string;
   quantity: number;
 }
 

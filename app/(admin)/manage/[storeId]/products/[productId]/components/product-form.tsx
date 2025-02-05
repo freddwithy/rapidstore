@@ -1,7 +1,6 @@
 "use client";
-
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -12,6 +11,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import Obligatory from "@/components/ui/obligatory";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -21,13 +21,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { uploadToCloudinary } from "@/lib/utils";
+import { formatter, uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category, Color, Prisma, Variant } from "@prisma/client";
-import { Loader2, LoaderCircle, Plus, Upload, X } from "lucide-react";
+import {
+  ImageOff,
+  Loader2,
+  LoaderCircle,
+  Trash,
+  Upload,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -39,43 +46,58 @@ const ProductFormSchema = z.object({
   description: z.string().min(1, {
     message: "La descripción es requerida",
   }),
-  price: z.coerce.number().min(1, {
-    message: "El precio es requerido",
-  }),
-  discount: z.coerce
-    .number()
-    .max(100, {
-      message: "El descuento no puede ser mayor a 100%",
-    })
-    .optional(),
   images: z.any(),
-  categories: z
-    .any()
-    .refine((value) => value.length > 0, {
-      message: "Debe seleccionar al menos una categoría",
+  category: z.string().min(1, {
+    message: "La categoría es requerida",
+  }),
+  color: z.string().min(1, {
+    message: "El color es requerido",
+  }),
+  variant: z.string().min(1, {
+    message: "La variante es requerida",
+  }),
+  price: z.coerce
+    .number()
+    .min(1, {
+      message: "El precio es requerido",
     })
-    .optional(),
-  colors: z
-    .any()
-    .refine((value) => value.length > 0, {
-      message: "Debe seleccionar al menos un color",
+    .max(99999999, {
+      message: "El precio no puede ser mayor a 99.999.999 Gs.",
+    }),
+  salePrice: z.number().max(99999999, {
+    message: "El precio de venta no puede ser mayor a 99.999.999 Gs.",
+  }),
+  stock: z.coerce
+    .number()
+    .min(1, {
+      message: "El stock es requerido",
     })
-    .optional(),
-  variants: z
-    .any()
-    .refine((value) => value.length > 0, {
-      message: "Debe seleccionar al menos una variante",
-    })
-    .optional(),
+    .max(10000, {
+      message: "El stock no puede ser mayor a 10.000 unidades.",
+    }),
+  isArchived: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
 });
 
-type ProductsWithVariants = Prisma.ProductsGetPayload<{
+type ProductsWithVariants = Prisma.ProductGetPayload<{
   include: {
-    variants: true;
-    colors: true;
-    categories: true;
+    variants: {
+      include: {
+        color: true;
+        variant: true;
+      };
+    };
+    images: true;
   };
 }>;
+
+type Option = {
+  colorId: string;
+  variantId: string;
+  price: number;
+  salePrice: number;
+  stock: number;
+};
 
 interface ProductFormProps {
   storeId: string;
@@ -93,35 +115,24 @@ const ProductForm: React.FC<ProductFormProps> = ({
   variants,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [variantsSelected, setVariantsSelected] = useState<string[]>([]);
-  const [colorsSelected, setColorsSelected] = useState<string[]>([]);
-  const [categoriesSelected, setCategoriesSelected] = useState<string[]>([]);
+  const [options, setOptions] = useState<Option[]>([]);
   const [loadingImage, setLoadingImage] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
-  const onAddColor = (color: string) => {
-    if (colorsSelected.includes(color)) return;
-    setColorsSelected((current) => [...current, color]);
-  };
-  const onRemoveColor = (color: string) => {
-    setColorsSelected((current) => current.filter((c) => c !== color));
-  };
-
-  const onAddCategory = (category: string) => {
-    if (categoriesSelected.includes(category)) return;
-    setCategoriesSelected((current) => [...current, category]);
-  };
-  const onRemoveCategory = (category: string) => {
-    setCategoriesSelected((current) => current.filter((c) => c !== category));
-  };
-
-  const onAddVariant = (variant: string) => {
-    if (variantsSelected.includes(variant)) return;
-    setVariantsSelected((current) => [...current, variant]);
-  };
-  const onRemoveVariant = (variant: string) => {
-    setVariantsSelected((current) => current.filter((c) => c !== variant));
-  };
+  useEffect(() => {
+    if (initialData) {
+      setImages(initialData.images.map((i) => i.url) || []);
+      setOptions(
+        initialData.variants.map((v) => ({
+          colorId: v.color.id,
+          variantId: v.variant.id,
+          price: v.price,
+          salePrice: v.salePrice,
+          stock: v.stock,
+        }))
+      );
+    }
+  }, [initialData]);
 
   const router = useRouter();
   const form = useForm<z.infer<typeof ProductFormSchema>>({
@@ -129,9 +140,50 @@ const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
-      price: initialData?.price || 0,
+      isArchived: initialData?.isArchived || false,
+      isFeatured: initialData?.isFeatured || false,
+      images: initialData?.images.map((i) => i.url) || [],
+      category: initialData?.categoryId || "",
+      color: initialData?.variants[0].color.id || "",
+      variant: initialData?.variants[0].variant.id || "",
+      price: initialData?.variants[0].price || 0,
+      salePrice: initialData?.variants[0].salePrice || 0,
+      stock: initialData?.variants[0].stock || 0,
     },
   });
+
+  const handleAddOption = () => {
+    //filtrar y no agregar combinaciones de colorId y variantId que ya existan al estado
+    const colorId = form.getValues("color");
+    const variantId = form.getValues("variant");
+    const price = form.getValues("price");
+    const salePrice = form.getValues("salePrice");
+    const stock = form.getValues("stock");
+
+    if (
+      options.some((o) => o.colorId === colorId && o.variantId === variantId)
+    ) {
+      toast.error("La combinación de color y variante ya existe");
+      return;
+    }
+
+    setOptions((current) => [
+      ...current,
+      {
+        colorId,
+        variantId,
+        price,
+        salePrice,
+        stock,
+      },
+    ]);
+  };
+
+  const handleRemoveOption = (id: string) => {
+    setOptions((current) =>
+      current.filter((o) => o.colorId + o.variantId !== id)
+    );
+  };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {
@@ -174,6 +226,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
           method: "POST",
           body: JSON.stringify({
             ...data,
+            images,
+            variants: options,
             storeId,
           }),
         });
@@ -196,6 +250,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
           method: "PATCH",
           body: JSON.stringify({
             ...data,
+            images,
+            variants: options,
             storeId,
           }),
         });
@@ -224,12 +280,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nombre</FormLabel>
+                  <FormLabel>
+                    Nombre <Obligatory />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                   <FormMessage />
-                  <FormDescription>El nombre de la producte</FormDescription>
+                  <FormDescription>El nombre del producto</FormDescription>
                 </FormItem>
               )}
             />
@@ -238,7 +296,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Descripción</FormLabel>
+                  <FormLabel>
+                    Descripción <Obligatory />
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -249,33 +309,78 @@ const ProductForm: React.FC<ProductFormProps> = ({
             />
             <FormField
               control={form.control}
-              name="price"
+              name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Precio</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
+                  <FormLabel>
+                    Categoria <Obligatory />
+                  </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="min-w-[200px]">
+                        <SelectValue defaultValue={field.value} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categories.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
-                  <FormDescription>El precio del producto</FormDescription>
+                  <FormDescription>Las categoria del producto</FormDescription>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="isArchived"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Archivar</FormLabel>
+                    <FormDescription>
+                      Archiva el producto, no será visible en la tienda.
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="discount"
+              name="isFeatured"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descuento</FormLabel>
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
                   <FormControl>
-                    <Input {...field} />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
-                  <FormMessage />
-                  <FormDescription>El descuento del producto</FormDescription>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Destacado</FormLabel>
+                    <FormDescription>
+                      Marca el producto destacado, aparecer&aacute; en la lista
+                      de productos destacados.
+                    </FormDescription>
+                  </div>
                 </FormItem>
               )}
             />
           </div>
+
           <Separator />
           <div className="flex gap-x-4">
             <FormField
@@ -288,7 +393,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     {!loadingImage ? (
                       <div className="h-40 flex items-center justify-center border rounded-lg relative">
                         <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-40">
-                          <Upload className="text-zinc-600 darK:text-zinc-400 size-6" />
+                          <Upload className="text-zinc-600 dark:text-zinc-400 size-6" />
                           <p className="text-zinc-600 dark:text-zinc-400 text-sm">
                             Selecciona una imagen
                           </p>
@@ -348,6 +453,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   ))
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full w-full">
+                    <ImageOff className="size-6 text-zinc-600 dark:text-zinc-400" />
                     <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
                       No hay imagenes
                     </p>
@@ -357,80 +463,105 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
           </div>
+          <Separator />
+          <div className="flex flex-col gap-y-4">
+            <FormLabel>Agregar opciones</FormLabel>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+              {options.length > 0 &&
+                options.map((option) => (
+                  <div
+                    key={option.colorId + option.colorId}
+                    className="border rounded-lg p-4 flex-col gap-y-1 hover:bg-primary-foreground hover:text-primary transition-colors relative"
+                  >
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className=" absolute top-2 right-2"
+                      onClick={() =>
+                        handleRemoveOption(option.colorId + option.variantId)
+                      }
+                    >
+                      <Trash className="text-zinc-600 dark:text-zinc-400 size-4" />
+                    </Button>
 
-          <div className="space-y-4">
-            <div className="flex items-center gap-x-2">
+                    <p className="">
+                      {colors.find((c) => c.id === option.colorId)?.name}
+                      {" - "}
+                      {variants.find((v) => v.id === option.variantId)?.name}
+                    </p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      {formatter.format(option.price)}
+                    </p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                      {option.stock} un
+                    </p>
+                  </div>
+                ))}
+            </div>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
               <FormField
                 control={form.control}
-                name="categories"
+                name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Categorias</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="min-w-[200px]">
-                          <SelectValue defaultValue={field.value} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.id}>
-                            {category.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>
+                      Precio <Obligatory />
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="2.000.000" {...field} />
+                    </FormControl>
                     <FormMessage />
                     <FormDescription>
-                      Las categorias del producto
+                      El precio no puede ser mayor a 99.999.999 Gs.
                     </FormDescription>
                   </FormItem>
                 )}
               />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => onAddCategory(form.getValues("categories"))}
-                className="mt-2"
-              >
-                <Plus className="size-4" />
-                Agregar categoria
-              </Button>
-            </div>
-            <div className="flex items-center gap-x-2">
-              {categoriesSelected.length > 0 &&
-                categories
-                  //filtrar los colores de la tienda que coincidan con los colores seleccionados en el usestate
-                  ?.filter((category) =>
-                    categoriesSelected.includes(category.id)
-                  )
-                  .map((category) => (
-                    <div key={category.id} className="flex gap-2 items-center">
-                      <Badge>{category.name}</Badge>
-                      <Button
-                        type="button"
-                        onClick={() => onRemoveCategory(category.id)}
-                        variant="ghost"
-                        className="p-1 size-4"
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-            </div>
-          </div>
-          <Separator />
-          <div className="space-y-4">
-            <div className="flex items-center gap-x-2">
               <FormField
                 control={form.control}
-                name="colors"
+                name="salePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Colores</FormLabel>
+                    <FormLabel>
+                      Precio de promoción <Obligatory />
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="1.500.000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    <FormDescription>
+                      El precio no puede ser mayor al precio principal
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="stock"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Stock <Obligatory />
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="10" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    <FormDescription>
+                      El stock no puede ser mayor a 999
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="color"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Color <Obligatory />
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -449,49 +580,20 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                    <FormDescription>Los colores del producto</FormDescription>
+                    <FormDescription>
+                      Selecciona el color del producto
+                    </FormDescription>
                   </FormItem>
                 )}
               />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => onAddColor(form.getValues("colors"))}
-                className="mt-2"
-              >
-                <Plus className="size-4" />
-                Agregar color
-              </Button>
-            </div>
-            <div className="flex items-center gap-x-2">
-              {colorsSelected.length > 0 &&
-                colors
-                  //filtrar los colores de la tienda que coincidan con los colores seleccionados en el usestate
-                  ?.filter((color) => colorsSelected.includes(color.id))
-                  .map((color) => (
-                    <div key={color.id} className="flex gap-2 items-center">
-                      <Badge>{color.name}</Badge>
-                      <Button
-                        type="button"
-                        onClick={() => onRemoveColor(color.id)}
-                        variant="ghost"
-                        className="p-1 size-4"
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
-            </div>
-          </div>
-          <Separator />
-          <div className="space-y-4">
-            <div className="flex items-center gap-x-2">
               <FormField
                 control={form.control}
-                name="variants"
+                name="variant"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Variantes</FormLabel>
+                    <FormLabel>
+                      Variante/Tamaño <Obligatory />
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -511,7 +613,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </Select>
                     <FormMessage />
                     <FormDescription>
-                      Las variantes del producto
+                      Selecciona la variante del producto
                     </FormDescription>
                   </FormItem>
                 )}
@@ -519,31 +621,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => onAddVariant(form.getValues("variants"))}
-                className="mt-2"
+                disabled={loading}
+                onClick={handleAddOption}
+                className="mt-8"
               >
-                <Plus className="size-4" />
-                Agregar variante
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Agregar opción
               </Button>
-            </div>
-            <div className="flex items-center gap-x-2">
-              {variantsSelected.length > 0 &&
-                variants
-                  //filtrar los colores de la tienda que coincidan con los colores seleccionados en el usestate
-                  ?.filter((variant) => variantsSelected.includes(variant.id))
-                  .map((variant) => (
-                    <div key={variant.id} className="flex gap-2 items-center">
-                      <Badge>{variant.name}</Badge>
-                      <Button
-                        type="button"
-                        onClick={() => onRemoveVariant(variant.id)}
-                        variant="ghost"
-                        className="p-1 size-4"
-                      >
-                        <X className="size-4" />
-                      </Button>
-                    </div>
-                  ))}
             </div>
           </div>
           <Button disabled={loading} type="submit">
