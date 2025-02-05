@@ -1,5 +1,7 @@
 import prismadb from "@/lib/prismadb";
+import { generateSKU } from "@/utils/generateSku";
 import { VariantProduct } from "@prisma/client";
+import { connect } from "http2";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -15,6 +17,24 @@ export async function POST(request: Request) {
       category,
       variants,
     } = body;
+
+    const sku = await generateSKU();
+
+    if (!sku) {
+      console.log("Missing sku");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!images) {
+      console.log("Missing images");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     if (!category) {
       console.log("Missing category");
@@ -81,17 +101,18 @@ export async function POST(request: Request) {
           create: variants.map((variant: VariantProduct) => ({
             color: {
               connect: {
-                id: variant,
+                id: variant.colorId,
               },
             },
             variant: {
               connect: {
-                id: variant,
+                id: variant.variantId,
               },
             },
             price: variant.price,
             salePrice: variant.salePrice,
             stock: variant.stock,
+            sku: sku,
           })),
         },
       },
@@ -99,7 +120,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ product }, { status: 200 });
   } catch (err) {
-    console.log("[STORE_POST]", err);
+    console.log("[PRODUCT_POST]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatter, uploadToCloudinary } from "@/lib/utils";
+import { generateSKU } from "@/utils/generateSku";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category, Color, Prisma, Variant } from "@prisma/client";
 import {
@@ -64,7 +65,7 @@ const ProductFormSchema = z.object({
     .max(99999999, {
       message: "El precio no puede ser mayor a 99.999.999 Gs.",
     }),
-  salePrice: z.number().max(99999999, {
+  salePrice: z.coerce.number().max(99999999, {
     message: "El precio de venta no puede ser mayor a 99.999.999 Gs.",
   }),
   stock: z.coerce
@@ -269,6 +270,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
     }
   };
+
 
   return (
     <Form {...form}>
@@ -509,7 +511,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       Precio <Obligatory />
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="2.000.000" {...field} />
+                      <Input placeholder="2.000.000" type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                     <FormDescription>
@@ -527,7 +529,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       Precio de promoción <Obligatory />
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="1.500.000" {...field} />
+                      <Input placeholder="1.500.000" type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                     <FormDescription>
@@ -545,7 +547,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       Stock <Obligatory />
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="10" {...field} />
+                      <Input placeholder="10" type="number" {...field} />
                     </FormControl>
                     <FormMessage />
                     <FormDescription>

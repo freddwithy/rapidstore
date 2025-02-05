@@ -22,9 +22,9 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
         include: {
           color: true,
           variant: true,
-          images: true,
         },
       },
+      images: true
     },
   });
 
@@ -35,7 +35,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
     category: product.category.name || "Sin categoría",
     isArchived: product.isArchived,
     isFeatured: product.isFeatured,
-    image: product.variants[0].images[0].url || "",
+    image: product.images[0].url || "",
     variants: product.variants.length || 0,
   }));
   return (
