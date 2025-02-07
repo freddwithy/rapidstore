@@ -152,6 +152,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
       (variant) => variant.id === item.variantId
     );
     return {
+      variantId: item.variantId,
       product: product?.name || "",
       color: variant?.color.name || "",
       variant: variant?.variant.name || "",

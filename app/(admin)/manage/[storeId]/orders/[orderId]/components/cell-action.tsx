@@ -28,7 +28,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      removeItem(data.id);
+      removeItem(data.variantId);
       toast.success("Producto eliminado");
       setLoading(false);
       setOpen(false);
