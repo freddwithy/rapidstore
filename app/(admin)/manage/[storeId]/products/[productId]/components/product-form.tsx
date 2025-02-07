@@ -2,6 +2,15 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -22,13 +31,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { formatter, uploadToCloudinary } from "@/lib/utils";
-import { generateSKU } from "@/utils/generateSku";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Category, Color, Prisma, Variant } from "@prisma/client";
 import {
   ImageOff,
   Loader2,
   LoaderCircle,
+  Plus,
   Trash,
   Upload,
   X,
@@ -106,6 +115,7 @@ interface ProductFormProps {
   colors: Color[];
   categories: Category[];
   variants: Variant[];
+  userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
@@ -114,6 +124,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   colors,
   categories,
   variants,
+  userType,
 }) => {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
@@ -143,10 +154,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
       description: initialData?.description || "",
       isArchived: initialData?.isArchived || false,
       isFeatured: initialData?.isFeatured || false,
-      images: initialData?.images.map((i) => i.url) || [],
       category: initialData?.categoryId || "",
-      color: initialData?.variants[0].color.id || "",
-      variant: initialData?.variants[0].variant.id || "",
+      variant: initialData?.variants[0].variant.name || "",
+      color: initialData?.variants[0].color.name || "",
       price: initialData?.variants[0].price || 0,
       salePrice: initialData?.variants[0].salePrice || 0,
       stock: initialData?.variants[0].stock || 0,
@@ -161,6 +171,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const salePrice = form.getValues("salePrice");
     const stock = form.getValues("stock");
 
+    //si el usuario es free solo puede agregar 1 opcion
+
+    if (userType === "FREE" && options.length > 0) {
+      toast.error("No puedes agregar más opciones");
+      return;
+    }
+
     if (
       options.some((o) => o.colorId === colorId && o.variantId === variantId)
     ) {
@@ -173,11 +190,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
       {
         colorId,
         variantId,
-        price,
-        salePrice,
-        stock,
+        price: price || 0,
+        salePrice: salePrice || 0,
+        stock: stock || 0,
       },
     ]);
+
+    toast.success("Opción agregada correctamente");
   };
 
   const handleRemoveOption = (id: string) => {
@@ -228,7 +247,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           body: JSON.stringify({
             ...data,
             images,
-            variants: options,
+            options,
             storeId,
           }),
         });
@@ -252,7 +271,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           body: JSON.stringify({
             ...data,
             images,
-            variants: options,
+            options,
             storeId,
           }),
         });
@@ -270,7 +289,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
       }
     }
   };
-
 
   return (
     <Form {...form}>
@@ -468,9 +486,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
           <Separator />
           <div className="flex flex-col gap-y-4">
             <FormLabel>Agregar opciones</FormLabel>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              {options.length > 0 &&
-                options.map((option) => (
+            {options.length > 0 && (
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                {options.map((option) => (
                   <div
                     key={option.colorId + option.colorId}
                     className="border rounded-lg p-4 flex-col gap-y-1 hover:bg-primary-foreground hover:text-primary transition-colors relative"
@@ -484,7 +502,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         handleRemoveOption(option.colorId + option.variantId)
                       }
                     >
-                      <Trash className="text-zinc-600 dark:text-zinc-400 size-4" />
+                      <Trash className="size-4" />
                     </Button>
 
                     <p className="">
@@ -500,137 +518,171 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     </p>
                   </div>
                 ))}
-            </div>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Precio <Obligatory />
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="2.000.000" type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    <FormDescription>
-                      El precio no puede ser mayor a 99.999.999 Gs.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="salePrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Precio de promoción <Obligatory />
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="1.500.000" type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    <FormDescription>
-                      El precio no puede ser mayor al precio principal
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="stock"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Stock <Obligatory />
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="10" type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    <FormDescription>
-                      El stock no puede ser mayor a 999
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="color"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Color <Obligatory />
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="min-w-[200px]">
-                          <SelectValue defaultValue={field.value} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {colors.map((color) => (
-                          <SelectItem key={color.id} value={color.id}>
-                            {color.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    <FormDescription>
-                      Selecciona el color del producto
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="variant"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Variante/Tamaño <Obligatory />
-                    </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="min-w-[200px]">
-                          <SelectValue defaultValue={field.value} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {variants.map((variant) => (
-                          <SelectItem key={variant.id} value={variant.id}>
-                            {variant.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                    <FormDescription>
-                      Selecciona la variante del producto
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              <Button
-                type="button"
-                variant="secondary"
-                disabled={loading}
-                onClick={handleAddOption}
-                className="mt-8"
-              >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Agregar opción
-              </Button>
-            </div>
+              </div>
+            )}
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="flex">
+                  <Button
+                    type="button"
+                    variant={"secondary"}
+                    disabled={options.length > 0 && userType === "FREE"}
+                  >
+                    <Plus className="size-4" />
+                    Agregar opción
+                  </Button>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="">
+                <DialogHeader>
+                  <DialogTitle>Agregar opción</DialogTitle>
+                  <DialogDescription>
+                    Agrega una opción de color y variante para el producto
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-2 gap-2">
+                  <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Precio <Obligatory />
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={options.length > 0 && userType === "FREE"}
+                            placeholder="2.000.000"
+                            type="number"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="salePrice"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Precio de promoción</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={options.length > 0 && userType === "FREE"}
+                            placeholder="1.500.000"
+                            type="number"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Stock <Obligatory />
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={options.length > 0 && userType === "FREE"}
+                            placeholder="10"
+                            type="number"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="color"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Color <Obligatory />
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={options.length > 0 && userType === "FREE"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="min-w-[200px]">
+                              <SelectValue defaultValue={field.value} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {colors.map((color) => (
+                              <SelectItem key={color.id} value={color.id}>
+                                {color.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="variant"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Variante/Tamaño <Obligatory />
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          disabled={options.length > 0 && userType === "FREE"}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="min-w-[200px]">
+                              <SelectValue defaultValue={field.value} />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {variants.map((variant) => (
+                              <SelectItem key={variant.id} value={variant.id}>
+                                {variant.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    type="button"
+                    disabled={options.length > 0 && userType === "FREE"}
+                    onClick={handleAddOption}
+                  >
+                    {options.length > 0 && userType === "FREE"
+                      ? "Inhabilitado"
+                      : "Guardar"}
+                  </Button>
+                  <Button type="button" variant="secondary">
+                    Cancelar
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            {options.length > 0 && userType === "FREE" && (
+              <p className="text-sm text-muted-foreground">
+                Si quieres agregar mas variantes debes actualizar tu plan
+                actual.
+                <Obligatory />
+              </p>
+            )}
           </div>
           <Button disabled={loading} type="submit">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}

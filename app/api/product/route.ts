@@ -1,7 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { generateSKU } from "@/utils/generateSku";
 import { VariantProduct } from "@prisma/client";
-import { connect } from "http2";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -15,13 +14,19 @@ export async function POST(request: Request) {
       storeId,
       images,
       category,
-      variants,
+      options,
     } = body;
 
-    const sku = await generateSKU();
+    if (!name) {
+      console.log("Missing name");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-    if (!sku) {
-      console.log("Missing sku");
+    if (!options) {
+      console.log("Missing options");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -44,22 +49,6 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!variants) {
-      console.log("Missing variants");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!name) {
-      console.log("Missing name");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     if (!description) {
       console.log("Missing description");
       return NextResponse.json(
@@ -70,6 +59,24 @@ export async function POST(request: Request) {
 
     if (!storeId) {
       console.log("Missing storeId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const variants = await Promise.all(
+      options.map(async (option: VariantProduct) => ({
+        ...option,
+        sku: await generateSKU(name, option.colorId, option.variantId),
+        price: Number(option.price), // Convertir a número
+        salePrice: Number(option.salePrice), // Convertir a número
+        stock: Number(option.stock), // Convertir a número
+      }))
+    );
+
+    if (!variants) {
+      console.log("Missing variants");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -112,7 +119,7 @@ export async function POST(request: Request) {
             price: variant.price,
             salePrice: variant.salePrice,
             stock: variant.stock,
-            sku: sku,
+            sku: variant.sku,
           })),
         },
       },

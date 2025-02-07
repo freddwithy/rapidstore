@@ -1,4 +1,6 @@
 import prismadb from "@/lib/prismadb";
+import { generateSKU } from "@/utils/generateSku";
+import { VariantProduct } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -6,31 +8,45 @@ export async function PATCH(
   params: { params: { productId: string } }
 ) {
   try {
-    const { productId } = params.params;
     const body = await request.json();
+    const { productId } = params.params;
     const {
       name,
       description,
-      price,
-      discount,
       isArchived,
+      isFeatured,
       storeId,
       images,
-      categories,
-      variants,
-      colors,
+      category,
+      options,
     } = body;
 
-    if (!productId) {
-      console.log("Missing productId");
+    if (!name) {
+      console.log("Missing name");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    if (!name) {
-      console.log("Missing name");
+    if (!options) {
+      console.log("Missing options");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!images) {
+      console.log("Missing images");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!category) {
+      console.log("Missing category");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -45,22 +61,6 @@ export async function PATCH(
       );
     }
 
-    if (!price) {
-      console.log("Missing price");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!categories || !variants || !colors) {
-      console.log("Missing categories, variants or colors");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     if (!storeId) {
       console.log("Missing storeId");
       return NextResponse.json(
@@ -69,50 +69,74 @@ export async function PATCH(
       );
     }
 
-    await prismadb.products.update({
+    const variants = await Promise.all(
+      options.map(async (option: VariantProduct) => ({
+        ...option,
+        sku: await generateSKU(name, option.colorId, option.variantId),
+        price: Number(option.price), // Convertir a número
+        salePrice: Number(option.salePrice), // Convertir a número
+        stock: Number(option.stock), // Convertir a número
+      }))
+    );
+
+    if (!variants) {
+      console.log("Missing variants");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    await prismadb.product.update({
       where: {
         id: productId,
       },
       data: {
         name,
         description,
-        price,
-        discount,
         isArchived,
-        storeId,
+        isFeatured,
         images: {
           deleteMany: {},
         },
-        categories: {
-          set: [],
+        category: {
+          connect: {
+            id: category,
+          },
         },
         variants: {
-          set: [],
-        },
-        colors: {
-          set: [],
+          deleteMany: {},
         },
       },
     });
 
-    const product = await prismadb.products.update({
+    const product = await prismadb.product.update({
       where: {
         id: productId,
       },
       data: {
         images: {
-          createMany: {
-            data: images.map((image: string) => ({ url: image })),
-          },
-        },
-        categories: {
-          connect: categories.map((category: string) => ({ id: category })),
+          create: images.map((image: string) => ({
+            url: image,
+          })),
         },
         variants: {
-          connect: variants.map((variant: string) => ({ id: variant })),
-        },
-        colors: {
-          connect: colors.map((color: string) => ({ id: color })),
+          create: variants.map((variant: VariantProduct) => ({
+            color: {
+              connect: {
+                id: variant.colorId,
+              },
+            },
+            variant: {
+              connect: {
+                id: variant.variantId,
+              },
+            },
+            price: variant.price,
+            salePrice: variant.salePrice,
+            stock: variant.stock,
+            sku: variant.sku,
+          })),
         },
       },
     });
@@ -120,6 +144,34 @@ export async function PATCH(
     return NextResponse.json({ product }, { status: 200 });
   } catch (err) {
     console.log("[PRODUCT_PATCH]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  params: { params: { productId: string } }
+) {
+  try {
+    const { productId } = params.params;
+    if (!productId) {
+      console.log("Missing productId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+    const product = await prismadb.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+    return NextResponse.json({ product }, { status: 200 });
+  } catch (err) {
+    console.log("[PRODUCT_DELETE]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

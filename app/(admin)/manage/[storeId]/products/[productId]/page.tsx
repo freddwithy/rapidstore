@@ -8,6 +8,7 @@ import {
 import React from "react";
 import prismadb from "@/lib/prismadb";
 import ProductForm from "./components/product-form";
+import { currentUser } from "@clerk/nextjs/server";
 
 const OrderPage = async ({
   params,
@@ -18,6 +19,13 @@ const OrderPage = async ({
   };
 }) => {
   const { storeId, productId } = params;
+  const user = await currentUser();
+
+  const userDb = await prismadb.user.findUnique({
+    where: {
+      clerk_id: user?.id,
+    },
+  });
 
   const colors = await prismadb.color.findMany({
     where: {
@@ -48,6 +56,7 @@ const OrderPage = async ({
           variant: true,
         },
       },
+      images: true,
     },
   });
 
@@ -70,6 +79,7 @@ const OrderPage = async ({
           categories={categories}
           initialData={product}
           storeId={storeId}
+          userType={userDb?.user_type}
         />
       </CardContent>
     </Card>

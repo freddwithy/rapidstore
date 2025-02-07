@@ -2,10 +2,10 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
 interface OrderProduct {
+  quantity: number;
   productId: string;
   variantId: string;
-  colorId: string;
-  quantity: number;
+  total: number;
 }
 
 interface TableItem {
@@ -24,13 +24,13 @@ const useItem = create(
       addItem: (data: OrderProduct) => {
         const items = get().items;
         const existingItem = items.find(
-          (item) => item.productId === data.productId
+          (item) => item.variantId === data.variantId
         );
 
         if (existingItem) {
           set({
             items: items.map((item) =>
-              item.productId === data.productId ? data : item
+              item.variantId === data.variantId ? data : item
             ),
           });
         } else {
@@ -42,7 +42,7 @@ const useItem = create(
       },
       removeItem: (id: string) => {
         set({
-          items: [...get().items.filter((item) => item.productId !== id)],
+          items: [...get().items.filter((item) => item.variantId !== id)],
         });
       },
       removeAll: () => {

@@ -6,8 +6,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import React from "react";
-import OrderForm from "./components/order-form";
+
 import prismadb from "@/lib/prismadb";
+import OrderForm from "./components/order-form";
 
 const OrderPage = async ({
   params,
@@ -25,13 +26,18 @@ const OrderPage = async ({
     },
   });
 
-  const products = await prismadb.products.findMany({
+  const products = await prismadb.product.findMany({
     where: {
       storeId,
     },
     include: {
-      variants: true,
-      colors: true,
+      variants: {
+        include: {
+          color: true,
+          variant: true,
+        },
+      },
+      images: true,
     },
   });
 
@@ -41,7 +47,13 @@ const OrderPage = async ({
         <CardTitle>Crea un pedido</CardTitle>
         <CardDescription>Crea un pedido</CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <OrderForm
+          customers={customers}
+          products={products}
+          storeId={storeId}
+        />
+      </CardContent>
     </Card>
   );
 };

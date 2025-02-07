@@ -1,9 +1,15 @@
-import prismadb from "@/lib/prismadb"
-// utils/generateSKU.js
-export const generateSKU = async (index: number = 0) => {
-  const prefix = "PROD";
-  const timestamp = new Date().getTime().toString().slice(-6); // Últimos 6 dígitos del timestamp
-  const count = await prismadb.variantProduct.count(); // Número total de productos
-  const sequentialNumber = (count + 1 + index).toString().padStart(4, "0"); // Número secuencial
-  return `${prefix}-${timestamp}-${sequentialNumber}`;
+export const generateSKU = async (
+  name: string,
+  colorId: string,
+  variantId: string
+) => {
+  const productName = name
+    .slice(0, 3) // Tomamos las primeras 3 letras del nombre del producto
+    .toUpperCase()
+    .replace(/\s+/g, ""); // Eliminamos espacios en blanco
+  const colorCode = colorId.slice(22, 25).toUpperCase(); // Primeros 2 caracteres del colorId
+  const variantCode = variantId.slice(22, 25).toUpperCase(); // Primeros 2 caracteres del variantId
+  const timestamp = new Date().getTime().toString().slice(-4); // Timestamp actual
+
+  return `${productName}-${colorCode}${variantCode}-${timestamp}`;
 };

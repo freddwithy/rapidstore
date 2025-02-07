@@ -15,6 +15,7 @@ import {
 interface ProductProps {
   data: ProductColumn[];
   disableButton?: boolean;
+  userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const searchFilters = [
@@ -39,6 +40,7 @@ const searchFilters = [
 export const ProductClient: React.FC<ProductProps> = ({
   data,
   disableButton = false,
+  userType,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -48,14 +50,20 @@ export const ProductClient: React.FC<ProductProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              disabled={disableButton}
+              disabled={
+                disableButton || (data.length > 9 && userType === "FREE")
+              }
               onClick={() => router.push(`${pathname}/new`)}
             >
               <Plus className="h-4 w-4" />
               Agregar nuevo
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Agrega un nuevo producto</TooltipContent>
+          <TooltipContent>
+            {data.length > 9 && userType === "FREE"
+              ? "No puedes agregar mas productos"
+              : "Agrega un nuevo producto"}
+          </TooltipContent>
         </Tooltip>
       </div>
       <DataTable filterOptions={searchFilters} columns={columns} data={data} />

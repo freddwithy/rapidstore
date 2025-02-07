@@ -38,6 +38,9 @@ export const CustomerClient: React.FC<CustomerProps> = ({
 }) => {
   const router = useRouter();
   const pathname = usePathname();
+  const timestamp = new Date().getTime().toString().slice(-6);
+
+  console.log(timestamp);
   return (
     <TooltipProvider>
       <div className="flex items-center justify-start">

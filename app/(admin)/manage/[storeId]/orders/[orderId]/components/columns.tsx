@@ -5,9 +5,7 @@ import { formatter } from "@/lib/utils";
 import { CellAction } from "./cell-action";
 
 export type OrderProductColumn = {
-  id: string;
-  brand: string | undefined;
-  model: string | undefined;
+  product: string;
   color: string | undefined;
   variant: string | undefined;
   quantity: number;
@@ -16,12 +14,8 @@ export type OrderProductColumn = {
 
 export const columns: ColumnDef<OrderProductColumn>[] = [
   {
-    accessorKey: "brand",
-    header: "Marca",
-  },
-  {
-    accessorKey: "model",
-    header: "Modelo",
+    accessorKey: "product",
+    header: "Producto",
   },
   {
     accessorKey: "color",

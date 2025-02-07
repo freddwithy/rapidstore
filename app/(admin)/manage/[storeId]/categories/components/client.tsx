@@ -15,6 +15,7 @@ import {
 interface CategoryProps {
   data: CategoryColumn[];
   disableButton?: boolean;
+  userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const searchFilters = [
@@ -27,6 +28,7 @@ const searchFilters = [
 export const CategoryClient: React.FC<CategoryProps> = ({
   data,
   disableButton = false,
+  userType,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,14 +38,22 @@ export const CategoryClient: React.FC<CategoryProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              disabled={disableButton}
+              disabled={
+                disableButton || (data.length > 2 && userType === "FREE")
+              }
               onClick={() => router.push(`${pathname}/new`)}
             >
               <Plus className="h-4 w-4" />
               Agregar nuevo
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Agrega una nueva categoría</TooltipContent>
+          <TooltipContent>
+            {data.length > 2 && userType === "FREE" ? (
+              <p>Solo puedes crear 3 categorias.</p>
+            ) : (
+              <p>Agrega una nueva categoria.</p>
+            )}
+          </TooltipContent>
         </Tooltip>
       </div>
       <DataTable filterOptions={searchFilters} columns={columns} data={data} />

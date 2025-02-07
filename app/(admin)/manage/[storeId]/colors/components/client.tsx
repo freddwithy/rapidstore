@@ -15,6 +15,7 @@ import {
 interface ColorsProps {
   data: ColorColumn[];
   disableButton?: boolean;
+  userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const searchFilters = [
@@ -27,6 +28,7 @@ const searchFilters = [
 export const ColorClient: React.FC<ColorsProps> = ({
   data,
   disableButton = false,
+  userType,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -36,14 +38,20 @@ export const ColorClient: React.FC<ColorsProps> = ({
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
-              disabled={disableButton}
+              disabled={
+                disableButton || (data.length > 2 && userType === "FREE")
+              }
               onClick={() => router.push(`${pathname}/new`)}
             >
               <Plus className="h-4 w-4" />
               Agregar nuevo
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Agrega un nuevo color</TooltipContent>
+          <TooltipContent>
+            {userType === "FREE"
+              ? "Solo puedes crear 3 colores"
+              : "Crea un nuevo color"}
+          </TooltipContent>
         </Tooltip>
       </div>
       <DataTable filterOptions={searchFilters} columns={columns} data={data} />
