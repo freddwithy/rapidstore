@@ -2,6 +2,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import React from "react";
 
 import prismadb from "@/lib/prismadb";
 import OrderForm from "./components/order-form";
+import { Button } from "@/components/ui/button";
 
 const OrderPage = async ({
   params,
@@ -19,6 +21,24 @@ const OrderPage = async ({
   };
 }) => {
   const storeId = params.storeId;
+  const orderId = params.orderId;
+
+  const order = await prismadb.order.findFirst({
+    where: {
+      id: orderId,
+    },
+    include: {
+      orderProducts: {
+        include: {
+          variant: {
+            include: {
+              product: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
   const customers = await prismadb.customer.findMany({
     where: {
@@ -52,6 +72,7 @@ const OrderPage = async ({
           customers={customers}
           products={products}
           storeId={storeId}
+          initialData={order}
         />
       </CardContent>
     </Card>

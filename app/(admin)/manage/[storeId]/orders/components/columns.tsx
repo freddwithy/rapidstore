@@ -1,5 +1,6 @@
 "use client";
 
+import { formatter } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 
 // This type is used to define the shape of our data.
@@ -28,5 +29,6 @@ export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "total",
     header: "Total",
+    cell: ({ row }) => formatter.format(row.original.total),
   },
 ];

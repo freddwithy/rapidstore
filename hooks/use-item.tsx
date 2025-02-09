@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
-interface OrderProduct {
+export interface OrderProductHook {
   quantity: number;
   productId: string;
   variantId: string;
@@ -9,9 +9,9 @@ interface OrderProduct {
 }
 
 interface TableItem {
-  items: OrderProduct[];
-  addItem: (data: OrderProduct) => void;
-  addItems: (data: OrderProduct[]) => void;
+  items: OrderProductHook[];
+  addItem: (data: OrderProductHook) => void;
+  addItems: (data: OrderProductHook[]) => void;
   removeItem: (id: string) => void;
   removeAll: () => void;
   itemsAdded: () => void;
@@ -21,7 +21,7 @@ const useItem = create(
   persist<TableItem>(
     (set, get) => ({
       items: [],
-      addItem: (data: OrderProduct) => {
+      addItem: (data: OrderProductHook) => {
         const items = get().items;
         const existingItem = items.find(
           (item) => item.variantId === data.variantId
@@ -37,7 +37,7 @@ const useItem = create(
           set({ items: [...get().items, data] });
         }
       },
-      addItems: (data: OrderProduct[]) => {
+      addItems: (data: OrderProductHook[]) => {
         set({ items: [...get().items, ...data] });
       },
       removeItem: (id: string) => {

@@ -145,15 +145,15 @@ model OrderProduct {
   id        String         @id @default(cuid())
   order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   String
-  product   VariantProduct @relation(fields: [productId], references: [id])
-  productId String
+  variant   VariantProduct @relation(fields: [variantId], references: [id])
+  variantId String
   qty       Int
   total     Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, orderId])
+  @@unique([variantId, orderId])
 }
 
 model Customer {
