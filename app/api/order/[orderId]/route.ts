@@ -2,11 +2,22 @@ import { OrderProductHook } from "@/hooks/use-item";
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function PATCH(
+  request: Request,
+  { params }: { params: { orderId: string } }
+) {
   try {
     const body = await request.json();
-    const { customerId, orderProducts, status, paymentStatus, total, storeId } =
-      body;
+    const { orderId } = params;
+    const { customerId, orderProducts, status, paymentStatus, total } = body;
+
+    if (!orderId) {
+      console.log("Missing orderId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     if (!customerId) {
       console.log("Missing customerId");
@@ -48,26 +59,30 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!storeId) {
-      console.log("Missing storeId");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    const order = await prismadb.order.create({
+    await prismadb.order.update({
+      where: {
+        id: orderId,
+      },
       data: {
         customer: {
           connect: {
             id: customerId,
           },
         },
-        store: {
-          connect: {
-            id: storeId,
-          },
+        orderProducts: {
+          deleteMany: {},
         },
+        total,
+        status,
+        paymentStatus,
+      },
+    });
+
+    const order = await prismadb.order.update({
+      where: {
+        id: orderId,
+      },
+      data: {
         orderProducts: {
           create: orderProducts.map((p: OrderProductHook) => ({
             variant: {
@@ -79,15 +94,40 @@ export async function POST(request: Request) {
             qty: Number(p.quantity),
           })),
         },
-        total,
-        status,
-        paymentStatus,
       },
     });
 
     return NextResponse.json({ order }, { status: 200 });
   } catch (err) {
-    console.log("[ORDER_POST]", err);
+    console.log("[ORDER_PATCH]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  params: { params: { orderId: string } }
+) {
+  try {
+    const { orderId } = params.params;
+    if (!orderId) {
+      console.log("Missing orderId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+    const product = await prismadb.order.delete({
+      where: {
+        id: orderId,
+      },
+    });
+    return NextResponse.json({ product }, { status: 200 });
+  } catch (err) {
+    console.log("[ORDER_DELETE]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

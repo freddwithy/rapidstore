@@ -123,7 +123,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   products,
   initialData,
 }) => {
-  const { addItem, removeAll, items } = useItem();
+  const { addItem, removeAll, items, addItems } = useItem();
   const [open, setOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -144,7 +144,23 @@ const OrderForm: React.FC<OrderFormProps> = ({
     },
   });
 
-  console.log(form.formState.errors);
+  useEffect(() => {
+    if (initialData) {
+      removeAll();
+      addItems(
+        initialData.orderProducts.map((item) => {
+          return {
+            productId: item.variant.productId,
+            variantId: item.variantId,
+            quantity: item.qty,
+            total: item.total,
+          };
+        })
+      );
+    } else {
+      removeAll();
+    }
+  }, [initialData, addItems]);
 
   const searchFilters = [
     {
@@ -208,6 +224,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
         if (res.ok) {
           setLoading(false);
+          removeAll();
           toast.success("Pedido creado correctamente");
           router.push(`/manage/${storeId}/orders`);
           router.refresh();
@@ -215,6 +232,30 @@ const OrderForm: React.FC<OrderFormProps> = ({
       } catch {
         setLoading(false);
         toast.error("Error al crear el pedido");
+        return;
+      }
+    } else {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/order/${initialData.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            ...data,
+            orderProducts: items,
+            total,
+            storeId,
+          }),
+        });
+        if (res.ok) {
+          setLoading(false);
+          removeAll();
+          toast.success("Pedido actualizado correctamente");
+          router.push(`/manage/${storeId}/orders`);
+          router.refresh();
+        }
+      } catch {
+        setLoading(false);
+        toast.error("Error al actualizar el pedido");
         return;
       }
     }
@@ -460,7 +501,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                   <SelectContent>
                     <SelectItem value="PENDIENTE">Pendiente</SelectItem>
                     <SelectItem value="PAGADO">Pagado</SelectItem>
-                    <SelectItem value="PAGO_PARCIAL">Cancelado</SelectItem>
+                    <SelectItem value="CANCELADO">Cancelado</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -497,7 +538,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
         </div>
         <Button type="submit" disabled={loading}>
           {loading && <LoaderCircle className="animate-spin" />}
-          Crear pedido
+          {initialData ? "Actualizar pedido" : "Crear pedido"}
         </Button>
       </form>
     </Form>
