@@ -2,7 +2,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -10,7 +9,6 @@ import React from "react";
 
 import prismadb from "@/lib/prismadb";
 import OrderForm from "./components/order-form";
-import { Button } from "@/components/ui/button";
 
 const OrderPage = async ({
   params,

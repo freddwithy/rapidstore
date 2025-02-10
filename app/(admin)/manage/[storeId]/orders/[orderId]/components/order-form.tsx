@@ -160,7 +160,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
     } else {
       removeAll();
     }
-  }, [initialData, addItems]);
+  }, [initialData, addItems, removeAll]);
 
   const searchFilters = [
     {

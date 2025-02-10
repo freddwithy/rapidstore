@@ -1,11 +1,5 @@
 "use client";
-import {
-  CircleDashed,
-  PackageCheck,
-  Ban,
-  Banknote,
-  CircleCheck,
-} from "lucide-react";
+import { CircleDashed, PackageCheck, Ban, CircleCheck } from "lucide-react";
 import React from "react";
 
 interface StatusBadgeProps {

@@ -3,9 +3,6 @@
 import { formatter } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import StatusBadge from "./statusBadge";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { CornerUpRight } from "lucide-react";
 import { CellAction } from "./cell-action";
 
 // This type is used to define the shape of our data.
