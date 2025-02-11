@@ -66,7 +66,7 @@ export default async function Layout({
         />
         <div className="w-full">
           <Header />
-          {children}
+          <div className="animate-fade-up">{children}</div>
         </div>
       </SidebarProvider>
     </div>

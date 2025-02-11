@@ -9,7 +9,7 @@ export default async function Layout({
   children: React.ReactNode;
 }) {
   const { userId } = auth();
-  if (userId) redirect("/dashboard");
+  if (userId) redirect("/admin");
   return (
     <div className="grid lg:grid-cols-2 grid-cols-1 ">
       <div className="bg-muted w-full h-full hidden lg:block p-14 space-y-4 overflow-hidden relative">

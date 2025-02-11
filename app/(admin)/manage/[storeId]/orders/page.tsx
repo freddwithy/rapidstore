@@ -35,7 +35,7 @@ const OrdersPage = async ({
   }));
 
   return (
-    <Card>
+    <Card className="">
       <CardHeader>
         <CardTitle>Pedidos</CardTitle>
         <CardDescription>

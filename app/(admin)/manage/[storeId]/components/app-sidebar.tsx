@@ -40,12 +40,9 @@ import { Store } from "@prisma/client";
 import {
   Archive,
   AudioWaveform,
-  BadgeCheck,
-  Bell,
   Boxes,
   ChevronsUpDown,
   ClipboardCheck,
-  CreditCard,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -262,24 +259,11 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push(`/admin/upgrade`)}
+                  >
                     <Sparkles />
                     Actualizar a Plan Pro
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <BadgeCheck />
-                    Cuenta
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCard />
-                    Facturación
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Bell />
-                    Notificaciones
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

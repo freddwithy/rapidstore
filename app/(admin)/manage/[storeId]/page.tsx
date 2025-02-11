@@ -11,6 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { formatter } from "@/lib/utils";
+import { DataTable } from "@/components/data-table";
+import { columns } from "./components/columns";
 
 const Page = async ({
   params,
@@ -36,7 +39,17 @@ const Page = async ({
     include: {
       products: true,
       categories: true,
-      orders: true,
+      orders: {
+        where: {
+          paymentStatus: "PAGADO",
+        },
+        include: {
+          customer: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
     },
   });
 
@@ -51,12 +64,22 @@ const Page = async ({
     );
   }
 
+  const formattedData = store.orders.map((order) => ({
+    id: order.id,
+    customer: order.customer.rucName,
+    status: order.status,
+    paymentStatus: order.paymentStatus,
+    total: order.total,
+  }));
+
   return (
     <div className="w-full flex flex-col p-4 gap-y-2">
       <div className="p-4">
         <h2 className="text-xl text-muted-foreground">Tus ingresos totales</h2>
         <p className="text-4xl font-semibold bg-gradient-to-r from-blue-500 to-pink-500  bg-clip-text text-transparent">
-          Gs. 20.000.000
+          {formatter.format(
+            store.orders.reduce((acc, order) => acc + order.total, 0)
+          )}
         </p>
       </div>
       <section className="w-full grid md:grid-cols-3 gap-2">
@@ -81,7 +104,9 @@ const Page = async ({
           <CardTitle>Ultimos pedidos</CardTitle>
           <CardDescription>Aqui puedes ver tus ultimos pedidos</CardDescription>
         </CardHeader>
-        <CardContent></CardContent>
+        <CardContent>
+          <DataTable data={formattedData} columns={columns} disabledSearch />
+        </CardContent>
       </Card>
     </div>
   );

@@ -27,7 +27,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const statusClass = classStatus[status as keyof typeof classStatus];
   return (
     <div
-      className={`${statusClass} flex items-center justify-center gap-1 rounded-md py-1 px-1.5 transition-colors text-sm `}
+      className={`${statusClass} flex items-center justify-center gap-1 rounded-md py-1 px-1.5 transition-colors text-sm w-32`}
     >
       {IconComponent && <IconComponent className="w-4 h-4" />}
       {status}
