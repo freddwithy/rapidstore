@@ -108,7 +108,7 @@ const ProductsComponent: React.FC<ProductsComponentProps> = ({
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button
-                        className="absolute top-1 right-1 hidden group-hover:flex"
+                        className="absolute top-1 right-1 z-10"
                         size="icon"
                       >
                         <Plus />
@@ -192,7 +192,7 @@ const ProductsComponent: React.FC<ProductsComponentProps> = ({
                         height={208}
                       />
                       <Button
-                        className="absolute top-1 right-1 hidden group-hover:flex"
+                        className="absolute top-1 right-1 z-10"
                         size="icon"
                       >
                         <Plus />

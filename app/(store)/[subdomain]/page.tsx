@@ -44,37 +44,11 @@ export default async function SubdomainPage({
       },
     });
 
-    const destacados = await prismadb.product.findMany({
-      where: {
-        storeId: store?.id,
-        isFeatured: true,
-      },
-      include: {
-        variants: {
-          include: {
-            variant: true,
-            color: true,
-          },
-        },
-        images: true,
-      },
-      take: 4,
-    });
+    const destacados = categories
+      .flatMap((cat) => cat.products.filter((p) => p.isFeatured))
+      .slice(0, 4);
 
-    const products = await prismadb.product.findMany({
-      where: {
-        storeId: store?.id,
-      },
-      include: {
-        variants: {
-          include: {
-            variant: true,
-            color: true,
-          },
-        },
-        images: true,
-      },
-    });
+    const products = categories.flatMap((cat) => cat.products);
 
     if (!store) {
       console.log("Page: Store not found, returning 404");
