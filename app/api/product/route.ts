@@ -134,3 +134,40 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function GET(
+  request: Request,
+  params: { params: { storeId: string } }
+) {
+  try {
+    const { storeId } = params.params;
+    if (!storeId) {
+      return NextResponse.json(
+        { error: "Store id is required" },
+        { status: 400 }
+      );
+    }
+    const products = await prismadb.product.findMany({
+      where: {
+        storeId,
+      },
+      include: {
+        images: true,
+        category: true,
+        variants: {
+          include: {
+            color: true,
+            variant: true,
+          },
+        },
+      },
+    });
+    return NextResponse.json({ products }, { status: 200 });
+  } catch (err) {
+    console.log("[PRODUCT_GET]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}

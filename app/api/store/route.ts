@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const store = prismadb.store.findUnique({
+    const store = await prismadb.store.findUnique({
       where: {
-        name: subdomain,
+        url: subdomain,
       },
       select: {
         id: true,
