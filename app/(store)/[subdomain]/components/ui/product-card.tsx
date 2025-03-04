@@ -20,10 +20,9 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 interface ProductCardProps {
   product: ProductWithVariants;
-  onAddToCart?: (productId: string) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product}) => {
   return (
     <div className="border rounded-xl p-4 bg-secondary relative">
       <div className="flex flex-col gap-4 relative group">
