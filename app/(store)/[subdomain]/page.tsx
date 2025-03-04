@@ -7,8 +7,8 @@ import prismadb from "@/lib/prismadb";
 import { AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import ProductsComponent from "./components/products";
 import Cart from "./components/cart";
+import ProductsClientComponent from "./components/client";
 
 export default async function SubdomainPage({
   params,
@@ -100,10 +100,10 @@ export default async function SubdomainPage({
             </div>
             <Cart />
           </div>
-          <ProductsComponent
-            categories={categories}
+          <ProductsClientComponent
             destacados={destacados}
             products={products}
+            storeId={store.id}
           />
         </div>
       </div>
