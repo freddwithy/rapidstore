@@ -1,3 +1,4 @@
+
 import Titles from "@/components/titles";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,9 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { Suspense } from "react";
 import ProductByCategories from "./products";
+import getCategories from "@/actions/get-categories";
+import ProductCardSkeleton from "./ui/skeletons/product-card-skeleton";
+import ProductsSkeleton from "./ui/skeletons/products-skeleton";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
@@ -37,7 +41,7 @@ interface ClientComponentProps {
   storeId: string;
 }
 
-const ProductsClientComponent: React.FC<ClientComponentProps> = ({
+const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   destacados,
   storeId,
 }) => {
@@ -48,87 +52,12 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = ({
           title="Destacados"
           description="Productos destacados de la tienda"
         />
-        <ScrollArea className="max-w-[1080px]">
-          <div className="flex gap-4">
-            {destacados.map((p) => (
-              <div
-                key={p.id}
-                className="border rounded-xl p-4 bg-secondary relative"
-              >
-                <div className="flex flex-col gap-4 relative group">
-                  <Link
-                    className="rounded-lg size-52 bg-white overflow-hidden group relative"
-                    href={`/${p.id}`}
-                  >
-                    <Image
-                      className="group-hover:scale-105 transition-transform duration-300 object-cover"
-                      src={p.images[0].url}
-                      alt={p.name}
-                      width={208}
-                      height={208}
-                    />
-                    <Star className="size-4 top-2 left-2 absolute text-yellow-500" />
-                  </Link>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        className="absolute top-1 right-1 z-10"
-                        size="icon"
-                      >
-                        <Plus />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Selecciona una variante</DialogTitle>
-                        <DialogDescription>
-                          Este producto tiene varias opciones, selecciona una
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="flex gap-4 flex-wrap">
-                        {/* {p.variants.map((v) => (
-                          <button
-                            key={v.id}
-                            onClick={() => setVariantSelected(v.id)}
-                            className={`border rounded-lg px-2 py-1 ${
-                              variantSelected === v.id
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-bg-primary-foreground"
-                            }`}
-                          >
-                            {v.variant.name + " " + v.color.name}
-                          </button>
-                        ))} */}
-                      </div>
-                      <DialogFooter>
-                        {/* <Button variant="default" onClick={onAddToCart}>
-                          Añadir al carrito
-                        </Button> */}
-                        <DialogClose asChild>
-                          <Button variant="outline">Cancelar</Button>
-                        </DialogClose>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                  <Link className="space-y-2" href={`/${p.id}`}>
-                    <div>
-                      <h1 className="text-xl font-semibold">{p.name}</h1>
-                      <p className="text-sm text-muted-foreground">
-                        {p.description}
-                      </p>
-                    </div>
-                    <span className="text-foreground">
-                      {formatter.format(p.variants[0].price)}
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-          <ScrollBar orientation="horizontal" hidden />
-        </ScrollArea>
+        <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
+          <ProductByCategories storeId={storeId} isFeatured={true} limit={4}  />
+        </Suspense>
       </div>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Titles title="Explora nuestros prductos" description="Aqui encontraras todos los productos de la tienda" />
+      <Suspense fallback={<ProductsSkeleton numberOfProducts={8} />}>
         <ProductByCategories storeId={storeId} />
       </Suspense>
     </div>

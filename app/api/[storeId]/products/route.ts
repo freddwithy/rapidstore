@@ -137,12 +137,16 @@ export async function POST(request: Request) {
 }
 
 export async function GET(
-  request: Request,
+  req: Request,
   params: { params: { storeId: string } }
 ) {
   try {
     const { storeId } = params.params;
-    
+    const { searchParams } = new URL(req.url)
+    const categoryId = searchParams.get('categoryId') || undefined;
+    const limit = searchParams.get('limit') || undefined;
+    const isFeatured = searchParams.get('isFeatured');
+
     if (!storeId) {
       return NextResponse.json(
         { error: "Store id is required" },
@@ -150,27 +154,30 @@ export async function GET(
       );
     }
 
-    const categories = await prismadb.category.findMany({
+    const products = await prismadb.product.findMany({
       where: {
-        storeId: storeId,
+        storeId,
+        categoryId,
+        isFeatured: isFeatured ? true : undefined,
+        isArchived: false
       },
       include: {
-        products: {
+        images: true,
+        variants: {
           include: {
-            variants: {
-              include: {
-                variant: true,
-                color: true,
-              },
-            },
-            images: true,
+            color: true,
+            variant: true,
           },
         },
       },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: limit ? Number(limit) : undefined
     });
-    return NextResponse.json(categories, { status: 200 });
+    return NextResponse.json(products, { status: 200 });
   } catch (err) {
-    console.log("[PRODUCT_GET]", err);
+    console.log("[PRODUCTS_GET]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
