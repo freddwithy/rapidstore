@@ -1,5 +1,4 @@
 
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ProductCard from "./ui/product-card";
 import {Prisma } from "@prisma/client";
 import getProducts from "@/actions/get-products";

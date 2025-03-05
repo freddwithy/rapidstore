@@ -1,26 +1,8 @@
 
 import Titles from "@/components/titles";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
-import { Plus, Star } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import React, { Suspense } from "react";
 import ProductByCategories from "./products";
-import getCategories from "@/actions/get-categories";
-import ProductCardSkeleton from "./ui/skeletons/product-card-skeleton";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
