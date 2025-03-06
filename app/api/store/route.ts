@@ -1,43 +1,5 @@
 import prismadb from "@/lib/prismadb";
-import { NextRequest, NextResponse } from "next/server";
-
-export async function GET(req: NextRequest) {
-  const subdomain = req.nextUrl.searchParams.get("subdomain");
-
-  console.log("API: Received request for store with subdomain", subdomain);
-
-  if (!subdomain) {
-    console.log("API: Missing subdomain");
-    return NextResponse.json({ error: "Missing subdomain" }, { status: 400 });
-  }
-
-  try {
-    const store = await prismadb.store.findUnique({
-      where: {
-        url: subdomain,
-      },
-      select: {
-        id: true,
-        name: true,
-      },
-    });
-
-    console.log("API: Found store", store);
-
-    if (!store) {
-      console.log("API: Store not found");
-      return NextResponse.json({ error: "Store not found" }, { status: 404 });
-    }
-
-    return NextResponse.json({ store }, { status: 200 });
-  } catch (err) {
-    console.log("[STORE_GET]", err);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
+import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
