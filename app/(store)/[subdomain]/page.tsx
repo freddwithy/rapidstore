@@ -9,6 +9,9 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import Cart from "./components/cart";
 import ProductsClientComponent from "./components/client";
+import CategoriesTags from "./components/categories-tags";
+import { Suspense } from "react";
+import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 
 export default async function SubdomainPage({
   params,
@@ -22,12 +25,6 @@ export default async function SubdomainPage({
     const store = await prismadb.store.findUnique({
       where: {
         url: subdomain,
-      },
-    });
-
-    const categories = await prismadb.category.findMany({
-      where: {
-        storeId: store?.id,
       },
     });
 
@@ -57,6 +54,12 @@ export default async function SubdomainPage({
                   {store.description}
                 </p>
               </div>
+              <div className="flex gap-x-2 items-center">
+                <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+                  <CategoriesTags storeId={store.id} />
+                </Suspense>
+              </div>
+
               <div className="flex gap-x-4">
                 <Button variant="link" size="sm" className="px-0">
                   <WhatsApp className="text-white" />
@@ -66,17 +69,6 @@ export default async function SubdomainPage({
                   <Instagram />
                   Instagram
                 </Button>
-              </div>
-              <div className="flex gap-x-2 items-center">
-                {categories.map((cat) => (
-                  <a
-                    key={cat.name}
-                    href={`#${cat.name}`}
-                    className="flex gap-x-2 items-center bg-primary-foreground px-4 py-2 rounded-full border-muted border hover:bg-primary-foreground/80"
-                  >
-                    {cat.name}
-                  </a>
-                ))}
               </div>
             </div>
             <Cart />

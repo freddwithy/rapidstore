@@ -1,13 +1,11 @@
-import { Skeleton } from '@/components/ui/skeleton'
-import React from 'react'
+import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
 
 const ProductCardSkeleton = () => {
   return (
-    <div className="border rounded-xl p-4 bg-secondary relative">
+    <div className="border rounded-xl p-4 bg-secondary relative justify-center flex">
       <div className="flex flex-col gap-4 relative group">
-        <div
-          className="rounded-lg size-52 overflow-hidden"
-        >
+        <div className="rounded-lg size-36 md:size-52 overflow-hidden">
           <Skeleton className="w-full h-full" />
         </div>
         <div className="space-y-1">
@@ -19,7 +17,7 @@ const ProductCardSkeleton = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProductCardSkeleton
+export default ProductCardSkeleton;
