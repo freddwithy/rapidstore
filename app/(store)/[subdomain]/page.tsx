@@ -29,22 +29,7 @@ export default async function SubdomainPage({
       where: {
         storeId: store?.id,
       },
-      include: {
-        products: {
-          include: {
-            variants: {
-              include: {
-                variant: true,
-                color: true,
-              },
-            },
-            images: true,
-          },
-        },
-      },
     });
-
-    const products = categories.flatMap((cat) => cat.products);
 
     if (!store) {
       console.log("Page: Store not found, returning 404");
@@ -96,7 +81,7 @@ export default async function SubdomainPage({
             </div>
             <Cart />
           </div>
-          <ProductsClientComponent products={products} storeId={store.id} />
+          <ProductsClientComponent storeId={store.id} />
         </div>
       </div>
     );
