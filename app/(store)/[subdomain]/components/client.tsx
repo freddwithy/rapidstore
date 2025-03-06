@@ -18,13 +18,11 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 }>;
 
 interface ClientComponentProps {
-  destacados: ProductWithVariants[];
   products?: ProductWithVariants[];
   storeId: string;
 }
 
 const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
-  destacados,
   storeId,
 }) => {
   return (
