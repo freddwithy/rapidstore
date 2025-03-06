@@ -44,10 +44,6 @@ export default async function SubdomainPage({
       },
     });
 
-    const destacados = categories
-      .flatMap((cat) => cat.products.filter((p) => p.isFeatured))
-      .slice(0, 4);
-
     const products = categories.flatMap((cat) => cat.products);
 
     if (!store) {
@@ -100,11 +96,7 @@ export default async function SubdomainPage({
             </div>
             <Cart />
           </div>
-          <ProductsClientComponent
-            destacados={destacados}
-            products={products}
-            storeId={store.id}
-          />
+          <ProductsClientComponent products={products} storeId={store.id} />
         </div>
       </div>
     );
