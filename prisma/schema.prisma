@@ -35,6 +35,9 @@ model Store {
   ruc         String?
   location    String
   city        String
+  instagram   String?
+  whatsapp    String?
+  logo        String?
   products    Product[]
   categories  Category[]
   variants    Variant[]
