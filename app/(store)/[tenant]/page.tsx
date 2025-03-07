@@ -9,6 +9,7 @@ import ProductsClientComponent from "./components/client";
 import CategoriesTags from "./components/categories-tags";
 import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
+import { ModeToggle } from "@/components/mode-toggle";
 
 export default async function SubdomainPage({
   params,
@@ -29,20 +30,23 @@ export default async function SubdomainPage({
 
   return (
     <div className="w-full mx-auto max-w-[1080px] h-dvh flex flex-col">
-      <div className="w-full py-14 px-4 space-y-4">
-        <div className="flex justify-between items-end">
+      <div className="w-full py-14 px-4 md:px-8 space-y-4">
+        <div className="flex justify-between">
           <div className="space-y-2">
-            <div className="rounded-lg overflow-hidden border aspect-square size-32">
-              <Image
-                src={
-                  store.logo ||
-                  "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
-                }
-                alt="user"
-                width={128}
-                height={128}
-              />
+            <div className="flex justify-between w-full">
+              <div className="rounded-lg overflow-hidden border aspect-square size-32">
+                <Image
+                  src={
+                    store.logo ||
+                    "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                  }
+                  alt="user"
+                  width={128}
+                  height={128}
+                />
+              </div>
             </div>
+
             <div>
               <h1 className="text-xl font-semibold capitalize">{store.name}</h1>
               <p className="text-sm text-muted-foreground">
@@ -59,7 +63,7 @@ export default async function SubdomainPage({
                 className={buttonVariants({ variant: "link", size: "sm" })}
                 href={store.whatsapp || ""}
               >
-                <WhatsApp className="text-white" />
+                <WhatsApp />
                 WhatsApp
               </a>
               <a
@@ -71,6 +75,7 @@ export default async function SubdomainPage({
               </a>
             </div>
           </div>
+          <ModeToggle />
           <Cart />
         </div>
         <ProductsClientComponent storeId={store.id} />

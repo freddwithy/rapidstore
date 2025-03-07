@@ -37,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             fill
           />
           {product.isFeatured && (
-            <Star className="size-4 top-2 left-2 absolute text-yellow-500" />
+            <Star className="size-4 top-2 left-2 absolute text-yellow-500 fill-yellow-500" />
           )}
         </Link>
         <Button className="absolute top-1 right-1 z-10" size="icon">
