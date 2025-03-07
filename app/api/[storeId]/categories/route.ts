@@ -55,6 +55,13 @@ export async function GET(
       where: {
         storeId,
       },
+      include: {
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
 
     return NextResponse.json(categories, { status: 200 });

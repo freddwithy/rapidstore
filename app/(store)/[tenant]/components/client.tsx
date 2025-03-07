@@ -35,14 +35,16 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
       </div>
       {categories.map((cat) => (
         <div key={cat.id} className="space-y-4">
-          <Titles
-            title={cat.name}
-            description={
-              cat.description
-                ? cat.description[0].toUpperCase() + cat.description.slice(1)
-                : "Categoría de productos"
-            }
-          />
+          {cat.products.length > 0 && (
+            <Titles
+              title={cat.name}
+              description={
+                cat.description
+                  ? cat.description[0].toUpperCase() + cat.description.slice(1)
+                  : "Categoría de productos"
+              }
+            />
+          )}
           <ScrollArea>
             <div className="flex gap-4">
               <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
