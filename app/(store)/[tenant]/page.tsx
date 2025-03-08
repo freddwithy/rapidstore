@@ -10,6 +10,19 @@ import CategoriesTags from "./components/categories-tags";
 import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 import { ModeToggle } from "@/components/mode-toggle";
+import getStore from "@/actions/get-store";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { tenant: string };
+}) {
+  const store = await getStore({ tenantURL: params.tenant });
+  return {
+    title: store.name,
+    description: store.description,
+  };
+}
 
 export default async function SubdomainPage({
   params,
