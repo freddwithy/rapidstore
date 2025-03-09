@@ -48,11 +48,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           <ScrollArea>
             <div className="flex gap-4">
               <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
-                <ProductByCategories
-                  storeId={storeId}
-                  categoryId={cat.id}
-                  limit={4}
-                />
+                <ProductByCategories storeId={storeId} categoryId={cat.id} />
               </Suspense>
             </div>
             <ScrollBar orientation="horizontal" />

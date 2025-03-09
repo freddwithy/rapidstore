@@ -17,7 +17,7 @@ const Cart = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" className="fixed bottom-10 right-8 z-10">
+        <Button variant="secondary" className="fixed bottom-10 right-8 z-20">
           {items.length}
           <ShoppingCart />
         </Button>
