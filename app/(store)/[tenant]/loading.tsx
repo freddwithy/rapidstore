@@ -1,6 +1,8 @@
+"use client";
 //import { Skeleton } from "@/components/ui/skeleton";
-import { LoaderCircle } from "lucide-react";
 import React from "react";
+import { bouncy } from "ldrs";
+bouncy.register();
 
 const Loading = () => {
   return (
@@ -23,11 +25,8 @@ const Loading = () => {
     //     </div>
     //   </div>
     // </div>
-    <div className="w-full h-dvh flex items-center justify-center bg-background animate-pulse flex-col gap-y-2">
-      <LoaderCircle className="size-20 animate-spin text-muted-foreground/80" />
-      <p className="text-xl text-muted-foreground font-medium">
-        Cargando tienda...
-      </p>
+    <div className="w-full h-dvh flex items-center justify-center bg-background flex-col gap-y-4 animate-fade">
+      <l-bouncy size="60" speed="1" color="hsl(var(--foreground))"></l-bouncy>
     </div>
   );
 };

@@ -15,15 +15,15 @@ export async function GET(
       );
     }
 
-    const products = await prismadb.store.findUnique({
+    const store = await prismadb.store.findUnique({
       where: {
         url: storeId,
       },
     });
 
-    return NextResponse.json(products, { status: 200 });
+    return NextResponse.json(store, { status: 200 });
   } catch (err) {
-    console.log("[PRODUCTS_GET]", err);
+    console.log("[STORE_GET]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
