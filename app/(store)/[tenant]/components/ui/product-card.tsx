@@ -24,7 +24,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
-    <div className="border rounded-xl p-4 bg-secondary relative">
+    <div className="border rounded-xl p-4 bg-secondary relative max-w-60">
       <div className="flex flex-col gap-4 relative group">
         <Link
           className="rounded-lg size-52 bg-white overflow-hidden group relative"
@@ -46,8 +46,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Link className="space-y-2" href={`/${product.id}`}>
           <div>
             <h1 className="text-md font-medium">{product.name}</h1>
-            <p className="text-xs text-muted-foreground">
-              {product.description}
+            <p className="text-xs text-muted-foreground text-wrap ">
+              {product.description.length > 40
+                ? product.description.slice(0, 60) + "..."
+                : product.description}
             </p>
             <div className="flex flex-col">
               <span className="text-foreground text-sm md:text-lg font-semibold">
