@@ -1,6 +1,5 @@
 import Instagram from "@/components/icons/instagram";
 import WhatsApp from "@/components/icons/whatsapp";
-import { buttonVariants } from "@/components/ui/button";
 import prismadb from "@/lib/prismadb";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -11,7 +10,6 @@ import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 import { ModeToggle } from "@/components/mode-toggle";
 import getStore from "@/actions/get-store";
-import { ArrowUpRightIcon } from "lucide-react";
 
 export async function generateMetadata({
   params,
