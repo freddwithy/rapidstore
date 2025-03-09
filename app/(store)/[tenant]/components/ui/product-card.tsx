@@ -45,14 +45,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Button>
         <Link className="space-y-2" href={`/${product.id}`}>
           <div>
-            <h1 className="text-lg md:text-xl font-semibold">{product.name}</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-md font-medium">{product.name}</h1>
+            <p className="text-xs text-muted-foreground">
               {product.description}
             </p>
+            <div className="flex flex-col">
+              <span className="text-foreground text-sm md:text-lg font-semibold">
+                {formatter.format(
+                  product.variants[0].salePrice || product.variants[0].price
+                )}
+              </span>
+              {product.variants[0].salePrice > 0 && (
+                <div className="flex gap-x-2 items-center">
+                  <span className="px-1 bg-red-500 text-sm md:text-medium  text-white font-medium rounded-lg">
+                    {(
+                      ((product.variants[0].salePrice -
+                        product.variants[0].price) /
+                        product.variants[0].price) *
+                      100
+                    ).toFixed(0)}
+                    %
+                  </span>
+                  <span className="text-xs md:text-sm line-through text-red-500">
+                    {formatter.format(product.variants[0].price)}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
-          <span className="text-foreground text-sm md:text-lg">
-            {formatter.format(product.variants[0].price)}
-          </span>
         </Link>
       </div>
     </div>

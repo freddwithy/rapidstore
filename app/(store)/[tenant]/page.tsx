@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 import { ModeToggle } from "@/components/mode-toggle";
 import getStore from "@/actions/get-store";
+import { ArrowUpRightIcon } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -66,30 +67,30 @@ export default async function SubdomainPage({
                 {store.description}
               </p>
             </div>
-            <div className="flex gap-x-2 items-center">
-              <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
-                <CategoriesTags storeId={store.id} />
-              </Suspense>
-            </div>
-            <div className="flex gap-x-4">
+            <div className="flex gap-x-2">
               <a
-                className={buttonVariants({ variant: "link", size: "sm" })}
+                className="text-xs flex gap-x-1 items-center hover:underline"
                 href={store.whatsapp || ""}
               >
-                <WhatsApp />
+                <WhatsApp className="size-4" />
                 WhatsApp
               </a>
               <a
-                className={buttonVariants({ variant: "link", size: "sm" })}
-                href={store.instagram || ""}
+                className="text-xs flex gap-x-1 items-center hover:underline"
+                href={store.whatsapp || ""}
               >
-                <Instagram />
+                <Instagram className="size-4" />
                 Instagram
               </a>
             </div>
           </div>
           <ModeToggle />
           <Cart />
+        </div>
+        <div className="flex gap-x-2 items-center">
+          <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+            <CategoriesTags storeId={store.id} />
+          </Suspense>
         </div>
         <ProductsClientComponent storeId={store.id} />
       </div>

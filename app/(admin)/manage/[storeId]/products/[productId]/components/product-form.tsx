@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -670,9 +671,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       ? "Inhabilitado"
                       : "Guardar"}
                   </Button>
-                  <Button type="button" variant="secondary">
-                    Cancelar
-                  </Button>
+                  <DialogClose asChild>
+                    <Button type="button" variant="secondary">
+                      Cancelar
+                    </Button>
+                  </DialogClose>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
