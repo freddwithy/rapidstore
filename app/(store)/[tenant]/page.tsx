@@ -40,6 +40,9 @@ export default async function SubdomainPage({
     notFound();
   }
 
+  //set timout to 1 second to simulate loading
+  //await new Promise((resolve) => setTimeout(resolve, 5000));
+
   return (
     <div className="w-full mx-auto max-w-[1080px] h-dvh flex flex-col">
       <div className="w-full py-14 px-4 md:px-8 space-y-4">
