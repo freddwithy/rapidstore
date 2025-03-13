@@ -35,7 +35,7 @@ async function ProductByCategories({
   return (
     <>
       {products.map((p) => (
-        <ProductCard key={p.id} product={p} />
+        <ProductCard key={p.id} product={p} tenant={storeId} />
       ))}
     </>
   );

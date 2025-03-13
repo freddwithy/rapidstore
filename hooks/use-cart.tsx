@@ -13,6 +13,7 @@ interface TableItem {
   addItems: (data: OrderProductHook[]) => void;
   removeItem: (variantId: string) => void;
   removeAll: () => void;
+  updateItem: (variantId: string, quantity: number) => void;
 }
 
 const useCart = create(
@@ -32,6 +33,20 @@ const useCart = create(
       },
       removeAll: () => {
         set({ items: [] });
+      },
+      // si la cantidad llega a 0, remover el item
+      updateItem: (variantId: string, quantity: number) => {
+        const items = get().items;
+        const itemIndex = items.findIndex(
+          (item) => item.variantId === variantId
+        );
+        if (itemIndex !== -1) {
+          items[itemIndex].quantity = quantity;
+          set({ items });
+        }
+        if (quantity <= 0) {
+          get().removeItem(variantId);
+        }
       },
     }),
     {

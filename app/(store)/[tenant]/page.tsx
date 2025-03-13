@@ -2,14 +2,14 @@ import Instagram from "@/components/icons/instagram";
 import WhatsApp from "@/components/icons/whatsapp";
 import prismadb from "@/lib/prismadb";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-import Cart from "./components/cart";
 import ProductsClientComponent from "./components/client";
 import CategoriesTags from "./components/categories-tags";
 import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 import { ModeToggle } from "@/components/mode-toggle";
 import getStore from "@/actions/get-store";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Ban } from "lucide-react";
 
 export async function generateMetadata({
   params,
@@ -17,6 +17,12 @@ export async function generateMetadata({
   params: { tenant: string };
 }) {
   const store = await getStore({ tenantURL: params.tenant });
+  if (!store) {
+    return {
+      title: "Store not found",
+      description: "Store not found",
+    };
+  }
   return {
     title: store.name,
     description: store.description,
@@ -36,15 +42,26 @@ export default async function SubdomainPage({
   });
 
   if (!store) {
-    console.log("Page: Store not found, returning 404");
-    notFound();
+    return (
+      <div className="w-full h-dvh flex justify-center items-center">
+        <div>
+          <Alert>
+            <Ban className="size-5" />
+            <AlertTitle>Tienda no encontrada</AlertTitle>
+            <AlertDescription>
+              La tienda que buscas no existe o fue eliminada.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
   }
 
   //set timout to 1 second to simulate loading
   //await new Promise((resolve) => setTimeout(resolve, 5000));
 
   return (
-    <div className="w-full mx-auto max-w-[1080px] h-dvh flex flex-col animate-fade-up">
+    <div className="w-full mx-auto max-w-[1080px] flex flex-col animate-fade">
       <div className="w-full py-14 px-4 md:px-8 space-y-4">
         <div className="flex justify-between">
           <div className="space-y-2">
@@ -86,7 +103,6 @@ export default async function SubdomainPage({
             </div>
           </div>
           <ModeToggle />
-          <Cart />
         </div>
         <div className="flex gap-x-2 items-center">
           <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>

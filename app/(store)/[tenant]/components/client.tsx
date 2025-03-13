@@ -4,6 +4,8 @@ import ProductByCategories from "./products";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import getCategories from "@/actions/get-categories";
+import getProducts from "@/actions/get-products";
+import Cart from "./cart";
 
 interface ClientComponentProps {
   storeId: string;
@@ -13,6 +15,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   storeId,
 }) => {
   const categories = await getCategories({ storeId });
+  const products = await getProducts({ storeId });
   return (
     <div className="space-y-8">
       <div className="space-y-4">
@@ -34,7 +37,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
         </ScrollArea>
       </div>
       {categories.map((cat) => (
-        <div key={cat.id} className="space-y-4">
+        <div key={cat.id} className="space-y-4" id={cat.name}>
           {cat.products.length > 0 && (
             <Titles
               title={cat.name}
@@ -55,6 +58,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           </ScrollArea>
         </div>
       ))}
+      <Cart products={products} />
     </div>
   );
 };

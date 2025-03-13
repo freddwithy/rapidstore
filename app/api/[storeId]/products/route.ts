@@ -15,8 +15,7 @@ export async function POST(request: Request) {
       images,
       category,
       options,
-    } = body
-
+    } = body;
 
     if (!name) {
       console.log("Missing name");
@@ -142,10 +141,10 @@ export async function GET(
 ) {
   try {
     const { storeId } = params.params;
-    const { searchParams } = new URL(req.url)
-    const categoryId = searchParams.get('categoryId') || undefined;
-    const limit = searchParams.get('limit') || undefined;
-    const isFeatured = searchParams.get('isFeatured');
+    const { searchParams } = new URL(req.url);
+    const categoryId = searchParams.get("categoryId") || undefined;
+    const limit = searchParams.get("limit") || undefined;
+    const isFeatured = searchParams.get("isFeatured");
 
     if (!storeId) {
       return NextResponse.json(
@@ -159,7 +158,7 @@ export async function GET(
         storeId,
         categoryId,
         isFeatured: isFeatured ? true : undefined,
-        isArchived: false
+        isArchived: false,
       },
       include: {
         images: true,
@@ -173,7 +172,7 @@ export async function GET(
       orderBy: {
         createdAt: "desc",
       },
-      take: limit ? Number(limit) : undefined
+      take: limit ? Number(limit) : undefined,
     });
     return NextResponse.json(products, { status: 200 });
   } catch (err) {
