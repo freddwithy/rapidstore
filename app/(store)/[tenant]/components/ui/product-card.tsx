@@ -1,10 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import useCart from "@/hooks/use-cart";
 import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
 import { Plus, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { toast } from "sonner";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
@@ -20,15 +22,41 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 interface ProductCardProps {
   product: ProductWithVariants;
+  tenant: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
+  const { addItem, items, updateItem } = useCart();
+  console.log(items);
+
+  const isInCart = items.some(
+    (item) => item.variantId === product.variants[0].id
+  );
+
+  const isInCartQuantity = items.find(
+    (item) => item.variantId === product.variants[0].id
+  );
+
+  const addToCart = () => {
+    if (isInCart && isInCartQuantity?.quantity) {
+      updateItem(product.variants[0].id, isInCartQuantity.quantity + 1);
+      toast.success("Producto agregado al carrito");
+    } else {
+      addItem({
+        variantId: product.variants[0].id,
+        quantity: 1,
+        total: product.variants[0].salePrice || product.variants[0].price,
+      });
+      toast.success("Producto agregado al carrito");
+    }
+  };
+
   return (
     <div className="border rounded-xl p-4 bg-secondary relative max-w-60">
       <div className="flex flex-col gap-4 relative group">
         <Link
           className="rounded-lg size-52 bg-white overflow-hidden group relative"
-          href={`/${product.id}`}
+          href={`/${tenant}/${product.id}`}
         >
           <Image
             className="group-hover:scale-105 transition-transform duration-300 object-cover"
@@ -40,7 +68,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <Star className="size-4 top-2 left-2 absolute text-yellow-500 fill-yellow-500" />
           )}
         </Link>
-        <Button className="absolute top-1 right-1 z-10" size="icon">
+        <Button
+          className="absolute top-1 right-1 z-10"
+          size="icon"
+          type="button"
+          onClick={addToCart}
+        >
           <Plus />
         </Button>
         <Link className="space-y-2" href={`/${product.id}`}>
