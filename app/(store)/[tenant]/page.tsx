@@ -61,56 +61,52 @@ export default async function SubdomainPage({
   //await new Promise((resolve) => setTimeout(resolve, 5000));
 
   return (
-    <div className="w-full mx-auto max-w-[1080px] flex flex-col animate-fade">
-      <div className="w-full py-14 px-4 md:px-8 space-y-4">
-        <div className="flex justify-between">
-          <div className="space-y-2">
-            <div className="flex justify-between w-full">
-              <div className="rounded-lg overflow-hidden border aspect-square size-32">
-                <Image
-                  src={
-                    store.logo ||
-                    "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
-                  }
-                  alt="user"
-                  width={128}
-                  height={128}
-                />
-              </div>
-            </div>
-
-            <div>
-              <h1 className="text-xl font-semibold capitalize">{store.name}</h1>
-              <p className="text-sm text-muted-foreground">
-                {store.description}
-              </p>
-            </div>
-            <div className="flex gap-x-2">
-              <a
-                className="text-xs flex gap-x-1 items-center hover:underline"
-                href={store.whatsapp || ""}
-              >
-                <WhatsApp className="size-4" />
-                WhatsApp
-              </a>
-              <a
-                className="text-xs flex gap-x-1 items-center hover:underline"
-                href={store.whatsapp || ""}
-              >
-                <Instagram className="size-4" />
-                Instagram
-              </a>
+    <div className="w-full py-14 px-4 md:px-8 space-y-4">
+      <div className="flex justify-between">
+        <div className="space-y-2">
+          <div className="flex justify-between w-full">
+            <div className="rounded-lg overflow-hidden border aspect-square size-32">
+              <Image
+                src={
+                  store.logo ||
+                  "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+                }
+                alt="user"
+                width={128}
+                height={128}
+              />
             </div>
           </div>
-          <ModeToggle />
+
+          <div>
+            <h1 className="text-xl font-semibold capitalize">{store.name}</h1>
+            <p className="text-sm text-muted-foreground">{store.description}</p>
+          </div>
+          <div className="flex gap-x-2">
+            <a
+              className="text-xs flex gap-x-1 items-center hover:underline"
+              href={store.whatsapp || ""}
+            >
+              <WhatsApp className="size-4" />
+              WhatsApp
+            </a>
+            <a
+              className="text-xs flex gap-x-1 items-center hover:underline"
+              href={store.whatsapp || ""}
+            >
+              <Instagram className="size-4" />
+              Instagram
+            </a>
+          </div>
         </div>
-        <div className="flex gap-x-2 items-center">
-          <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
-            <CategoriesTags storeId={store.id} />
-          </Suspense>
-        </div>
-        <ProductsClientComponent storeId={store.id} />
+        <ModeToggle />
       </div>
+      <div className="flex gap-x-2 items-center">
+        <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+          <CategoriesTags storeId={store.id} />
+        </Suspense>
+      </div>
+      <ProductsClientComponent storeId={store.id} tenant={tenant} />
     </div>
   );
 }

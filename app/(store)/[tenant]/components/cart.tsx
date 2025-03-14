@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -14,6 +14,7 @@ import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
 import { ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import React from "react";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
@@ -25,9 +26,10 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 interface CartItem {
   products: ProductWithVariants[];
+  tenant: string;
 }
 
-const Cart: React.FC<CartItem> = ({ products }) => {
+const Cart: React.FC<CartItem> = ({ products, tenant }) => {
   const { items, updateItem } = useCart();
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
   //mapear productos mezclando items con productos
@@ -95,7 +97,9 @@ const Cart: React.FC<CartItem> = ({ products }) => {
                 </div>
 
                 <div>
-                  <p className="text-md">{item.name}</p>
+                  <Link href={`${tenant}/${item.id}`} className="text-md">
+                    {item.name}
+                  </Link>
                   <p className="text-sm text-muted-foreground">
                     {formatter.format(item.price)}
                   </p>
@@ -133,10 +137,16 @@ const Cart: React.FC<CartItem> = ({ products }) => {
               <p className="text-lg text-muted-foreground">Total</p>
               <p className="text-lg font-semibold">{formatter.format(total)}</p>
             </div>
-            <Button variant="default" className="w-full">
+            <Link
+              href={`/${tenant}/cart`}
+              className={buttonVariants({
+                variant: "default",
+                className: "w-full",
+              })}
+            >
               <ShoppingCart />
               Ver carrito
-            </Button>
+            </Link>
           </div>
         </SheetFooter>
       </SheetContent>
