@@ -52,5 +52,5 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
     </div>
   );
 };
-
+export const dynamic = "force-dynamic"; // ⚡ Desactiva la caché estática
 export default CartPage;
