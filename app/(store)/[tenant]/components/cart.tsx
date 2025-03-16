@@ -12,7 +12,7 @@ import {
 import useCart from "@/hooks/use-cart";
 import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -30,7 +30,7 @@ interface CartItem {
 }
 
 const Cart: React.FC<CartItem> = ({ products, tenant }) => {
-  const { items, updateItem } = useCart();
+  const { items, updateItem, removeAll } = useCart();
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
   //mapear productos mezclando items con productos
   const productos = items.map((item) => {
@@ -77,8 +77,14 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
       </SheetTrigger>
       <SheetContent className="">
         <SheetHeader>
-          <SheetTitle>Carrito</SheetTitle>
-          <SheetDescription>{totalProducts} productos</SheetDescription>
+          <SheetTitle className="text-xl">Carrito</SheetTitle>
+          <SheetDescription className="flex justify-between items-center">
+            {totalProducts} productos{" "}
+            <Button onClick={removeAll} type="button" variant="destructive">
+              <Trash />
+              Limpiar
+            </Button>
+          </SheetDescription>
         </SheetHeader>
         {items.length > 0 ? (
           productos.map((item) => (
@@ -107,7 +113,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
               </div>
               <div className="flex gap-x-2 items-center justify-around">
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="icon"
                   onClick={() => onRemove(item.variant?.id || "")}
                 >
@@ -115,7 +121,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                 </Button>
                 <p>{item.quantity}</p>
                 <Button
-                  variant="secondary"
+                  variant="ghost"
                   size="icon"
                   onClick={() => onAdd(item.variant?.id || "")}
                 >

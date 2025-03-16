@@ -4,8 +4,8 @@ import ProductByCategories from "./products";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import getCategories from "@/actions/get-categories";
-import getProducts from "@/actions/get-products";
 import Cart from "./cart";
+import prismadb from "@/lib/prismadb";
 
 interface ClientComponentProps {
   storeId: string;
@@ -17,7 +17,18 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   tenant,
 }) => {
   const categories = await getCategories({ storeId });
-  const products = await getProducts({ storeId });
+  const products = await prismadb.product.findMany({
+    where: {
+      storeId,
+    },
+    include: {
+      variants: true,
+      images: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
   return (
     <div className="space-y-8">
       <div className="space-y-4">
