@@ -9,10 +9,12 @@ import Cart from "./cart";
 
 interface ClientComponentProps {
   storeId: string;
+  tenant: string;
 }
 
 const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   storeId,
+  tenant,
 }) => {
   const categories = await getCategories({ storeId });
   const products = await getProducts({ storeId });
@@ -28,6 +30,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
             <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
               <ProductByCategories
                 storeId={storeId}
+                tenant={tenant}
                 isFeatured={true}
                 limit={4}
               />
@@ -51,14 +54,18 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           <ScrollArea>
             <div className="flex gap-4">
               <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
-                <ProductByCategories storeId={storeId} categoryId={cat.id} />
+                <ProductByCategories
+                  storeId={storeId}
+                  categoryId={cat.id}
+                  tenant={tenant}
+                />
               </Suspense>
             </div>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
       ))}
-      <Cart products={products} />
+      <Cart products={products} tenant={tenant} />
     </div>
   );
 };

@@ -19,12 +19,14 @@ interface ProductsProps {
   categoryId?: string;
   isFeatured?: boolean;
   limit?: number;
+  tenant: string;
 }
 async function ProductByCategories({
   storeId,
   categoryId,
   isFeatured,
   limit,
+  tenant,
 }: ProductsProps) {
   const products: ProductWithVariants[] = await getProducts({
     storeId,
@@ -35,7 +37,7 @@ async function ProductByCategories({
   return (
     <>
       {products.map((p) => (
-        <ProductCard key={p.id} product={p} tenant={storeId} />
+        <ProductCard key={p.id} product={p} tenant={tenant} />
       ))}
     </>
   );
