@@ -27,25 +27,26 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const { addItem, items, updateItem } = useCart();
+
   console.log(items);
 
-  const isInCart = items.some(
-    (item) => item.variantId === product.variants[0].id
-  );
+  const selectedVariant = product.variants[0];
+
+  const isInCart = items.some((item) => item.variantId === selectedVariant.id);
 
   const isInCartQuantity = items.find(
-    (item) => item.variantId === product.variants[0].id
+    (item) => item.variantId === selectedVariant.id
   );
 
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {
-      updateItem(product.variants[0].id, isInCartQuantity.quantity + 1);
+      updateItem(selectedVariant.id, isInCartQuantity.quantity + 1);
       toast.success("Producto agregado al carrito");
     } else {
       addItem({
-        variantId: product.variants[0].id,
+        variantId: selectedVariant.id,
         quantity: 1,
-        total: product.variants[0].salePrice || product.variants[0].price,
+        total: selectedVariant.salePrice || selectedVariant.price,
       });
       toast.success("Producto agregado al carrito");
     }
@@ -87,22 +88,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             <div className="flex flex-col">
               <span className="text-foreground text-sm md:text-lg font-semibold">
                 {formatter.format(
-                  product.variants[0].salePrice || product.variants[0].price
+                  selectedVariant.salePrice || selectedVariant.price
                 )}
               </span>
-              {product.variants[0].salePrice > 0 && (
+              {selectedVariant.salePrice > 0 && (
                 <div className="flex gap-x-2 items-center">
                   <span className="px-1 bg-red-500 text-sm md:text-medium  text-white font-medium rounded-lg">
                     {(
-                      ((product.variants[0].salePrice -
-                        product.variants[0].price) /
-                        product.variants[0].price) *
+                      ((selectedVariant.salePrice - selectedVariant.price) /
+                        selectedVariant.price) *
                       100
                     ).toFixed(0)}
                     %
                   </span>
                   <span className="text-xs md:text-sm line-through text-red-500">
-                    {formatter.format(product.variants[0].price)}
+                    {formatter.format(selectedVariant.price)}
                   </span>
                 </div>
               )}

@@ -1,16 +1,10 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import prismadb from "@/lib/prismadb";
 import React from "react";
 import Gallery from "./components/gallery";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import Options from "./components/options";
 
 const ProductPage = async ({
   params,
@@ -32,6 +26,7 @@ const ProductPage = async ({
       },
     },
   });
+  if (!product) return <div>Producto no encontrado</div>;
   return (
     <div className="py-20 w-full h-dvh space-y-4">
       <div>
@@ -45,13 +40,7 @@ const ProductPage = async ({
       </div>
       <div className="flex gap-x-4 w-full">
         <Gallery images={product?.images || []} />
-        <Card>
-          <CardHeader>
-            <CardTitle>{product?.name}</CardTitle>
-            <CardDescription>{product?.description}</CardDescription>
-          </CardHeader>
-          <CardContent></CardContent>
-        </Card>
+        <Options product={product} />
       </div>
     </div>
   );

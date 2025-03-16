@@ -77,11 +77,12 @@ const CartList: React.FC<CartItem> = ({ products }) => {
                 className="border-b flex justify-between items-center py-4"
               >
                 <div className="flex gap-x-2">
-                  <div className="rounded-md bg-white overflow-hidden aspect-square">
+                  <div className="rounded-md bg-white overflow-hidden aspect-square size-14">
                     <Image
                       src={item.images?.[0]?.url || ""}
-                      width={50}
-                      height={50}
+                      width={56}
+                      height={56}
+                      className="object-cover object-center"
                       alt={item.name || "Producto"}
                     />
                   </div>
@@ -97,7 +98,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
                 </div>
                 <div className="flex gap-x-2 items-center justify-around">
                   <Button
-                    variant="secondary"
+                    variant="ghost"
                     size="icon"
                     onClick={() => onRemove(item.variant?.id || "")}
                   >
@@ -105,7 +106,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
                   </Button>
                   <p>{item.quantity}</p>
                   <Button
-                    variant="secondary"
+                    variant="ghost"
                     size="icon"
                     onClick={() => onAdd(item.variant?.id || "")}
                   >

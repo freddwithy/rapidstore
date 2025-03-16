@@ -18,12 +18,17 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
   const products = await prismadb.product.findMany({
     where: {
       storeId: store.id,
+      isArchived: false,
     },
     include: {
       images: true,
       variants: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
+
   return (
     <div className="py-20 w-full h-dvh space-y-4">
       <div className="flex flex-col w-1/2 gap-y-2">
