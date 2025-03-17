@@ -30,7 +30,7 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
   });
 
   return (
-    <div className="py-20 w-full h-dvh space-y-4">
+    <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-4">
       <div className="flex flex-col w-1/2 gap-y-2">
         <div>
           <Link
@@ -52,5 +52,5 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
     </div>
   );
 };
-
+export const dynamic = "force-dynamic"; // ⚡ Desactiva la caché estática
 export default CartPage;

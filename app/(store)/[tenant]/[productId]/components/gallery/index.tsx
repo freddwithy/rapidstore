@@ -11,17 +11,17 @@ interface GalleryProps {
 const Gallery: React.FC<GalleryProps> = ({ images }) => {
   return (
     <TabGroup as="div" className="flex flex-col-reverse">
-      <div className="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
-        <TabList className="grid grid-cols-4 gap-4">
+      <div className="mx-auto mt-6 w-full max-w-2xl sm:block lg:max-w-none">
+        <TabList className="grid grid-cols-4 gap-4 px-1">
           {images.map((image) => (
             <GalleryTab key={image.id} image={image} />
           ))}
         </TabList>
       </div>
-      <TabPanels className="aspect-square size-[500px]">
+      <TabPanels className="aspect-square md:size-[500px]">
         {images.map((image) => (
           <TabPanel key={image.id}>
-            <div className="aspect-square relative size-full sm:rounded-lg overflow-hidden">
+            <div className="aspect-square relative size-full rounded-lg overflow-hidden bg-white">
               <Image
                 fill
                 src={image.url}

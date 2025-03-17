@@ -8,12 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import useCart from "@/hooks/use-cart";
 import { formatter } from "@/lib/utils";
 import { Field, Label, Radio, RadioGroup } from "@headlessui/react";
 import { Prisma } from "@prisma/client";
 import clsx from "clsx";
-import { Check } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type ProductWithOptions = Prisma.ProductGetPayload<{
   include: {
@@ -31,8 +34,30 @@ interface OptionsProps {
 }
 
 const Options: React.FC<OptionsProps> = ({ product }) => {
+  const { addItem } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
+
+  const addToCart = () => {
+    addItem({
+      variantId: selectedVariant.id,
+      quantity,
+      total: (selectedVariant.salePrice || selectedVariant.price) * quantity,
+    });
+    toast.success("Producto agregado al carrito", {
+      action: (
+        <Button onClick={() => router.push("cart")}>
+          <ShoppingCart />
+          Carrito
+        </Button>
+      ),
+      style: {
+        justifyContent: "space-between",
+      },
+    });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -40,7 +65,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         <CardDescription className="text-lg">
           {formatter.format(selectedVariant.salePrice || selectedVariant.price)}
         </CardDescription>
-        <p>{product.description}</p>
+        <p className="text-sm">{product.description.slice(0, 600)}</p>
       </CardHeader>
       <CardContent className="space-y-2">
         <p className="">Opciones</p>
@@ -99,7 +124,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         </div>
       </CardContent>
       <CardFooter>
-        <Button>Añadir al carrito</Button>
+        <Button onClick={addToCart}>Añadir al carrito</Button>
       </CardFooter>
     </Card>
   );

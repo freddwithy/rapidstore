@@ -28,8 +28,6 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const { addItem, items, updateItem } = useCart();
 
-  console.log(items);
-
   const selectedVariant = product.variants[0];
 
   const isInCart = items.some((item) => item.variantId === selectedVariant.id);
@@ -81,7 +79,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
           <div>
             <h1 className="text-md font-medium">{product.name}</h1>
             <p className="text-xs text-muted-foreground text-wrap ">
-              {product.description.length > 40
+              {product.description.length > 60
                 ? product.description.slice(0, 60) + "..."
                 : product.description}
             </p>

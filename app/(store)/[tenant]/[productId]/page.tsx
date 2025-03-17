@@ -12,6 +12,7 @@ const ProductPage = async ({
   params: { productId: string; tenant: string };
 }) => {
   const { productId, tenant } = params;
+
   const product = await prismadb.product.findUnique({
     where: {
       id: productId,
@@ -28,7 +29,7 @@ const ProductPage = async ({
   });
   if (!product) return <div>Producto no encontrado</div>;
   return (
-    <div className="py-20 w-full h-dvh space-y-4">
+    <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-4">
       <div>
         <Link
           className={buttonVariants({ variant: "outline" })}
@@ -38,7 +39,7 @@ const ProductPage = async ({
           Volver
         </Link>
       </div>
-      <div className="flex gap-x-4 w-full">
+      <div className="flex flex-col md:flex-row gap-4 w-full">
         <Gallery images={product?.images || []} />
         <Options product={product} />
       </div>
