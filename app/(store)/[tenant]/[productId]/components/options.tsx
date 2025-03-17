@@ -13,7 +13,8 @@ import { formatter } from "@/lib/utils";
 import { Field, Label, Radio, RadioGroup } from "@headlessui/react";
 import { Prisma } from "@prisma/client";
 import clsx from "clsx";
-import { Check } from "lucide-react";
+import { Check, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -36,6 +37,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   const { addItem } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
 
   const addToCart = () => {
     addItem({
@@ -43,7 +45,17 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
       quantity,
       total: (selectedVariant.salePrice || selectedVariant.price) * quantity,
     });
-    toast.success("Producto agregado al carrito");
+    toast.success("Producto agregado al carrito", {
+      action: (
+        <Button onClick={() => router.push("cart")}>
+          <ShoppingCart />
+          Carrito
+        </Button>
+      ),
+      style: {
+        justifyContent: "space-between",
+      },
+    });
   };
 
   return (

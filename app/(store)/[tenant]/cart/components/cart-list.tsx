@@ -10,6 +10,7 @@ import {
 import useCart from "@/hooks/use-cart";
 import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
+import { Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -61,13 +62,20 @@ const CartList: React.FC<CartItem> = ({ products }) => {
     updateItem(variantId, (cartItem?.quantity ?? 0) + 1);
   };
   return (
-    <div className="grid grid-cols-2 gap-x-4 w-full">
+    <div className="flex flex-col md:flex-row gap-4 w-full">
       <Card>
-        <CardHeader>
-          <CardTitle>Tu carrito ({totalProducts})</CardTitle>
-          <CardDescription>
-            Aqui podras ver todos los productos a comprar.
-          </CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div className="space-y-1">
+            <CardTitle>Tu carrito ({totalProducts})</CardTitle>
+            <CardDescription>
+              Aqui podras ver todos los productos a comprar.
+            </CardDescription>
+          </div>
+          {items.length > 0 && (
+            <Button variant="destructive">
+              <Trash /> Limpiar
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {items.length > 0 ? (

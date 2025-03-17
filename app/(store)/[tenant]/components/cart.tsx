@@ -80,10 +80,12 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
           <SheetTitle className="text-xl">Carrito</SheetTitle>
           <SheetDescription className="flex justify-between items-center">
             {totalProducts} productos{" "}
-            <Button onClick={removeAll} type="button" variant="destructive">
-              <Trash />
-              Limpiar
-            </Button>
+            {items.length > 0 && (
+              <Button onClick={removeAll} type="button" variant="destructive">
+                <Trash />
+                Limpiar
+              </Button>
+            )}
           </SheetDescription>
         </SheetHeader>
         {items.length > 0 ? (
