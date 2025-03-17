@@ -62,14 +62,12 @@ const CartList: React.FC<CartItem> = ({ products }) => {
     updateItem(variantId, (cartItem?.quantity ?? 0) + 1);
   };
   return (
-    <div className="flex flex-col md:flex-row gap-4 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">
             <CardTitle>Tu carrito ({totalProducts})</CardTitle>
-            <CardDescription>
-              Aqui podras ver todos los productos a comprar.
-            </CardDescription>
+            <CardDescription>Estos son tus productos.</CardDescription>
           </div>
           {items.length > 0 && (
             <Button variant="destructive">
