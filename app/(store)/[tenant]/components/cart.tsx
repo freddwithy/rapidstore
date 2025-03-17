@@ -75,13 +75,18 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
           <ShoppingCart />
         </Button>
       </SheetTrigger>
-      <SheetContent className="">
+      <SheetContent className="min-w-20">
         <SheetHeader>
-          <SheetTitle className="text-xl">Carrito</SheetTitle>
+          <SheetTitle className="md:text-xl">Carrito</SheetTitle>
           <SheetDescription className="flex justify-between items-center">
             {totalProducts} productos{" "}
             {items.length > 0 && (
-              <Button onClick={removeAll} type="button" variant="destructive">
+              <Button
+                size="sm"
+                onClick={removeAll}
+                type="button"
+                variant="destructive"
+              >
                 <Trash />
                 Limpiar
               </Button>
@@ -95,17 +100,21 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
               className="border-b flex justify-between items-center py-4"
             >
               <div className="flex gap-x-2">
-                <div className="rounded-md bg-white overflow-hidden aspect-square">
+                <div className="rounded-md hidden md:block bg-white overflow-hidden aspect-square size-10">
                   <Image
                     src={item.images?.[0]?.url || ""}
-                    width={50}
-                    height={50}
+                    width={40}
+                    height={40}
+                    layout="responsive"
                     alt={item.name || "Producto"}
                   />
                 </div>
 
                 <div>
-                  <Link href={`${tenant}/${item.id}`} className="text-md">
+                  <Link
+                    href={`${tenant}/${item.id}`}
+                    className="text-sm md:text-md"
+                  >
                     {item.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">

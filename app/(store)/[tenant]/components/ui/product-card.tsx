@@ -39,14 +39,18 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {
       updateItem(selectedVariant.id, isInCartQuantity.quantity + 1);
-      toast.success("Producto agregado al carrito");
+      toast.success("Producto agregado al carrito", {
+        position: "top-center",
+      });
     } else {
       addItem({
         variantId: selectedVariant.id,
         quantity: 1,
         total: selectedVariant.salePrice || selectedVariant.price,
       });
-      toast.success("Producto agregado al carrito");
+      toast.success("Producto agregado al carrito", {
+        position: "top-center",
+      });
     }
   };
 
@@ -58,7 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
           href={`/${tenant}/${product.id}`}
         >
           <Image
-            className="group-hover:scale-105 transition-transform duration-300 object-cover"
+            className="group-hover:scale-105 transition-transform duration-300 object-cover object-center"
             src={product.images[0].url}
             alt={product.name}
             fill

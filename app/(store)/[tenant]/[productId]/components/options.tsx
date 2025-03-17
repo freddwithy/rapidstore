@@ -34,28 +34,51 @@ interface OptionsProps {
 }
 
 const Options: React.FC<OptionsProps> = ({ product }) => {
-  const { addItem } = useCart();
+  const { addItem, items, updateItem } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
+  const isInCart = items.some((item) => item.variantId === selectedVariant.id);
+
+  const isInCartQuantity = items.find(
+    (item) => item.variantId === selectedVariant.id
+  );
+
   const addToCart = () => {
-    addItem({
-      variantId: selectedVariant.id,
-      quantity,
-      total: (selectedVariant.salePrice || selectedVariant.price) * quantity,
-    });
-    toast.success("Producto agregado al carrito", {
-      action: (
-        <Button onClick={() => router.push("cart")}>
-          <ShoppingCart />
-          Carrito
-        </Button>
-      ),
-      style: {
-        justifyContent: "space-between",
-      },
-    });
+    if (isInCart && isInCartQuantity?.quantity) {
+      updateItem(selectedVariant.id, isInCartQuantity.quantity + quantity);
+      toast.success("Producto agregado al carrito", {
+        position: "top-center",
+        action: (
+          <Button onClick={() => router.push("cart")} size="sm">
+            <ShoppingCart />
+            Carrito
+          </Button>
+        ),
+        style: {
+          justifyContent: "space-between",
+        },
+      });
+    } else {
+      addItem({
+        variantId: selectedVariant.id,
+        quantity,
+        total: selectedVariant.salePrice || selectedVariant.price,
+      });
+      toast.success("Producto agregado al carrito", {
+        position: "top-center",
+        action: (
+          <Button onClick={() => router.push("cart")} size="sm">
+            <ShoppingCart />
+            Carrito
+          </Button>
+        ),
+        style: {
+          justifyContent: "space-between",
+        },
+      });
+    }
   };
 
   return (

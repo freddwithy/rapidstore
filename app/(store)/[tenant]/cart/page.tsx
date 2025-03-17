@@ -42,8 +42,8 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
           </Link>
         </div>
         <div>
-          <h1 className="text-2xl font-semibold">Carrito</h1>
-          <p className="text-md text-muted-foreground">
+          <h1 className="text-lg md:text-2xl font-semibold">Carrito</h1>
+          <p className="text-sm md:text-md text-muted-foreground">
             Estás comprando en la tienda de {store.name}
           </p>
         </div>
