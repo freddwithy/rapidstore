@@ -30,7 +30,7 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
   });
 
   return (
-    <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-4">
+    <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-8 animate-fade-up">
       <div className="flex flex-col w-1/2 gap-y-2">
         <div>
           <Link
@@ -40,12 +40,6 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
             <ArrowLeft />
             Volver
           </Link>
-        </div>
-        <div>
-          <h1 className="text-lg md:text-2xl font-semibold">Carrito</h1>
-          <p className="text-sm md:text-md text-muted-foreground">
-            Estás comprando en la tienda de {store.name}
-          </p>
         </div>
       </div>
       <CartList products={products} tenant={tenant} />
