@@ -62,7 +62,7 @@ export default async function SubdomainPage({
 
   return (
     <div className="w-full py-2 md:py-14 px-2 md:px-8 space-y-4">
-      <div className="flex justify-between">
+      <div className="flex justify-between animate-fade-up">
         <div className="space-y-2">
           <div className="flex justify-between w-full">
             <div className="rounded-lg overflow-hidden border aspect-square size-32">
@@ -101,7 +101,7 @@ export default async function SubdomainPage({
         </div>
         <ModeToggle />
       </div>
-      <div className="flex gap-x-2 items-center">
+      <div className="flex gap-x-2 items-center animate-fade-up delay-75">
         <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
           <CategoriesTags storeId={store.id} />
         </Suspense>

@@ -28,7 +28,7 @@ interface CartItem {
 }
 
 const CartList: React.FC<CartItem> = ({ products }) => {
-  const { items, updateItem } = useCart();
+  const { items, updateItem, removeAll } = useCart();
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
   //mapear productos mezclando items con productos
   const productos = items.map((item) => {
@@ -62,7 +62,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
     updateItem(variantId, (cartItem?.quantity ?? 0) + 1);
   };
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full animate-fade-up delay-100">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">
@@ -70,7 +70,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
             <CardDescription>Estos son tus productos.</CardDescription>
           </div>
           {items.length > 0 && (
-            <Button variant="destructive">
+            <Button variant="destructive" onClick={removeAll}>
               <Trash /> Limpiar
             </Button>
           )}

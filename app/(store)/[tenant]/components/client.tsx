@@ -31,7 +31,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   });
   return (
     <div className="space-y-8">
-      <div className="space-y-4">
+      <div className="space-y-4 animate-fade-up delay-100">
         <Titles
           title="Destacados"
           description="Productos destacados de la tienda"
@@ -51,7 +51,11 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
         </ScrollArea>
       </div>
       {categories.map((cat) => (
-        <div key={cat.id} className="space-y-4" id={cat.name}>
+        <div
+          key={cat.id}
+          className="space-y-4 animate-fade-up delay-150 "
+          id={cat.name}
+        >
           {cat.products.length > 0 && (
             <Titles
               title={cat.name}
