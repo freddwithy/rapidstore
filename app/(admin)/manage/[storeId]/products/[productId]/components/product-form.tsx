@@ -1,4 +1,5 @@
 "use client";
+import Tiptap from "@/components/tiptap";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -54,9 +55,14 @@ const ProductFormSchema = z.object({
   name: z.string().min(1, {
     message: "El nombre es requerido",
   }),
-  description: z.string().min(1, {
-    message: "La descripción es requerida",
-  }),
+  description: z
+    .string()
+    .min(1, {
+      message: "La descripción es requerida",
+    })
+    .max(1500, {
+      message: "La descripción no puede tener más de 2000 caracteres",
+    }),
   images: z.any(),
   category: z.string().min(1, {
     message: "La categoría es requerida",
@@ -312,22 +318,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Descripción <Obligatory />
-                  </FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                  <FormDescription>La descripción del producto</FormDescription>
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="category"
@@ -358,48 +349,68 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
-              name="isArchived"
+              name="description"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                <FormItem>
+                  <FormLabel>
+                    Descripción <Obligatory />
+                  </FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
+                    <Tiptap
+                      description={field.value}
+                      onChange={field.onChange}
                     />
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Archivar</FormLabel>
-                    <FormDescription>
-                      Archiva el producto, no será visible en la tienda.
-                    </FormDescription>
-                  </div>
+                  <FormMessage />
+                  <FormDescription>La descripción del producto</FormDescription>
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="isFeatured"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Destacado</FormLabel>
-                    <FormDescription>
-                      Marca el producto destacado, aparecer&aacute; en la lista
-                      de productos destacados.
-                    </FormDescription>
-                  </div>
-                </FormItem>
-              )}
-            />
+            <div className="space-y-4">
+              <FormField
+                control={form.control}
+                name="isArchived"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Archivar</FormLabel>
+                      <FormDescription>
+                        Archiva el producto, no será visible en la tienda.
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="isFeatured"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <div className="space-y-1 leading-none">
+                      <FormLabel>Destacado</FormLabel>
+                      <FormDescription>
+                        Marca el producto destacado, aparecer&aacute; en la
+                        lista de productos destacados.
+                      </FormDescription>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
           </div>
 
           <Separator />

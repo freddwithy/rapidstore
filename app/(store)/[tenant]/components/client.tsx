@@ -6,6 +6,9 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import getCategories from "@/actions/get-categories";
 import Cart from "./cart";
 import prismadb from "@/lib/prismadb";
+import Link from "next/link";
+import { buttonVariants } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 
 interface ClientComponentProps {
   storeId: string;
@@ -57,22 +60,36 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           id={cat.name}
         >
           {cat.products.length > 0 && (
-            <Titles
-              title={cat.name}
-              description={
-                cat.description
-                  ? cat.description[0].toUpperCase() + cat.description.slice(1)
-                  : "Categoría de productos"
-              }
-            />
+            <div className="flex gap-2 items-center">
+              <Titles
+                title={cat.name}
+                description={
+                  cat.description
+                    ? cat.description[0].toUpperCase() +
+                      cat.description.slice(1)
+                    : "Categoría de productos"
+                }
+              />
+              <Link
+                href={`/${tenant}/categories/${cat.id}`}
+                className={buttonVariants({
+                  variant: "link",
+                  className: "text-muted-foreground",
+                })}
+              >
+                Ver todo
+                <ArrowUpRight className="size-4" />
+              </Link>
+            </div>
           )}
-          <ScrollArea>
-            <div className="flex gap-4">
+          <ScrollArea className="">
+            <div className="md:grid md:grid-cols-4 flex gap-4">
               <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
                 <ProductByCategories
                   storeId={storeId}
                   categoryId={cat.id}
                   tenant={tenant}
+                  limit={10}
                 />
               </Suspense>
             </div>

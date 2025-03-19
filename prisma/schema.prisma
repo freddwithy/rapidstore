@@ -54,7 +54,7 @@ model Product {
   name        String
   isArchived  Boolean          @default(false)
   isFeatured  Boolean          @default(false)
-  description String
+  description String           @db.Text
   category    Category         @relation(fields: [categoryId], references: [id])
   categoryId  String
   variants    VariantProduct[]
