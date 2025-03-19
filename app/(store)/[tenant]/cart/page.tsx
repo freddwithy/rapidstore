@@ -2,9 +2,7 @@ import prismadb from "@/lib/prismadb";
 import { notFound } from "next/navigation";
 import React from "react";
 import CartList from "./components/cart-list";
-import { buttonVariants } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import BackButton from "@/components/back-button";
 
 const CartPage = async ({ params }: { params: { tenant: string } }) => {
   const tenant = params.tenant;
@@ -33,13 +31,7 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
     <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-8 animate-fade-up">
       <div className="flex flex-col w-1/2 gap-y-2">
         <div>
-          <Link
-            className={buttonVariants({ variant: "outline" })}
-            href={`/${tenant}`}
-          >
-            <ArrowLeft />
-            Volver
-          </Link>
+          <BackButton />
         </div>
       </div>
       <CartList products={products} tenant={tenant} />

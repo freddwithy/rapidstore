@@ -81,11 +81,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
         </Button>
         <Link className="space-y-2" href={`/${product.id}`}>
           <div>
-            <h1 className="text-md font-medium">{product.name}</h1>
-            <p className="text-xs text-muted-foreground text-wrap ">
-              {product.description.length > 60
-                ? product.description.slice(0, 60) + "..."
-                : product.description}
+            <p className="text-md font-medium dark:text-zinc-300 text-zinc-700">
+              {product.name}
             </p>
             <div className="flex flex-col">
               <span className="text-foreground text-sm md:text-lg font-semibold">

@@ -17,6 +17,7 @@ import { Check, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import DOMPurify from "dompurify";
 
 type ProductWithOptions = Prisma.ProductGetPayload<{
   include: {
@@ -44,6 +45,17 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   const isInCartQuantity = items.find(
     (item) => item.variantId === selectedVariant.id
   );
+
+  const SafeHTML = () => {
+    const sanitizedContent = DOMPurify.sanitize(product.description);
+
+    return (
+      <div
+        className="prose text-muted-foreground prose-sm prose-p:text-sm"
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      />
+    );
+  };
 
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {
@@ -88,15 +100,14 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         <CardDescription className="text-lg">
           {formatter.format(selectedVariant.salePrice || selectedVariant.price)}
         </CardDescription>
-        <p className="text-sm">{product.description.slice(0, 600)}</p>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="">Opciones</p>
-        <div>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <p className="font-semibold">Opciones</p>
           <RadioGroup
             value={selectedVariant}
             onChange={setSelectedVariant}
-            className="flex gap-2"
+            className="flex gap-2 flex-wrap"
           >
             {product.variants.map((variant) => (
               <Field
@@ -127,27 +138,33 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
             ))}
           </RadioGroup>
         </div>
-        <p className="">Cantidad</p>
-        <div className="flex gap-x-2 items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setQuantity((q) => (q > 1 ? q - 1 : q))}
-          >
-            -
-          </Button>
-          <p>{quantity}</p>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setQuantity((q) => (q < 10 ? q + 1 : q))}
-          >
-            +
-          </Button>
+        <div className="space-y-2">
+          <p className="font-semibold">Cantidad</p>
+          <div className="flex gap-x-2 items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setQuantity((q) => (q > 1 ? q - 1 : q))}
+            >
+              -
+            </Button>
+            <p>{quantity}</p>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setQuantity((q) => (q < 10 ? q + 1 : q))}
+            >
+              +
+            </Button>
+          </div>
         </div>
+        <Button onClick={addToCart}>Añadir al carrito</Button>
       </CardContent>
       <CardFooter>
-        <Button onClick={addToCart}>Añadir al carrito</Button>
+        <div className="space-y-2">
+          <p className="font-semibold">Detalles</p>
+          <SafeHTML />
+        </div>
       </CardFooter>
     </Card>
   );
