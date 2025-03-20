@@ -1,5 +1,3 @@
-import Instagram from "@/components/icons/instagram";
-import WhatsApp from "@/components/icons/whatsapp";
 import prismadb from "@/lib/prismadb";
 import Image from "next/image";
 import ProductsClientComponent from "./components/client";
@@ -9,7 +7,11 @@ import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-sk
 import { ModeToggle } from "@/components/mode-toggle";
 import getStore from "@/actions/get-store";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Ban } from "lucide-react";
+import { Ban, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Cart from "./components/cart";
+import LateralNavbar from "./components/lateral-navbar";
 
 export async function generateMetadata({
   params,
@@ -39,6 +41,15 @@ export default async function SubdomainPage({
     where: {
       url: tenant,
     },
+    include: {
+      products: {
+        include: {
+          images: true,
+          variants: true,
+        },
+      },
+      categories: true,
+    },
   });
 
   if (!store) {
@@ -61,50 +72,45 @@ export default async function SubdomainPage({
   //await new Promise((resolve) => setTimeout(resolve, 5000));
 
   return (
-    <div className="w-full py-2 md:py-14 px-2 md:px-8 space-y-4">
-      <div className="flex justify-between animate-fade-up">
-        <div className="space-y-2">
-          <div className="flex justify-between w-full">
-            <div className="rounded-lg overflow-hidden border aspect-square size-32">
-              <Image
-                src={
-                  store.logo ||
-                  "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
-                }
-                alt="user"
-                width={128}
-                height={128}
-              />
-            </div>
+    <div className="w-full py-8 px-4 md:py-14 space-y-2">
+      <div className="rounded-xl overflow-hidden border aspect-square size-24 md:size-36">
+        <Image
+          src={
+            store.logo ||
+            "https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg"
+          }
+          alt="user"
+          width={160}
+          height={160}
+        />
+      </div>
+
+      <div className="sticky top-0 z-20 bg-background py-2 space-y-2">
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex gap-2 items-center">
+            <Link href={`/${tenant}`}>
+              <h1 className="text-3xl font-medium capitalize">{store.name}</h1>
+            </Link>
+            <Button size="icon" variant="ghost">
+              <Info className="size-4" />
+            </Button>
           </div>
 
-          <div>
-            <h1 className="text-xl font-semibold capitalize">{store.name}</h1>
-            <p className="text-sm text-muted-foreground">{store.description}</p>
-          </div>
-          <div className="flex gap-x-2">
-            <a
-              className="text-xs flex gap-x-1 items-center hover:underline"
-              href={store.whatsapp || ""}
-            >
-              <WhatsApp className="size-4" />
-              WhatsApp
-            </a>
-            <a
-              className="text-xs flex gap-x-1 items-center hover:underline"
-              href={store.whatsapp || ""}
-            >
-              <Instagram className="size-4" />
-              Instagram
-            </a>
+          <div className="flex gap-x-2 items-center">
+            <ModeToggle />
+            <Cart products={store.products} tenant={tenant} />
           </div>
         </div>
-        <ModeToggle />
-      </div>
-      <div className="flex gap-x-2 items-center animate-fade-up delay-75 p-2 bg-background sticky top-0 z-20">
-        <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
-          <CategoriesTags storeId={store.id} />
-        </Suspense>
+        <div className="flex gap-x-2 items-center">
+          <LateralNavbar
+            storeName={store.name}
+            tenant={tenant}
+            categories={store.categories}
+          />
+          <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+            <CategoriesTags storeId={store.id} />
+          </Suspense>
+        </div>
       </div>
       <ProductsClientComponent storeId={store.id} tenant={tenant} />
     </div>

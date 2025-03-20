@@ -4,8 +4,6 @@ import ProductByCategories from "./products";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import getCategories from "@/actions/get-categories";
-import Cart from "./cart";
-import prismadb from "@/lib/prismadb";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
@@ -20,18 +18,6 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
   tenant,
 }) => {
   const categories = await getCategories({ storeId });
-  const products = await prismadb.product.findMany({
-    where: {
-      storeId,
-    },
-    include: {
-      variants: true,
-      images: true,
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
   return (
     <div className="space-y-8">
       <div className="space-y-4 animate-fade-up delay-100">
@@ -56,7 +42,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
       {categories.map((cat) => (
         <div
           key={cat.id}
-          className="space-y-4 animate-fade-up delay-150 "
+          className="space-y-4 animate-fade-up delay-150"
           id={cat.name}
         >
           {cat.products.length > 0 && (
@@ -97,7 +83,6 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           </ScrollArea>
         </div>
       ))}
-      <Cart products={products} tenant={tenant} />
     </div>
   );
 };
