@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import useCart from "@/hooks/use-cart";
 import { formatter } from "@/lib/utils";
 import { Prisma } from "@prisma/client";
-import { Plus, Star } from "lucide-react";
+import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   };
 
   return (
-    <div className="border rounded-xl p-4 bg-secondary relative max-w-60">
+    <div className="border bg-secondary rounded-xl p-4 relative max-w-60">
       <div className="flex flex-col gap-4 relative group">
         <Link
           className="rounded-lg size-52 bg-white overflow-hidden group relative"
@@ -67,9 +67,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             alt={product.name}
             fill
           />
-          {product.isFeatured && (
-            <Star className="size-4 top-2 left-2 absolute text-yellow-500 fill-yellow-500" />
-          )}
         </Link>
         <Button
           className="absolute top-1 right-1 z-10"

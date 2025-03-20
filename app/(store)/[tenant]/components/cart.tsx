@@ -67,10 +67,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          variant="secondary"
-          className="fixed bottom-10 right-10 z-20 p-4 rounded-full"
-        >
+        <Button variant="outline" className="rounded-xl">
           {totalProducts}
           <ShoppingCart />
         </Button>
