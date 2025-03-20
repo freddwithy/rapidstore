@@ -51,7 +51,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
 
     return (
       <div
-        className="prose text-muted-foreground prose-sm prose-p:text-sm"
+        className="prose prose-strong:text-primary text-muted-foreground prose-sm prose-p:text-sm"
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
     );

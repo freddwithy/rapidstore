@@ -101,7 +101,7 @@ export default async function SubdomainPage({
         </div>
         <ModeToggle />
       </div>
-      <div className="flex gap-x-2 items-center animate-fade-up delay-75">
+      <div className="flex gap-x-2 items-center animate-fade-up delay-75 p-2 bg-background sticky top-0 z-20">
         <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
           <CategoriesTags storeId={store.id} />
         </Suspense>

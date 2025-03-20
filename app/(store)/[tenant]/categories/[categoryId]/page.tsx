@@ -47,7 +47,7 @@ const CategoryPage = async ({
           description={category?.products.length + " productos"}
           title={category?.name}
         />
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="flex gap-4 flex-wrap">
           {category?.products.map((p) => (
             <ProductCard product={p} tenant={tenant} key={p.id} />
           ))}
