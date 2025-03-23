@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import ProductCard from "./ui/product-card";
+import FeaturedProductCard from "./ui/featured-product-card";
 
 interface ProductsProps {
   storeId: string;
@@ -7,6 +8,7 @@ interface ProductsProps {
   isFeatured?: boolean;
   limit?: number;
   tenant: string;
+  forScroll?: boolean;
 }
 async function ProductByCategories({
   storeId,
@@ -14,6 +16,7 @@ async function ProductByCategories({
   isFeatured,
   limit,
   tenant,
+  forScroll,
 }: ProductsProps) {
   const products = await prismadb.product.findMany({
     where: {
@@ -37,9 +40,13 @@ async function ProductByCategories({
   });
   return (
     <>
-      {products.map((p) => (
-        <ProductCard key={p.id} product={p} tenant={tenant} />
-      ))}
+      {forScroll
+        ? products.map((p) => (
+            <FeaturedProductCard key={p.id} product={p} tenant={tenant} />
+          ))
+        : products.map((p) => (
+            <ProductCard key={p.id} product={p} tenant={tenant} />
+          ))}
     </>
   );
 }

@@ -57,12 +57,13 @@ const ProductPage = async ({
         />
         <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
           <ScrollArea>
-            <div className="flex gap-4">
+            <div className="md:grid md:grid-cols-4 flex gap-4">
               <ProductByCategories
                 categoryId={product.categoryId}
                 storeId={store?.id}
                 tenant={tenant}
                 limit={4}
+                forScroll={true}
               />
             </div>
             <ScrollBar orientation="horizontal" />

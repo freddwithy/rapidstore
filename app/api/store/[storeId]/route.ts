@@ -1,9 +1,13 @@
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+export async function PATCH(
+  request: Request,
+  params: { params: { storeId: string } }
+) {
   try {
     const body = await request.json();
+    const storeId = params.params.storeId;
     const {
       name,
       description,
@@ -17,16 +21,20 @@ export async function POST(request: Request) {
       logo,
     } = body;
 
-    if (!name) {
-      console.log("Missing Name Field");
+    if (!storeId) {
       return NextResponse.json(
-        { error: "Missing Name Field" },
+        { error: "Missing storeId Field" },
+        { status: 400 }
+      );
+    }
+    if (!name) {
+      return NextResponse.json(
+        { error: "Missing name Field" },
         { status: 400 }
       );
     }
 
     if (!description) {
-      console.log("Missing description Field");
       return NextResponse.json(
         { error: "Missing description Field" },
         { status: 400 }
@@ -34,12 +42,9 @@ export async function POST(request: Request) {
     }
 
     if (!url) {
-      console.log("Missing url Field");
       return NextResponse.json({ error: "Missing url Field" }, { status: 400 });
     }
-
     if (!location) {
-      console.log("Missing location Field");
       return NextResponse.json(
         { error: "Missing location Field" },
         { status: 400 }
@@ -47,7 +52,6 @@ export async function POST(request: Request) {
     }
 
     if (!city) {
-      console.log("Missing city Field");
       return NextResponse.json(
         { error: "Missing city Field" },
         { status: 400 }
@@ -55,54 +59,28 @@ export async function POST(request: Request) {
     }
 
     if (!ruc) {
-      console.log("Missing ruc Field");
       return NextResponse.json({ error: "Missing ruc Field" }, { status: 400 });
     }
 
     if (!ownerId) {
-      console.log("Missing ownerId Field");
-      return NextResponse.json(
-        { error: "Missing ownerId Field" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const existingStore = await prismadb.store.findFirst({
       where: {
-        url,
+        id: storeId,
+        ownerId,
       },
     });
 
-    const user = await prismadb.user.findFirst({
+    if (!existingStore) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const store = await prismadb.store.update({
       where: {
-        id: ownerId,
+        id: storeId,
       },
-      include: {
-        store: true,
-      },
-    });
-
-    if (!user) {
-      console.log("User not found");
-      return NextResponse.json({ error: "User not found" }, { status: 401 });
-    }
-
-    if (user?.user_type !== "PRO" && user.store.length > 0) {
-      console.log("User is not a PRO user");
-      return NextResponse.json(
-        { error: "User is not a PRO user" },
-        { status: 401 }
-      );
-    }
-
-    if (existingStore) {
-      return NextResponse.json(
-        { error: "Store already exists" },
-        { status: 402 }
-      );
-    }
-
-    const store = await prismadb.store.create({
       data: {
         name,
         description,
@@ -110,20 +88,42 @@ export async function POST(request: Request) {
         location,
         city,
         ruc,
-        owner: {
-          connect: {
-            id: ownerId,
-          },
-        },
         instagram,
         whatsapp,
         logo,
       },
     });
 
-    return NextResponse.json({ store }, { status: 200 });
+    return NextResponse.json(store);
   } catch (err) {
-    console.log("[STORE_POST]", err);
+    console.log("[STORE_PATCH]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  params: { params: { storeId: string } }
+) {
+  try {
+    const storeId = params.params.storeId;
+    if (!storeId) {
+      return NextResponse.json(
+        { error: "Missing storeId Field" },
+        { status: 400 }
+      );
+    }
+    const store = await prismadb.store.delete({
+      where: {
+        id: storeId,
+      },
+    });
+    return NextResponse.json(store);
+  } catch (err) {
+    console.log("[STORE_DELETE]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

@@ -29,13 +29,13 @@ const LateralNavbar: React.FC<LateralNavbarProps> = ({
           <Menu className="size-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="space-y-4">
+      <SheetContent side="left">
         <SheetHeader>
           <Link href={`/${tenant}`}>
             <h1 className="text-3xl font-medium capitalize">{storeName}</h1>
           </Link>
         </SheetHeader>
-        <Separator />
+        <Separator className="my-2" />
         <div className="space-y-2">
           {categories.map((cat) => (
             <Link

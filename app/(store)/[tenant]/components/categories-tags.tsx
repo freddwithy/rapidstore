@@ -1,5 +1,5 @@
-import getCategories from "@/actions/get-categories";
 import { buttonVariants } from "@/components/ui/button";
+import prismadb from "@/lib/prismadb";
 import React from "react";
 
 interface CategoriesTagsProps {
@@ -7,7 +7,11 @@ interface CategoriesTagsProps {
 }
 
 const CategoriesTags: React.FC<CategoriesTagsProps> = async ({ storeId }) => {
-  const categories = await getCategories({ storeId });
+  const categories = await prismadb.category.findMany({
+    where: {
+      storeId,
+    },
+  });
   return (
     <>
       {categories.map((cat) => (

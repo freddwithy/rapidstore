@@ -13,9 +13,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogHeader,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -30,16 +30,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Store } from "@prisma/client";
 
 import { LoaderCircle, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
 interface StoreFormProps {
   ownerId: string | undefined;
+  storeId: string | undefined;
+  store: Store;
 }
 
 const storeFormScheme = z.object({
@@ -70,22 +73,28 @@ const storeFormScheme = z.object({
   logo: z.string().optional(),
 });
 
-const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
+const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
   const [loading, setLoading] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
   const [image, setImage] = useState("");
 
+  useEffect(() => {
+    if (store.logo) {
+      setImage(store.logo);
+    }
+  }, [store]);
+
   const form = useForm<z.infer<typeof storeFormScheme>>({
     resolver: zodResolver(storeFormScheme),
     defaultValues: {
-      name: "",
-      description: "",
-      url: "",
-      location: "",
-      city: "",
-      ruc: "",
-      whatsapp: "",
-      instagram: "",
+      name: store.name || "",
+      description: store.description || "",
+      url: store.url || "",
+      location: store.location || "",
+      city: store.city || "",
+      ruc: store.ruc || "",
+      whatsapp: store.whatsapp || "", //e.g,
+      instagram: store.instagram || "",
       logo: "",
     },
   });
@@ -95,8 +104,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
   const createStore = async (data: z.infer<typeof storeFormScheme>) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/store", {
-        method: "POST",
+      const response = await fetch(`/api/store/${storeId}`, {
+        method: "PATCH",
         body: JSON.stringify({
           name: data.name,
           description: data.description,
@@ -112,19 +121,18 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
       });
 
       if (!response.ok) {
-        toast.error("Error al crear la tienda");
+        toast.error("Error al actualizar la tienda");
         return;
       }
 
-      toast.success("Tienda creada correctamente");
+      toast.success("Tienda actualizada correctamente");
       setLoading(false);
-      router.push("/admin");
+      router.refresh();
       return response;
     } catch (error) {
       setLoading(false);
       console.log(error);
-      toast.error("Error al crear la tienda");
-      router.refresh();
+      toast.error("Error al actualizar la tienda");
     }
   };
 
@@ -162,10 +170,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Crea tu tienda de Giddi!</CardTitle>
-        <CardDescription>
-          Completa el siguiente formulario para crear tu tienda en Giddi.
-        </CardDescription>
+        <CardTitle>Gestiona tu tienda</CardTitle>
+        <CardDescription>Configura los datos de tu tienda.</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -231,11 +237,11 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId }) => {
               <Avatar className="size-32 rounded-lg">
                 <AvatarImage
                   src={image}
-                  alt=""
+                  alt={store?.name}
                   className="object-center object-cover"
                 />
                 <AvatarFallback className="text-xl rounded-lg font-semibold">
-                  LO
+                  {store?.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <FormField
