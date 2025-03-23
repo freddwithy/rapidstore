@@ -20,12 +20,15 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
   };
 }>;
 
-interface ProductCardProps {
+interface FeaturedProductCardProps {
   product: ProductWithVariants;
   tenant: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
+const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
+  product,
+  tenant,
+}) => {
   const { addItem, items, updateItem } = useCart();
 
   const selectedVariant = product.variants[0];
@@ -55,10 +58,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   };
 
   return (
-    <div className="border aspect-square bg-secondary rounded-xl relative max-w-60">
+    <div className="border bg-secondary rounded-xl relative max-w-60">
       <div className="flex flex-col relative group">
         <Link
-          className="rounded-xl w-full h-32 md:h-52 bg-white overflow-hidden group relative"
+          className="rounded-xl size-52 md:h-52 md:w-full bg-white overflow-hidden group relative"
           href={`/${tenant}/${product.id}`}
         >
           <Image
@@ -113,4 +116,4 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   );
 };
 
-export default ProductCard;
+export default FeaturedProductCard;

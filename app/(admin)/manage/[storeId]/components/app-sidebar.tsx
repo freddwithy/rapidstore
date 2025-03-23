@@ -39,10 +39,10 @@ import { useClerk } from "@clerk/nextjs";
 import { Store } from "@prisma/client";
 import {
   Archive,
-  AudioWaveform,
   Boxes,
   ChevronsUpDown,
   ClipboardCheck,
+  Cog,
   Layers,
   LayoutDashboard,
   LogOut,
@@ -130,7 +130,16 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <AudioWaveform className="size-4 shrink-0" />
+                    <Avatar className="size-8 rounded-lg">
+                      <AvatarImage
+                        src={store?.logo || ""}
+                        alt={store?.name}
+                        className="object-center object-cover"
+                      />
+                      <AvatarFallback className="text-sm rounded-lg">
+                        {store?.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
@@ -159,7 +168,16 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-sm border">
-                      <AudioWaveform className="size-4" />
+                      <Avatar className="size-6 rounded-lg">
+                        <AvatarImage
+                          src={store?.logo || ""}
+                          alt={store?.name}
+                          className="object-center object-cover"
+                        />
+                        <AvatarFallback className="text-sm rounded-lg">
+                          {store?.name.slice(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                     </div>
                     {store.name}
                     <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
@@ -290,6 +308,12 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => router.push(`/manage/${store?.id}/settings`)}
+                >
+                  <Cog />
+                  Configuración
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
