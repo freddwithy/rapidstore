@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate",
-    "dev:proxy": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"npm run proxy\""
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.1",

@@ -4,7 +4,6 @@ import CategoriesTags from "./components/categories-tags";
 import { Suspense } from "react";
 import CategoriesTagsSkeleton from "./components/ui/skeletons/categories-tags-skeleton";
 import { ModeToggle } from "@/components/mode-toggle";
-import getStore from "@/actions/get-store";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import Cart from "./components/cart";
@@ -19,7 +18,12 @@ export async function generateMetadata({
 }: {
   params: { tenant: string };
 }) {
-  const store = await getStore({ tenantURL: params.tenant });
+  const { tenant } = params;
+  const store = await prismadb.store.findUnique({
+    where: {
+      url: tenant,
+    },
+  });
   if (!store) {
     return {
       title: "Store not found",
