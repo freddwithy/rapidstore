@@ -1,6 +1,5 @@
 import React from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
-import { FormControl } from "./form";
 import { Button } from "./button";
 import { Check, ChevronDown } from "lucide-react";
 import { Command, CommandInput, CommandItem, CommandList } from "./command";
@@ -28,22 +27,21 @@ const Combobox: React.FC<ComboboxProps> = ({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <FormControl>
-          <Button
-            disabled={disabled}
-            variant="outline"
-            role="combobox"
-            className={cn(
-              "w-full justify-between",
-              !field.value && "text-muted-foreground"
-            )}
-          >
-            {field.value
-              ? items && items.find((item) => item.id === field.value)?.name
-              : placeholder}
-            <ChevronDown className="ml-2 size-4 opacity-50" />
-          </Button>
-        </FormControl>
+        <Button
+          type="button"
+          disabled={disabled}
+          variant="outline"
+          role="combobox"
+          className={cn(
+            "w-full justify-between",
+            !field.value && "text-muted-foreground"
+          )}
+        >
+          {field.value
+            ? items && items.find((item) => item.id === field.value)?.name
+            : placeholder}
+          <ChevronDown className="ml-2 size-4 opacity-50" />
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-auto" align="start">
         <Command>

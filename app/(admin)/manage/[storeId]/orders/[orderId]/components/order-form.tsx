@@ -84,6 +84,13 @@ const OrderFormSchema = z.object({
     }),
 });
 
+type VariantProductWithOptions = Prisma.VariantProductGetPayload<{
+  include: {
+    color: true;
+    variant: true;
+  };
+}>;
+
 type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
@@ -269,8 +276,8 @@ const OrderForm: React.FC<OrderFormProps> = ({
     return {
       variantId: item.variantId,
       product: product?.name || "",
-      color: variant?.color.name || "",
-      variant: variant?.variant.name || "",
+      color: variant?.color?.name || "",
+      variant: variant?.variant?.name || "",
       quantity: item.quantity,
       total: item.total,
     };
@@ -347,7 +354,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
         <Separator />
         <div className="flex justify-end gap-x-2">
           <Dialog>
-            <DialogTrigger>
+            <DialogTrigger asChild>
               <Button type="button" variant="outline">
                 <Plus className="size-4" />
                 Agregar productos
@@ -399,11 +406,17 @@ const OrderForm: React.FC<OrderFormProps> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {productSelected?.variants.map((variant) => (
-                            <SelectItem key={variant.id} value={variant.id}>
-                              {variant.variant.name} - {variant.color.name}
-                            </SelectItem>
-                          ))}
+                          {productSelected?.variants.map(
+                            (variant: VariantProductWithOptions) => (
+                              <SelectItem key={variant.id} value={variant.id}>
+                                {variant.color?.name ? variant.color?.name : ""}{" "}
+                                {variant.variant?.name
+                                  ? variant.variant?.name
+                                  : ""}{" "}
+                                {variant.name ? variant.name : ""}
+                              </SelectItem>
+                            )
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
