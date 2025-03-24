@@ -109,14 +109,12 @@ export default async function SubdomainPage({
             tenant={tenant}
             categories={store.categories}
           />
-          <ScrollArea className="w-full ">
+          <ScrollArea>
             <div className="flex gap-x-2 items-center relative">
               <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
                 <CategoriesTags storeId={store.id} />
               </Suspense>
             </div>
-            {/* <ArrowRight className="size-5 absolute right-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
-              <ArrowLeft className="size-5 absolute left-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" /> */}
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
