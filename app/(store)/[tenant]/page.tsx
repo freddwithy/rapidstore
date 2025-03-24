@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import Cart from "./components/cart";
 import LateralNavbar from "./components/lateral-navbar";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Ban } from "lucide-react";
 import StoreInfo from "./components/info";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -110,15 +110,14 @@ export default async function SubdomainPage({
             categories={store.categories}
           />
           <ScrollArea className="w-full ">
-            <div className="group relative w-full flex items-center">
-              <div className="flex gap-x-2 items-center relative">
-                <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
-                  <CategoriesTags storeId={store.id} />
-                </Suspense>
-              </div>
-              {/* <ArrowRight className="size-5 absolute right-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
-              <ArrowLeft className="size-5 absolute left-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" /> */}
+            <div className="flex gap-x-2 items-center relative">
+              <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+                <CategoriesTags storeId={store.id} />
+              </Suspense>
             </div>
+            {/* <ArrowRight className="size-5 absolute right-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
+              <ArrowLeft className="size-5 absolute left-1 transition-opacity duration-300 group-hover:opacity-100 opacity-0" /> */}
+            <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
       </div>
