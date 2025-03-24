@@ -126,3 +126,5 @@ export default async function SubdomainPage({
     </div>
   );
 }
+
+export const dynamic = "force-dynamic"; // ⚡ Desactiva la caché estátic

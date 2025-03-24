@@ -38,6 +38,9 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
       },
       images: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   const formattedData = products.map((product) => ({

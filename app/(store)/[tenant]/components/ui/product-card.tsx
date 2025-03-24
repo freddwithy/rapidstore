@@ -67,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             alt={product.name}
             fill
           />
-          {selectedVariant.salePrice > 0 && (
+          {selectedVariant.salePrice && (
             <span className="px-1 bg-red-500 text-white font-semibold text-md rounded-r-md absolute left-0 bottom-5">
               {(
                 ((selectedVariant.salePrice - selectedVariant.price) /
@@ -100,7 +100,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
               <span
                 className={cn(
                   "text-xs md:text-sm line-through text-red-500",
-                  selectedVariant.salePrice > 0 ? "visible" : "invisible"
+                  selectedVariant.salePrice ? "visible" : "invisible"
                 )}
               >
                 {formatter.format(selectedVariant.price)}

@@ -113,14 +113,15 @@ model VariantProduct {
   id           String         @id @default(cuid())
   sku          String         @unique
   price        Int
-  salePrice    Int
-  stock        Int            @default(0)
+  salePrice    Int?
+  name         String?
+  stock        Int            @default(1)
   product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String
-  color        Color          @relation(fields: [colorId], references: [id])
-  colorId      String
-  variant      Variant        @relation(fields: [variantId], references: [id])
-  variantId    String
+  color        Color?         @relation(fields: [colorId], references: [id])
+  colorId      String?
+  variant      Variant?       @relation(fields: [variantId], references: [id])
+  variantId    String?
   OrderProduct OrderProduct[]
 
   createdAt DateTime @default(now())
