@@ -110,33 +110,29 @@ export async function POST(request: Request) {
           },
         },
         variants: {
-          create: variants.map((variant: VariantProduct) => {
-            const variantData: any = {
-              price: variant.price,
-              salePrice: variant.salePrice,
-              stock: variant.stock,
-              sku: variant.sku,
-              name: variant.name,
-            };
-
-            if (variant.colorId) {
-              variantData.color = {
+          create: variants.map((variant: VariantProduct) => ({
+            // Conexión condicional para color
+            ...(variant.colorId && {
+              color: {
                 connect: {
                   id: variant.colorId,
                 },
-              };
-            }
-
-            if (variant.variantId) {
-              variantData.variant = {
+              },
+            }),
+            // Conexión condicional para variant
+            ...(variant.variantId && {
+              variant: {
                 connect: {
                   id: variant.variantId,
                 },
-              };
-            }
-
-            return variantData;
-          }),
+              },
+            }),
+            price: variant.price,
+            salePrice: variant.salePrice,
+            stock: variant.stock,
+            sku: variant.sku,
+            name: variant.name,
+          })),
         },
       },
     });

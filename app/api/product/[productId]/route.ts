@@ -22,41 +22,36 @@ export async function PATCH(
     } = body;
 
     // Validación de campos requeridos
-    const requiredFields = {
-      name,
-      description,
-      storeId,
-      images,
-      category,
-      options,
-    };
-
-    const missingFields = Object.entries(requiredFields)
-      .filter(([_, value]) => !value)
-      .map(([key]) => key);
-
-    if (missingFields.length > 0) {
-      console.log(`Missing fields: ${missingFields.join(", ")}`);
+    if (!name || !description || !storeId || !images || !category || !options) {
+      console.log("Missing required fields");
       return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(", ")}` },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
     // Procesar variantes
     const variants = await Promise.all(
-      options.map(async (option: VariantProduct) => ({
-        ...option,
-        sku: await generateSKU(
+      options.map(async (option: VariantProduct) => {
+        // Generate SKU for each variant
+        const sku = await generateSKU(
           name,
           option.name,
           option.colorId,
           option.variantId
-        ),
-        price: Number(option.price),
-        salePrice: option.salePrice ? Number(option.salePrice) : null,
-        stock: Number(option.stock),
-      }))
+        );
+
+        console.log("Generated SKU:", sku); // Agrega esta línea para verificar el SKU
+
+        // Return normalized variant data
+        return {
+          ...option,
+          sku,
+          price: Number(option.price),
+          salePrice: option.salePrice ? Number(option.salePrice) : null,
+          stock: Number(option.stock),
+        };
+      })
     );
 
     // Actualización en una sola transacción
@@ -83,27 +78,29 @@ export async function PATCH(
             create: images.map((image: string) => ({ url: image })),
           },
           variants: {
-            create: variants.map((variant: VariantProduct) => {
-              const variantData: any = {
-                price: variant.price,
-                salePrice: variant.salePrice,
-                stock: variant.stock,
-                sku: variant.sku,
-                name: variant.name,
-              };
-
+            create: variants.map((variant: VariantProduct) => ({
               // Conexión condicional para color
-              if (variant.colorId) {
-                variantData.color = { connect: { id: variant.colorId } };
-              }
-
+              ...(variant.colorId && {
+                color: {
+                  connect: {
+                    id: variant.colorId,
+                  },
+                },
+              }),
               // Conexión condicional para variant
-              if (variant.variantId) {
-                variantData.variant = { connect: { id: variant.variantId } };
-              }
-
-              return variantData;
-            }),
+              ...(variant.variantId && {
+                variant: {
+                  connect: {
+                    id: variant.variantId,
+                  },
+                },
+              }),
+              price: variant.price,
+              salePrice: variant.salePrice,
+              stock: variant.stock,
+              sku: variant.sku,
+              name: variant.name,
+            })),
           },
         },
         include: {

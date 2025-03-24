@@ -60,7 +60,7 @@ const ProductFormSchema = z.object({
     .string()
     .min(1, "La descripción es requerida")
     .max(1500, "La descripción no puede tener más de 1500 caracteres"),
-  images: z.string().url("Debe ser una URL válida"),
+  images: z.string().url("Debe ser una URL válida").optional(),
   category: z.string().min(1, "La categoría es requerida"),
   color: z.string().optional(),
   variant: z.string().optional(),
@@ -140,7 +140,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
           colorId: v.color?.id || "",
           variantId: v.variant?.id || "",
           price: v.price,
-          salePrice: v.salePrice,
+          salePrice: v.salePrice || 0,
           stock: v.stock,
           name: v.name || "",
         }))

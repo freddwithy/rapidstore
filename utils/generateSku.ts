@@ -4,17 +4,18 @@ export const generateSKU = async (
   colorId?: string | null,
   variantId?: string | null
 ) => {
+  const randomNumber = Math.floor(Math.random() * 10000); // Número aleatorio de 4 dígitos
   const productName = name
     .slice(0, 3) // Tomamos las primeras 3 letras del nombre del producto
     .toUpperCase()
     .replace(/\s+/g, ""); // Eliminamos espacios en blanco
   const colorCode = colorId?.slice(22, 25).toUpperCase() || "SINCOLOR"; // Primeros 2 caracteres del colorId
   const variantCode = variantId?.slice(22, 25).toUpperCase() || "SINVARIANT"; // Primeros 2 caracteres del variantId
-  const timestamp = new Date().getTime().toString().slice(-4); // Timestamp actual
+  const timestamp = new Date().getTime().toString().slice(-4) + 1; // Timestamp actual
   const variantNameCode = variantName
     ?.slice(0, 3)
     .toUpperCase()
     .replace(/\s+/g, ""); // Eliminamos espacios en blanco
 
-  return `${productName}-${colorCode}${variantCode}${variantName && variantNameCode}-${timestamp}`;
+  return `${productName}-${colorId ? colorCode : randomNumber}-${variantId ? variantCode : randomNumber}-${variantName && variantNameCode}-${timestamp}`;
 };
