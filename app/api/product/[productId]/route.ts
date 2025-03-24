@@ -21,131 +21,108 @@ export async function PATCH(
       options,
     } = body;
 
-    if (!name) {
-      console.log("Missing name");
+    // Validación de campos requeridos
+    const requiredFields = {
+      name,
+      description,
+      storeId,
+      images,
+      category,
+      options,
+    };
+
+    const missingFields = Object.entries(requiredFields)
+      .filter(([_, value]) => !value)
+      .map(([key]) => key);
+
+    if (missingFields.length > 0) {
+      console.log(`Missing fields: ${missingFields.join(", ")}`);
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: `Missing required fields: ${missingFields.join(", ")}` },
         { status: 400 }
       );
     }
 
-    if (!options) {
-      console.log("Missing options");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!images) {
-      console.log("Missing images");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!category) {
-      console.log("Missing category");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!description) {
-      console.log("Missing description");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!storeId) {
-      console.log("Missing storeId");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
+    // Procesar variantes
     const variants = await Promise.all(
       options.map(async (option: VariantProduct) => ({
         ...option,
-        sku: await generateSKU(name, option.colorId, option.variantId),
-        price: Number(option.price), // Convertir a número
-        salePrice: Number(option.salePrice), // Convertir a número
-        stock: Number(option.stock), // Convertir a número
+        sku: await generateSKU(
+          name,
+          option.name,
+          option.colorId,
+          option.variantId
+        ),
+        price: Number(option.price),
+        salePrice: option.salePrice ? Number(option.salePrice) : null,
+        stock: Number(option.stock),
       }))
     );
 
-    if (!variants) {
-      console.log("Missing variants");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    await prismadb.product.update({
-      where: {
-        id: productId,
-      },
-      data: {
-        name,
-        description,
-        isArchived,
-        isFeatured,
-        images: {
-          deleteMany: {},
+    // Actualización en una sola transacción
+    const product = await prismadb.$transaction(async (prisma) => {
+      // Primero eliminar relaciones existentes
+      await prisma.product.update({
+        where: { id: productId },
+        data: {
+          images: { deleteMany: {} },
+          variants: { deleteMany: {} },
         },
-        category: {
-          connect: {
-            id: category,
+      });
+
+      // Luego actualizar el producto y crear nuevas relaciones
+      return await prisma.product.update({
+        where: { id: productId },
+        data: {
+          name,
+          description,
+          isArchived,
+          isFeatured,
+          category: { connect: { id: category } },
+          images: {
+            create: images.map((image: string) => ({ url: image })),
+          },
+          variants: {
+            create: variants.map((variant: VariantProduct) => {
+              const variantData: any = {
+                price: variant.price,
+                salePrice: variant.salePrice,
+                stock: variant.stock,
+                sku: variant.sku,
+                name: variant.name,
+              };
+
+              // Conexión condicional para color
+              if (variant.colorId) {
+                variantData.color = { connect: { id: variant.colorId } };
+              }
+
+              // Conexión condicional para variant
+              if (variant.variantId) {
+                variantData.variant = { connect: { id: variant.variantId } };
+              }
+
+              return variantData;
+            }),
           },
         },
-        variants: {
-          deleteMany: {},
+        include: {
+          images: true,
+          variants: {
+            include: {
+              color: true,
+              variant: true,
+            },
+          },
         },
-      },
+      });
     });
 
-    const product = await prismadb.product.update({
-      where: {
-        id: productId,
-      },
-      data: {
-        images: {
-          create: images.map((image: string) => ({
-            url: image,
-          })),
-        },
-        variants: {
-          create: variants.map((variant: VariantProduct) => ({
-            color: {
-              connect: {
-                id: variant.colorId,
-              },
-            },
-            variant: {
-              connect: {
-                id: variant.variantId,
-              },
-            },
-            price: variant.price,
-            salePrice: variant.salePrice,
-            stock: variant.stock,
-            sku: variant.sku,
-          })),
-        },
-      },
-    });
-
-    return NextResponse.json({ product }, { status: 200 });
+    return NextResponse.json(product, { status: 200 });
   } catch (err) {
-    console.log("[PRODUCT_PATCH]", err);
+    console.error("[PRODUCT_PATCH]", err);
     return NextResponse.json(
-      { error: "Something went wrong" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

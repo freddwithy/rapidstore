@@ -68,7 +68,12 @@ export async function POST(request: Request) {
     const variants = await Promise.all(
       options.map(async (option: VariantProduct) => ({
         ...option,
-        sku: await generateSKU(name, option.colorId, option.variantId),
+        sku: await generateSKU(
+          name,
+          option.name,
+          option.variantId,
+          option.colorId
+        ),
         price: Number(option.price), // Convertir a número
         salePrice: Number(option.salePrice), // Convertir a número
         stock: Number(option.stock), // Convertir a número
@@ -105,22 +110,33 @@ export async function POST(request: Request) {
           },
         },
         variants: {
-          create: variants.map((variant: VariantProduct) => ({
-            color: {
-              connect: {
-                id: variant.colorId,
-              },
-            },
-            variant: {
-              connect: {
-                id: variant.variantId,
-              },
-            },
-            price: variant.price,
-            salePrice: variant.salePrice,
-            stock: variant.stock,
-            sku: variant.sku,
-          })),
+          create: variants.map((variant: VariantProduct) => {
+            const variantData: any = {
+              price: variant.price,
+              salePrice: variant.salePrice,
+              stock: variant.stock,
+              sku: variant.sku,
+              name: variant.name,
+            };
+
+            if (variant.colorId) {
+              variantData.color = {
+                connect: {
+                  id: variant.colorId,
+                },
+              };
+            }
+
+            if (variant.variantId) {
+              variantData.variant = {
+                connect: {
+                  id: variant.variantId,
+                },
+              };
+            }
+
+            return variantData;
+          }),
         },
       },
     });

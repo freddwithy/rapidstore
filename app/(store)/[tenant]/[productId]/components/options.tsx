@@ -132,7 +132,9 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
                   )}
                 </Radio>
                 <Label className="ml-3">
-                  {variant.variant.name + " " + variant.color.name}
+                  {variant.variant?.name || variant.color?.name
+                    ? variant.color?.name + " - " + variant.variant?.name
+                    : variant.name}
                 </Label>
               </Field>
             ))}

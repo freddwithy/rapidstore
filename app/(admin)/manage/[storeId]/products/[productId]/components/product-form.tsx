@@ -55,45 +55,38 @@ const ProductFormSchema = z.object({
   name: z.string().min(1, {
     message: "El nombre es requerido",
   }),
+  variantName: z.string().optional(),
   description: z
     .string()
-    .min(1, {
-      message: "La descripción es requerida",
-    })
-    .max(1500, {
-      message: "La descripción no puede tener más de 2000 caracteres",
-    }),
-  images: z.any(),
-  category: z.string().min(1, {
-    message: "La categoría es requerida",
-  }),
-  color: z.string().min(1, {
-    message: "El color es requerido",
-  }),
-  variant: z.string().min(1, {
-    message: "La variante es requerida",
-  }),
+    .min(1, "La descripción es requerida")
+    .max(1500, "La descripción no puede tener más de 1500 caracteres"),
+  images: z.string().url("Debe ser una URL válida"),
+  category: z.string().min(1, "La categoría es requerida"),
+  color: z.string().optional(),
+  variant: z.string().optional(),
   price: z.coerce
-    .number()
-    .min(1, {
-      message: "El precio es requerido",
+    .number({
+      invalid_type_error: "El precio debe ser un número válido",
     })
-    .max(99999999, {
-      message: "El precio no puede ser mayor a 99.999.999 Gs.",
-    }),
-  salePrice: z.coerce.number().max(99999999, {
-    message: "El precio de venta no puede ser mayor a 99.999.999 Gs.",
-  }),
+    .min(1, "El precio es requerido")
+    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs."),
+  salePrice: z.coerce
+    .number({
+      invalid_type_error: "El precio de venta debe ser un número válido",
+    })
+    .max(99999999, "El precio de venta no puede ser mayor a 99.999.999 Gs.")
+    .optional()
+    .default(0),
   stock: z.coerce
-    .number()
-    .min(1, {
-      message: "El stock es requerido",
+    .number({
+      invalid_type_error: "El stock debe ser un número válido",
     })
-    .max(10000, {
-      message: "El stock no puede ser mayor a 10.000 unidades.",
-    }),
-  isArchived: z.boolean().optional(),
-  isFeatured: z.boolean().optional(),
+    .min(0, "El stock no puede ser negativo")
+    .max(10000, "El stock no puede ser mayor a 10.000 unidades")
+    .optional()
+    .default(0),
+  isArchived: z.boolean().optional().default(false),
+  isFeatured: z.boolean().optional().default(false),
 });
 
 type ProductsWithVariants = Prisma.ProductGetPayload<{
@@ -109,11 +102,12 @@ type ProductsWithVariants = Prisma.ProductGetPayload<{
 }>;
 
 type Option = {
-  colorId: string;
-  variantId: string;
+  colorId?: string;
+  variantId?: string;
   price: number;
-  salePrice: number;
-  stock: number;
+  salePrice?: number;
+  stock?: number;
+  name?: string;
 };
 
 interface ProductFormProps {
@@ -143,11 +137,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
       setImages(initialData.images.map((i) => i.url) || []);
       setOptions(
         initialData.variants.map((v) => ({
-          colorId: v.color.id,
-          variantId: v.variant.id,
+          colorId: v.color?.id || "",
+          variantId: v.variant?.id || "",
           price: v.price,
           salePrice: v.salePrice,
           stock: v.stock,
+          name: v.name || "",
         }))
       );
     }
@@ -162,11 +157,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
       isArchived: initialData?.isArchived || false,
       isFeatured: initialData?.isFeatured || false,
       category: initialData?.categoryId || "",
-      variant: initialData?.variants[0].variant.name || "",
-      color: initialData?.variants[0].color.name || "",
+      variant: initialData?.variants[0].variant?.name || "",
+      color: initialData?.variants[0].color?.name || "",
       price: initialData?.variants[0].price || 0,
       salePrice: initialData?.variants[0].salePrice || 0,
       stock: initialData?.variants[0].stock || 0,
+      variantName: initialData?.variants[0].name || "",
     },
   });
 
@@ -177,6 +173,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const price = form.getValues("price");
     const salePrice = form.getValues("salePrice");
     const stock = form.getValues("stock");
+    const name = form.getValues("variantName");
 
     //si el usuario es free solo puede agregar 1 opcion
 
@@ -185,21 +182,26 @@ const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    if (
-      options.some((o) => o.colorId === colorId && o.variantId === variantId)
-    ) {
-      toast.error("La combinación de color y variante ya existe");
-      return;
+    //si no se selecciona ningun color o variante no hacer la comparacion de colorId y variantId
+
+    if (colorId || variantId) {
+      if (
+        options.some((o) => o.colorId === colorId && o.variantId === variantId)
+      ) {
+        toast.error("La combinación de color y variante ya existe");
+        return;
+      }
     }
 
     setOptions((current) => [
       ...current,
       {
-        colorId,
-        variantId,
+        colorId: colorId || "",
+        variantId: variantId || "",
         price: price || 0,
         salePrice: salePrice || 0,
-        stock: stock || 0,
+        stock: stock || 1,
+        name: name || "",
       },
     ]);
 
@@ -208,7 +210,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
   const handleRemoveOption = (id: string) => {
     setOptions((current) =>
-      current.filter((o) => o.colorId + o.variantId !== id)
+      current.filter(
+        (o) => `${o.colorId || ""}${o.variantId || ""}${o.name || ""}` !== id
+      )
     );
   };
 
@@ -502,7 +506,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 {options.map((option) => (
                   <div
-                    key={option.colorId + option.colorId}
+                    key={`${option.colorId || ""}${option.variantId || ""}${option.name || ""}`}
                     className="border rounded-lg p-4 flex-col gap-y-1 hover:bg-primary-foreground hover:text-primary transition-colors relative"
                   >
                     <Button
@@ -511,17 +515,22 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       size="icon"
                       className=" absolute top-2 right-2"
                       onClick={() =>
-                        handleRemoveOption(option.colorId + option.variantId)
+                        handleRemoveOption(
+                          `${option.colorId || ""}${option.variantId || ""}${option.name || ""}`
+                        )
                       }
                     >
                       <Trash className="size-4" />
                     </Button>
 
-                    <p className="">
-                      {colors.find((c) => c.id === option.colorId)?.name}
-                      {" - "}
-                      {variants.find((v) => v.id === option.variantId)?.name}
-                    </p>
+                    {!option.name && (
+                      <p className="">
+                        {colors.find((c) => c.id === option.colorId)?.name}
+                        {" - "}
+                        {variants.find((v) => v.id === option.variantId)?.name}
+                      </p>
+                    )}
+                    {option.name && <p className="">{option.name}</p>}
                     <p className="text-sm text-zinc-600 dark:text-zinc-400">
                       {formatter.format(option.price)}
                     </p>
@@ -549,10 +558,31 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 <DialogHeader>
                   <DialogTitle>Agregar opción</DialogTitle>
                   <DialogDescription>
-                    Agrega una opción de color y variante para el producto
+                    Agrega una opción al producto, si necesitas alguna variante
+                    de color o tamaño, agregalo primero. Si no, con el nombre y
+                    los precios es suficiente.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-2">
+                  <FormField
+                    control={form.control}
+                    name="variantName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Nombre</FormLabel>
+                        <FormControl>
+                          <Input
+                            disabled={options.length > 0 && userType === "FREE"}
+                            placeholder="Con cuello, sin cuello, etc."
+                            type="text"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="price"
@@ -596,9 +626,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     name="stock"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Stock <Obligatory />
-                        </FormLabel>
+                        <FormLabel>Stock</FormLabel>
                         <FormControl>
                           <Input
                             disabled={options.length > 0 && userType === "FREE"}
@@ -616,9 +644,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     name="color"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Color <Obligatory />
-                        </FormLabel>
+                        <FormLabel>Color</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
@@ -646,9 +672,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     name="variant"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>
-                          Variante/Tamaño <Obligatory />
-                        </FormLabel>
+                        <FormLabel>Variante/Tamaño</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
