@@ -11,7 +11,7 @@ export const generateSKU = async (
     .replace(/\s+/g, ""); // Eliminamos espacios en blanco
   const colorCode = colorId?.slice(22, 25).toUpperCase() || "SINCOLOR"; // Primeros 2 caracteres del colorId
   const variantCode = variantId?.slice(22, 25).toUpperCase() || "SINVARIANT"; // Primeros 2 caracteres del variantId
-  const timestamp = new Date().getTime().toString().slice(-4) + 1; // Timestamp actual
+  const timestamp = new Date().getTime().toString().slice(-4); // Timestamp actual
   const variantNameCode = variantName
     ?.slice(0, 3)
     .toUpperCase()
