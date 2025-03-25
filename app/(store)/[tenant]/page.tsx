@@ -8,7 +8,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import Cart from "./components/cart";
 import LateralNavbar from "./components/lateral-navbar";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Ban } from "lucide-react";
 import StoreInfo from "./components/info";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -109,14 +108,11 @@ export default async function SubdomainPage({
             tenant={tenant}
             categories={store.categories}
           />
-          <ScrollArea>
-            <div className="flex gap-x-2 items-center relative">
-              <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
-                <CategoriesTags storeId={store.id} />
-              </Suspense>
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          <div className="flex gap-x-2 items-center relative overflow-x-scroll no-scrollbar">
+            <Suspense fallback={<CategoriesTagsSkeleton count={3} />}>
+              <CategoriesTags storeId={store.id} />
+            </Suspense>
+          </div>
         </div>
       </div>
       <ProductsClientComponent storeId={store.id} tenant={tenant} />

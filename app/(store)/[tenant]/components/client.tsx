@@ -2,7 +2,6 @@ import Titles from "@/components/titles";
 import React, { Suspense } from "react";
 import ProductByCategories from "./products";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
@@ -32,20 +31,17 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           title="Destacados"
           description="Productos destacados de la tienda"
         />
-        <ScrollArea>
-          <div className="md:grid md:grid-cols-4 flex gap-4">
-            <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
-              <ProductByCategories
-                storeId={storeId}
-                tenant={tenant}
-                isFeatured={true}
-                limit={4}
-                forScroll={true}
-              />
-            </Suspense>
-          </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        <div className="flex gap-4 overflow-x-scroll no-scrollbar">
+          <Suspense fallback={<ProductsSkeleton numberOfProducts={6} />}>
+            <ProductByCategories
+              storeId={storeId}
+              tenant={tenant}
+              isFeatured={true}
+              limit={10}
+              forScroll={true}
+            />
+          </Suspense>
+        </div>
       </div>
       {categories.map((cat) => (
         <div
@@ -76,19 +72,16 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
               </Link>
             </div>
           )}
-          <ScrollArea className="">
-            <div className=" grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Suspense fallback={<ProductsSkeleton numberOfProducts={10} />}>
-                <ProductByCategories
-                  storeId={storeId}
-                  categoryId={cat.id}
-                  tenant={tenant}
-                  limit={20}
-                />
-              </Suspense>
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          <div className=" grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Suspense fallback={<ProductsSkeleton numberOfProducts={10} />}>
+              <ProductByCategories
+                storeId={storeId}
+                categoryId={cat.id}
+                tenant={tenant}
+                limit={20}
+              />
+            </Suspense>
+          </div>
         </div>
       ))}
     </div>

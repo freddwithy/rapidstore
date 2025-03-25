@@ -41,7 +41,7 @@ const ProductPage = async ({
   if (!store) return <div>Tienda no encontrada</div>;
   if (!product) return <div>Producto no encontrado</div>;
   return (
-    <div className="px-2 py-4 md:py-20 w-full space-y-8 animate-fade-up">
+    <div className="px-4 py-4 md:py-20 w-full space-y-8 animate-fade-up">
       <BackButton />
       <div className="flex flex-col md:flex-row gap-4 w-full animate-fade-up delay-100">
         <div>
