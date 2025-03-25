@@ -40,7 +40,7 @@ const CategoryPage = async ({
   if (!category) return <div>Categoria no encontrada</div>;
 
   return (
-    <div className="px-2 py-4 md:py-20 w-full space-y-8 animate-fade-up">
+    <div className="px-4 py-4 md:py-20 w-full space-y-8 animate-fade-up">
       <BackButton />
       <div className="space-y-4">
         <Titles

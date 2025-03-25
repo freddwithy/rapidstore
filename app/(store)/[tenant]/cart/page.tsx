@@ -28,7 +28,7 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
   });
 
   return (
-    <div className="px-2 py-4 md:py-20 w-full md:h-dvh space-y-8 animate-fade-up">
+    <div className="px-4 py-4 md:py-20 w-full md:h-dvh space-y-8 animate-fade-up">
       <div className="flex flex-col w-1/2 gap-y-2">
         <div>
           <BackButton />

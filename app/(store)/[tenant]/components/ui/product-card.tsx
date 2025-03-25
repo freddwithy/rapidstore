@@ -55,7 +55,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   };
 
   return (
-    <div className="border aspect-square bg-secondary rounded-xl relative max-w-60">
+    <div className="border bg-secondary rounded-xl relative md:max-w-60">
       <div className="flex flex-col relative group">
         <Link
           className="rounded-xl w-full h-32 md:h-52 bg-white overflow-hidden group relative"
@@ -88,8 +88,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
         </Button>
         <Link className="space-y-2 px-4 py-4" href={`/${product.id}`}>
           <div>
-            <p className="text-md font-medium dark:text-zinc-300 text-zinc-700">
-              {product.name}
+            <p className="text-sm md:text-base font-medium dark:text-zinc-300 text-zinc-600 line-clamp-3">
+              {product.name.slice(0, 35)}
             </p>
             <div className="flex flex-col">
               <span className="text-foreground text-sm md:text-lg font-semibold">

@@ -58,10 +58,10 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
   };
 
   return (
-    <div className="border bg-secondary rounded-xl relative max-w-60">
+    <div className="border bg-secondary rounded-xl relative md:max-w-none max-w-60">
       <div className="flex flex-col relative group">
         <Link
-          className="rounded-xl size-52 md:h-52 md:w-full bg-white overflow-hidden group relative"
+          className="rounded-xl size-52 md:w-72 bg-white overflow-hidden group relative"
           href={`/${tenant}/${product.id}`}
         >
           <Image
