@@ -4,7 +4,6 @@ import Gallery from "./components/gallery";
 import Options from "./components/options";
 import ProductByCategories from "../components/products";
 import Titles from "@/components/titles";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ProductsSkeleton from "../components/ui/skeletons/products-skeleton";
 import BackButton from "@/components/back-button";
 
