@@ -2,7 +2,6 @@ import Titles from "@/components/titles";
 import React, { Suspense } from "react";
 import ProductByCategories from "./products";
 import ProductsSkeleton from "./ui/skeletons/products-skeleton";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
