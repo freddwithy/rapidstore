@@ -91,11 +91,11 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
         </Button>
         <Link className="space-y-2 px-4 py-4" href={`/${product.id}`}>
           <div>
-            <p className="text-md font-medium dark:text-zinc-300 text-zinc-700">
+            <p className="text-sm md:text-base font-medium dark:text-zinc-300 text-zinc-700">
               {product.name}
             </p>
             <div className="flex flex-col">
-              <span className="text-foreground text-sm md:text-lg font-semibold">
+              <span className="text-foreground text-base md:text-lg font-semibold">
                 {formatter.format(
                   selectedVariant.salePrice || selectedVariant.price
                 )}
