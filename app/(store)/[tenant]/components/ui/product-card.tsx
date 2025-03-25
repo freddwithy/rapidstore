@@ -92,7 +92,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
               {product.name.slice(0, 35)}
             </p>
             <div className="flex flex-col">
-              <span className="text-foreground text-sm md:text-lg font-semibold">
+              <span className="text-foreground text-base md:text-lg font-semibold">
                 {formatter.format(
                   selectedVariant.salePrice || selectedVariant.price
                 )}

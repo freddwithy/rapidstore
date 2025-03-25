@@ -4,7 +4,6 @@ import Gallery from "./components/gallery";
 import Options from "./components/options";
 import ProductByCategories from "../components/products";
 import Titles from "@/components/titles";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import ProductsSkeleton from "../components/ui/skeletons/products-skeleton";
 import BackButton from "@/components/back-button";
 
@@ -56,18 +55,15 @@ const ProductPage = async ({
           description="Otros productos que podrían interesarte"
         />
         <Suspense fallback={<ProductsSkeleton numberOfProducts={4} />}>
-          <ScrollArea>
-            <div className="md:grid md:grid-cols-4 flex gap-4">
-              <ProductByCategories
-                categoryId={product.categoryId}
-                storeId={store?.id}
-                tenant={tenant}
-                limit={4}
-                forScroll={true}
-              />
-            </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          <div className="flex gap-4 overflow-x-scroll no-scrollbar">
+            <ProductByCategories
+              categoryId={product.categoryId}
+              storeId={store?.id}
+              tenant={tenant}
+              limit={4}
+              forScroll={true}
+            />
+          </div>
         </Suspense>
       </div>
     </div>
