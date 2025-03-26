@@ -37,9 +37,6 @@ const AdminPage = async () => {
       orders: true,
     },
   });
-
-  console.log(userDb?.store);
-
   return (
     <>
       <div className="gap-4 flex flex-col">

@@ -11,6 +11,11 @@ export const formatter = new Intl.NumberFormat("es-PY", {
   currency: "PYG",
 });
 
+export const usdFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 export const phoneFormatter = new Intl.NumberFormat("es-PY", {
   style: "decimal",
   maximumFractionDigits: 0,

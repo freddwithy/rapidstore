@@ -1,6 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { generateSKU } from "@/utils/generateSku";
-import { VariantProduct } from "@prisma/client";
+import { Currency, VariantProduct } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -132,6 +132,7 @@ export async function POST(request: Request) {
             stock: variant.stock,
             sku: variant.sku,
             name: variant.name,
+            currency: variant.currency || Currency.PYG,
           })),
         },
       },
