@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import useCart from "@/hooks/use-cart";
-import { cn, formatter } from "@/lib/utils";
-import { Prisma } from "@prisma/client";
+import { cn, formatter, usdFormatter } from "@/lib/utils";
+import { Currency, Prisma } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -35,6 +35,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const isInCartQuantity = items.find(
     (item) => item.variantId === selectedVariant.id
   );
+
+  const price =
+    selectedVariant.currency === Currency.USD
+      ? usdFormatter.format(selectedVariant.price)
+      : formatter.format(selectedVariant.price);
+
+  const salePrice =
+    selectedVariant.currency === Currency.USD
+      ? usdFormatter.format(selectedVariant.salePrice ?? 0)
+      : formatter.format(selectedVariant.salePrice ?? 0);
 
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {
@@ -93,9 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             </p>
             <div className="flex flex-col">
               <span className="text-foreground text-base md:text-lg font-semibold">
-                {formatter.format(
-                  selectedVariant.salePrice || selectedVariant.price
-                )}
+                {selectedVariant.salePrice ? salePrice : price}
               </span>
               <span
                 className={cn(
@@ -103,7 +111,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
                   selectedVariant.salePrice ? "visible" : "invisible"
                 )}
               >
-                {formatter.format(selectedVariant.price)}
+                {price}
               </span>
             </div>
           </div>

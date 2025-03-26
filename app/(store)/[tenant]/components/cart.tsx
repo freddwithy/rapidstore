@@ -10,8 +10,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import useCart from "@/hooks/use-cart";
-import { formatter } from "@/lib/utils";
-import { Prisma } from "@prisma/client";
+import { formatter, usdFormatter } from "@/lib/utils";
+import { Currency, Prisma } from "@prisma/client";
 import { ShoppingCart, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -49,9 +49,37 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
     };
   });
 
-  const total = productos.reduce((acc, item) => {
-    return acc + item.price * item.quantity;
-  }, 0);
+  const total = () => {
+    const variantsUSD = productos.filter(
+      (item) => item.variant?.currency === "USD"
+    );
+    const variantsPYG = productos.filter(
+      (item) => item.variant?.currency === "PYG"
+    );
+
+    const sumUSD = variantsUSD.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+    const sumPYG = variantsPYG.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+
+    const pygConverted = Number(sumPYG / 8000);
+    const usdConverted = sumUSD * 8000;
+
+    const totalUSD = sumUSD + pygConverted;
+    const totalPYG = sumPYG + usdConverted;
+    return {
+      usdConverted,
+      pygConverted,
+      sumUSD,
+      sumPYG,
+      totalUSD,
+      totalPYG,
+    };
+  };
 
   const onRemove = (variantId: string) => {
     const cartItem = items.find((item) => item.variantId === variantId);
@@ -115,7 +143,9 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                     {item.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {formatter.format(item.price)}
+                    {item.variant?.currency === Currency.USD
+                      ? usdFormatter.format(item.variant?.price || 0)
+                      : formatter.format(item.variant?.price || 0)}
                   </p>
                 </div>
               </div>
@@ -147,9 +177,32 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
         )}
         <SheetFooter>
           <div className="w-full py-4 space-y-2">
-            <div className="flex justify-between items-center w-full">
-              <p className="text-lg text-muted-foreground">Total</p>
-              <p className="text-lg font-semibold">{formatter.format(total)}</p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Productos USD:</p>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {usdFormatter.format(total().sumUSD)}
+              </p>
+            </div>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">Productos Gs:</p>
+              <p className="text-sm font-semibold text-muted-foreground">
+                {formatter.format(total().sumPYG)}
+              </p>
+            </div>
+
+            <div className="mt-10">
+              <div className="flex items-center justify-between">
+                <p className="text-lg text-muted-foreground">Total USD:</p>
+                <p className="text-lg font-semibold">
+                  {usdFormatter.format(total().totalUSD)}
+                </p>
+              </div>
+              <div className="flex items-center justify-between">
+                <p className="text-lg text-muted-foreground">Total Gs:</p>
+                <p className="text-lg font-semibold">
+                  {formatter.format(total().totalPYG)}
+                </p>
+              </div>
             </div>
             <Link
               href={`/${tenant}/cart`}

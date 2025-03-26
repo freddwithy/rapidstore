@@ -34,7 +34,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatter, uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Category, Color, Prisma, Variant } from "@prisma/client";
+import { Category, Color, Currency, Prisma, Variant } from "@prisma/client";
 import {
   ImageOff,
   Loader2,
@@ -87,6 +87,7 @@ const ProductFormSchema = z.object({
     .default(0),
   isArchived: z.boolean().optional().default(false),
   isFeatured: z.boolean().optional().default(false),
+  currency: z.boolean().optional().default(false),
 });
 
 type ProductsWithVariants = Prisma.ProductGetPayload<{
@@ -174,7 +175,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     const salePrice = form.getValues("salePrice");
     const stock = form.getValues("stock");
     const name = form.getValues("variantName");
-
+    const currency = form.getValues("currency");
     //si el usuario es free solo puede agregar 1 opcion
 
     if (userType === "FREE" && options.length > 0) {
@@ -201,7 +202,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
         price: price || 0,
         salePrice: salePrice || 0,
         stock: stock || 1,
-        name: name || "",
+        name: name || "Normal",
+        currency: currency ? Currency.USD : Currency.PYG,
       },
     ]);
 
@@ -618,6 +620,26 @@ const ProductForm: React.FC<ProductFormProps> = ({
                           />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Usas dolares?</FormLabel>
+                          <FormDescription>
+                            Activa esta opción si el precio está en dolares.
+                          </FormDescription>
+                        </div>
                       </FormItem>
                     )}
                   />

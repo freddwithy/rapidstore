@@ -1,5 +1,5 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { currentUser } from "@clerk/nextjs/server";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
 import prismadb from "@/lib/prismadb";
 import AppSidebar from "./components/app-sidebar";
@@ -14,13 +14,19 @@ export default async function Layout({
   params: { storeId: string };
   children: React.ReactNode;
 }) {
-  const { userId } = auth();
-  if (!userId) redirect("/sign-in");
   if (!params.storeId) return null;
+  const user = await currentUser();
+
+  const userDb = await prismadb.user.findUnique({
+    where: {
+      clerk_id: user?.id,
+    },
+  });
 
   const store = await prismadb.store.findFirst({
     where: {
       id: params.storeId,
+      ownerId: userDb?.id,
     },
   });
 
@@ -38,18 +44,10 @@ export default async function Layout({
     );
   }
 
-  const user = await currentUser();
-
-  const userDb = await prismadb.user.findUnique({
-    where: {
-      clerk_id: userId,
-    },
-  });
-
   const stores = await prismadb.store.findMany({
     where: {
       owner: {
-        clerk_id: userId,
+        clerk_id: user?.id,
       },
     },
   });

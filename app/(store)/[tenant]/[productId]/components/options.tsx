@@ -9,9 +9,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import useCart from "@/hooks/use-cart";
-import { formatter } from "@/lib/utils";
+import { formatter, usdFormatter } from "@/lib/utils";
 import { Field, Label, Radio, RadioGroup } from "@headlessui/react";
-import { Prisma } from "@prisma/client";
+import { Currency, Prisma } from "@prisma/client";
 import clsx from "clsx";
 import { Check, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -93,12 +93,22 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
     }
   };
 
+  const price =
+    selectedVariant.currency === Currency.USD
+      ? usdFormatter.format(selectedVariant.price)
+      : formatter.format(selectedVariant.price);
+
+  const salePrice =
+    selectedVariant.currency === Currency.USD
+      ? usdFormatter.format(selectedVariant.salePrice ?? 0)
+      : formatter.format(selectedVariant.salePrice ?? 0);
+
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl">{product.name}</CardTitle>
         <CardDescription className="text-lg">
-          {formatter.format(selectedVariant.salePrice || selectedVariant.price)}
+          {selectedVariant.salePrice ? salePrice : price}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
