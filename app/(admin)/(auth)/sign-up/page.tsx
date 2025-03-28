@@ -48,7 +48,7 @@ const usernameValidation = /^[a-zA-Z0-9_]+$/;
 // Regex for email validation
 const emailValidation = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-export const formSchema = z
+const formSchema = z
   .object({
     username: z
       .string()
