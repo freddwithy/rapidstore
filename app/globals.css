@@ -111,4 +111,19 @@ html {
     h2 {
       @apply text-xl font-semibold;
     }
+        .header-scroll {
+          @apply transition-all duration-300;
+        }
+    
+        .header-scroll-active {
+          @apply bg-white/90 shadow-sm backdrop-blur-sm;
+        }
+    
+        .header-scroll-transparent {
+          @apply bg-transparent border-transparent;
+        }
+
+                 .card-hover {
+                   @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+                 }
 }

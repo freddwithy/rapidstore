@@ -45,31 +45,105 @@ interface StoreFormProps {
   store: Store;
 }
 
-const storeFormScheme = z.object({
-  name: z.string().min(1, {
-    message: "El nombre es requerido",
-  }),
-  description: z.string().min(1, {
-    message: "La descripción es requerida",
-  }),
-  url: z.string().min(1, {
-    message: "La URL es requerida",
-  }),
-  location: z.string().min(1, {
-    message: "La ubicación es requerida",
-  }),
-  city: z.string().min(1, {
-    message: "La ciudad es requerida",
-  }),
-  ruc: z.string().min(1, {
-    message: "El número de RUC es requerido",
-  }),
-  whatsapp: z.string().min(1, {
-    message: "El número de WhatsApp es requerido",
-  }),
-  instagram: z.string().min(1, {
-    message: "El número de Instagram es requerido",
-  }),
+// Regex for URL/slug validation (no spaces, lowercase)
+const slugValidation = /^[a-z0-9-]+$/;
+
+// Regex for WhatsApp (only numbers)
+const whatsappValidation = /^\d+$/;
+
+// Regex for Instagram username (no @ symbol, alphanumeric and underscore)
+const instagramUsernameValidation = /^[a-zA-Z0-9_]+$/;
+
+export const storeFormSchema = z.object({
+  name: z
+    .string()
+    .min(3, {
+      message: "El nombre debe tener al menos 3 caracteres",
+    })
+    .max(100, {
+      message: "El nombre no puede tener más de 100 caracteres",
+    })
+    .trim(), // Remove leading/trailing whitespace
+
+  description: z
+    .string()
+    .min(10, {
+      message: "La descripción debe tener al menos 10 caracteres",
+    })
+    .max(500, {
+      message: "La descripción no puede tener más de 500 caracteres",
+    })
+    .trim(),
+
+  url: z
+    .string()
+    .min(3, {
+      message: "El slug debe tener al menos 3 caracteres",
+    })
+    .max(50, {
+      message: "El slug no puede tener más de 50 caracteres",
+    })
+    .regex(slugValidation, {
+      message:
+        "El slug solo puede contener letras minúsculas, números y guiones",
+    })
+    .toLowerCase(), // Ensure lowercase
+
+  location: z
+    .string()
+    .min(3, {
+      message: "La dirección debe tener al menos 3 caracteres",
+    })
+    .max(200, {
+      message: "La dirección no puede tener más de 200 caracteres",
+    })
+    .trim(),
+
+  city: z
+    .string()
+    .min(2, {
+      message: "La ciudad debe tener al menos 2 caracteres",
+    })
+    .max(100, {
+      message: "La ciudad no puede tener más de 100 caracteres",
+    })
+    .trim(),
+
+  ruc: z
+    .string()
+    .min(6, {
+      message: "El RUC debe tener al menos 6 caracteres",
+    })
+    .max(20, {
+      message: "El RUC no puede tener más de 20 caracteres",
+    })
+    .trim(),
+
+  whatsapp: z
+    .string()
+    .regex(whatsappValidation, {
+      message: "El número de WhatsApp solo puede contener números",
+    })
+    .min(8, {
+      message: "El número de WhatsApp debe tener al menos 8 dígitos",
+    })
+    .max(15, {
+      message: "El número de WhatsApp no puede tener más de 15 dígitos",
+    }),
+
+  instagram: z
+    .string()
+    .regex(instagramUsernameValidation, {
+      message:
+        "El usuario de Instagram solo puede contener letras, números y guiones bajos",
+    })
+    .min(3, {
+      message: "El usuario de Instagram debe tener al menos 3 caracteres",
+    })
+    .max(30, {
+      message: "El usuario de Instagram no puede tener más de 30 caracteres",
+    }),
+
   logo: z.string().optional(),
 });
 
@@ -77,6 +151,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
   const [loading, setLoading] = useState(false);
   const [loadingImage, setLoadingImage] = useState(false);
   const [image, setImage] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (store.logo) {
@@ -84,8 +159,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
     }
   }, [store]);
 
-  const form = useForm<z.infer<typeof storeFormScheme>>({
-    resolver: zodResolver(storeFormScheme),
+  const form = useForm<z.infer<typeof storeFormSchema>>({
+    resolver: zodResolver(storeFormSchema),
     defaultValues: {
       name: store.name || "",
       description: store.description || "",
@@ -101,7 +176,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
 
   const router = useRouter();
 
-  const createStore = async (data: z.infer<typeof storeFormScheme>) => {
+  const createStore = async (data: z.infer<typeof storeFormSchema>) => {
     try {
       setLoading(true);
       const response = await fetch(`/api/store/${storeId}`, {
@@ -153,6 +228,8 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
       const extension = file.name.split(".").pop();
       if (!allowedFormats.includes(extension as string)) {
         setLoadingImage(false);
+        setImage("");
+        setOpen(false);
         toast.error("Formato de imagen no permitido");
         return;
       }
@@ -160,10 +237,12 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
       if (imageUrl) {
         setImage(imageUrl);
         setLoadingImage(false);
-        toast.success("Imagen cargada correctamente");
+        setOpen(false);
       }
     } else {
       setLoadingImage(false);
+      setImage("");
+      setOpen(false);
       toast.error("Error al seleccionar la imagen");
     }
   };
@@ -251,9 +330,13 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
                   <FormItem>
                     <FormControl onChange={handleFileChange}>
                       <div className="flex flex-col items-center relative">
-                        <Dialog>
+                        <Dialog open={open} onOpenChange={setOpen}>
                           <DialogTrigger asChild>
-                            <Button variant="outline" type="button">
+                            <Button
+                              variant="outline"
+                              type="button"
+                              onClick={() => setOpen(true)}
+                            >
                               {loadingImage ? (
                                 <LoaderCircle className="animate-spin size-4" />
                               ) : (
@@ -283,7 +366,7 @@ const StoreForm: React.FC<StoreFormProps> = ({ ownerId, storeId, store }) => {
                               <Input
                                 className="opacity-0 absolute h-40 cursor-pointer"
                                 type="file"
-                                accept="image/*"
+                                accept="image/jpeg, image/png, image/webp, image/jpg"
                                 {...field}
                               />
                             </Card>

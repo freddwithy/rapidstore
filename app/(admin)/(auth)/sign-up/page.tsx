@@ -38,33 +38,56 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const passwordValidation = new RegExp(
-  /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
-);
+// Regex for password validation
+const passwordValidation =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
 
-const formSchema = z
+// Regex for username validation (alphanumeric, underscores, no spaces)
+const usernameValidation = /^[a-zA-Z0-9_]+$/;
+
+// Regex for email validation
+const emailValidation = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+export const formSchema = z
   .object({
-    username: z.string().min(3, {
-      message: "El nombre de usuario es requerido",
-    }),
-    email: z.string().min(1, {
-      message: "El correo es requerido",
-    }),
+    username: z
+      .string()
+      .min(3, {
+        message: "El nombre de usuario debe tener al menos 3 caracteres",
+      })
+      .max(20, {
+        message: "El nombre de usuario no puede tener más de 20 caracteres",
+      })
+      .regex(usernameValidation, {
+        message:
+          "El nombre de usuario solo puede contener letras, números y guiones bajos",
+      }),
+    email: z
+      .string()
+      .min(1, {
+        message: "El correo electrónico es requerido",
+      })
+      .regex(emailValidation, {
+        message: "Por favor ingrese un correo electrónico válido",
+      }),
     password: z
       .string()
       .min(8, {
-        message: "La contraseña debe tener al menos 8 caracteres",
+        message: "La contraseña debe tener al menos 8 caracteres",
+      })
+      .max(50, {
+        message: "La contraseña no puede tener más de 50 caracteres",
       })
       .regex(passwordValidation, {
         message:
-          "La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un caracter especial",
+          "La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial",
       }),
     confirmPassword: z.string().min(8, {
-      message: "La contraseña debe tener al menos 8 caracteres",
+      message: "La contraseña debe tener al menos 8 caracteres",
     }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden",
+    message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
   });
 
