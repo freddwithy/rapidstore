@@ -8,7 +8,7 @@ export function HeroSectionOne() {
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
       <div className="px-4 py-20">
         <motion.h1
-          className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-transparent text-sky-600 md:text-4xl lg:text-7xl"
+          className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-sky-600 md:text-4xl lg:text-7xl"
           initial={{
             opacity: 0,
             translateY: 10,
