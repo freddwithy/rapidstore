@@ -7,25 +7,23 @@ export function HeroSectionOne() {
   return (
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
       <div className="px-4 py-20">
-        <h1 className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-transparent text-sky-600 md:text-4xl lg:text-7xl">
-          {"Lanza tu tienda en minutos, no días."
-            .split(" ")
-            .map((word, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0, filter: "blur(4px)", y: 10 }}
-                animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-                transition={{
-                  duration: 0.3,
-                  delay: index * 0.1,
-                  ease: "easeInOut",
-                }}
-                className="mr-2 inline-block"
-              >
-                {word}
-              </motion.span>
-            ))}
-        </h1>
+        <motion.h1
+          className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-transparent text-sky-600 md:text-4xl lg:text-7xl"
+          initial={{
+            opacity: 0,
+            translateY: 10,
+          }}
+          animate={{
+            opacity: 1,
+            translateY: 0,
+          }}
+          transition={{
+            duration: 0.3,
+            delay: 0.2,
+          }}
+        >
+          Lanza tu tienda en minutos, no días.
+        </motion.h1>
         <motion.p
           initial={{
             opacity: 0,
