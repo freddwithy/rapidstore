@@ -2,13 +2,14 @@
 
 import Image from "next/image";
 import { motion } from "motion/react";
+import { buttonVariants } from "@/components/ui/button";
 
 export function HeroSectionOne() {
   return (
     <div className="relative mx-auto my-10 flex max-w-7xl flex-col items-center justify-center">
       <div className="px-4 py-20">
         <motion.h1
-          className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-sky-600 md:text-4xl lg:text-7xl"
+          className="relative z-10 mx-auto max-w-4xl text-center text-4xl font-bold text-secondary-foreground md:text-4xl lg:text-7xl"
           initial={{
             opacity: 0,
             translateY: 10,
@@ -19,7 +20,7 @@ export function HeroSectionOne() {
           }}
           transition={{
             duration: 0.3,
-            delay: 0.2,
+            delay: 0.1,
           }}
         >
           Lanza tu tienda en minutos, no días.
@@ -33,9 +34,9 @@ export function HeroSectionOne() {
           }}
           transition={{
             duration: 0.3,
-            delay: 0.8,
+            delay: 0.2,
           }}
-          className="relative z-10 mx-auto max-w-xl text-sm py-4 text-center md:text-lg font-normal text-neutral-600 dark:text-neutral-400"
+          className="relative z-10 mx-auto max-w-xl text-sm py-4 text-center md:text-lg font-normal text-foreground dark:text-zinc-400"
         >
           Crea tu tienda <strong>sin complicaciones.</strong> Ideal para
           vendedores que quieren resultados rápidos{" "}
@@ -51,19 +52,16 @@ export function HeroSectionOne() {
           }}
           transition={{
             duration: 0.3,
-            delay: 1,
+            delay: 0.5,
           }}
           className="relative z-10 mt-8 flex flex-col md:flex-row items-center justify-center gap-4"
         >
-          <a
-            href="/revtek"
-            className="w-44 md:w-60 transform rounded-3xl flex items-center justify-center bg-sky-900 px-4 md:px-6 py-2 font-medium text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-sky-800 dark:bg-white dark:text-black dark:hover:bg-gray-200"
-          >
+          <a href="/revtek" className={buttonVariants({ size: "lg" })}>
             Ver Demo
           </a>
           <a
             href="/sign-up"
-            className="w-44 md:w-60 transform rounded-3xl flex items-center justify-center border border-gray-300 bg-white px-4 md:px-6 py-2 font-medium text-black transition-all duration-300 hover:-translate-y-0.5 hover:bg-gray-100 dark:border-gray-700 dark:bg-black dark:text-white dark:hover:bg-gray-900"
+            className={buttonVariants({ size: "lg", variant: "secondary" })}
           >
             Empezar
           </a>
@@ -79,7 +77,7 @@ export function HeroSectionOne() {
           }}
           transition={{
             duration: 0.3,
-            delay: 1.2,
+            delay: 0.5,
           }}
           className="relative z-10 mt-20 rounded-3xl border border-neutral-200 bg-neutral-100 p-4 shadow-md dark:border-neutral-800 dark:bg-neutral-900"
         >

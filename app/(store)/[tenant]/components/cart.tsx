@@ -138,9 +138,9 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                 <div>
                   <Link
                     href={`${tenant}/${item.id}`}
-                    className="text-sm md:text-md truncate line-clamp-3"
+                    className="text-sm md:text-md line-clamp-3"
                   >
-                    {item.name}
+                    {item.name?.slice(0, 25)}
                   </Link>
                   <p className="text-sm text-muted-foreground">
                     {item.variant?.currency === Currency.USD
