@@ -13,7 +13,7 @@ export default function Testimonials() {
         "Tiendy me permitió crear mi tienda en minutos. Ahora puedo vender mis productos artesanales sin preocuparme por la tecnología.",
       avatar: "/avatar2.webp",
       stars: 5,
-      color: "border-cyan-500",
+      color: "border-blue-500",
     },
     {
       name: "Carlos Rodríguez",
@@ -22,7 +22,7 @@ export default function Testimonials() {
         "Probé varias plataformas antes, pero ninguna era tan sencilla como Tiendy. El plan Pro me da todo lo que necesito para mi negocio.",
       avatar: "/avatar3.webp",
       stars: 5,
-      color: "border-cyan-500",
+      color: "border-blue-500",
     },
     {
       name: "Laura Martínez",
@@ -31,12 +31,12 @@ export default function Testimonials() {
         "Como diseñadora, valoro mucho la estética. Tiendy me permite tener una tienda bonita sin tener que programar nada.",
       avatar: "/avatar1.webp",
       stars: 4,
-      color: "border-cyan-500",
+      color: "border-blue-500",
     },
   ];
 
   return (
-    <section id="testimonials" className="py-20 bg-white">
+    <section id="testimonials" className="py-20 bg-background">
       <div className="container px-4 md:px-6 mx-auto max-w-6xl">
         <motion.div
           className="text-center mb-12"
@@ -45,10 +45,10 @@ export default function Testimonials() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-sky-700">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-secondary-foreground">
             Lo que dicen nuestros clientes
           </h2>
-          <p className="mt-4 text-zinc-600 md:text-xl max-w-3xl mx-auto">
+          <p className="mt-4 text-muted-foreground md:text-xl max-w-3xl mx-auto">
             Miles de vendedores ya confían en Tiendy para sus negocios online
           </p>
         </motion.div>
@@ -57,7 +57,7 @@ export default function Testimonials() {
           {testimonials.map((testimonial, index) => (
             <motion.div
               key={index}
-              className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 card-hover"
+              className="bg-card p-8 rounded-3xl shadow-sm border  card-hover"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -76,7 +76,9 @@ export default function Testimonials() {
                 </div>
                 <div>
                   <h3 className="font-bold">{testimonial.name}</h3>
-                  <p className="text-sm text-zinc-500">{testimonial.role}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {testimonial.role}
+                  </p>
                 </div>
               </div>
               <div className="flex mb-4">
@@ -87,7 +89,7 @@ export default function Testimonials() {
                   />
                 ))}
               </div>
-              <p className="text-zinc-600">{testimonial.content}</p>
+              <p className="text-muted-foreground">{testimonial.content}</p>
             </motion.div>
           ))}
         </div>

@@ -64,7 +64,7 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
                 href={`/${tenant}/categories/${cat.id}`}
                 className={buttonVariants({
                   variant: "link",
-                  className: "text-muted-foreground",
+                  className: "text-secondary-foreground",
                 })}
               >
                 Ver todo

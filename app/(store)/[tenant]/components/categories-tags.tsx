@@ -20,7 +20,6 @@ const CategoriesTags: React.FC<CategoriesTagsProps> = async ({ storeId }) => {
           href={`#${cat.name}`}
           className={buttonVariants({
             variant: "outline",
-            className: "rounded-xl",
           })}
         >
           {cat.name}

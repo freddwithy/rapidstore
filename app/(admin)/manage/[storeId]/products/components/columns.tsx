@@ -21,7 +21,7 @@ export const columns: ColumnDef<ProductColumn>[] = [
     accessorKey: "image",
     header: "Imagen",
     cell: ({ row }) => (
-      <div className="border bg-primary rounded-lg overflow-hidden size-16">
+      <div className="border bg-background rounded-md overflow-hidden size-16">
         <Image src={row.original.image} alt="" width={96} height={96} />
       </div>
     ),

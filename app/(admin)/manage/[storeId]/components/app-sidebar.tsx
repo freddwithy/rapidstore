@@ -127,9 +127,9 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                  className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                     <Avatar className="size-8 rounded-lg">
                       <AvatarImage
                         src={store?.logo || ""}
@@ -209,7 +209,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
-                      <item.icon />
+                      <item.icon className="text-primary" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -219,7 +219,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link href={item.url}>
-                      <item.icon />
+                      <item.icon className="text-primary" />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>

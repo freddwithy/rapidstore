@@ -20,10 +20,10 @@ export default function Pricing() {
       ],
       cta: "Comenzar gratis",
       popular: false,
-      color: "text-sky-700",
-      bgColor: "bg-sky-50",
+      color: "text-blue-700",
+      bgColor: "bg-blue-50",
       buttonClass:
-        "bg-white border border-gray-300 hover:bg-gray-50 text-sky-700",
+        "bg-white border border-zinc-300 hover:bg-zinc-50 text-blue-700",
     },
     {
       name: "Pro",
@@ -40,9 +40,9 @@ export default function Pricing() {
       ],
       cta: "Contactar ventas",
       popular: true,
-      color: "text-cyan-500",
-      bgColor: "bg-cyan-50",
-      buttonClass: "bg-cyan-500 hover:bg-cyan-600 text-white",
+      color: "text-blue-500",
+      bgColor: "bg-blue-50",
+      buttonClass: "bg-blue-500 hover:bg-blue-600 text-white",
     },
     {
       name: "Empresarial",
@@ -59,14 +59,14 @@ export default function Pricing() {
       ],
       cta: "Contactar ventas",
       popular: false,
-      color: "text-sky-700",
-      bgColor: "bg-sky-50",
-      buttonClass: "bg-sky-700 hover:bg-sky-800 text-white",
+      color: "text-blue-700",
+      bgColor: "bg-blue-50",
+      buttonClass: "bg-blue-700 hover:bg-blue-800 text-white",
     },
   ];
 
   return (
-    <section id="pricing" className="py-20 bg-gray-50">
+    <section id="pricing" className="py-20 bg-background">
       <div className="container px-4 md:px-6 mx-auto max-w-6xl">
         <motion.div
           className="text-center mb-12"
@@ -75,10 +75,10 @@ export default function Pricing() {
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-sky-700">
+          <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-secondary-foreground">
             Planes simples y transparentes
           </h2>
-          <p className="mt-4 text-zinc-600 md:text-xl max-w-3xl mx-auto">
+          <p className="mt-4 text-muted-foreground md:text-xl max-w-3xl mx-auto">
             Elige el plan que mejor se adapte a tus necesidades. Sin sorpresas
             ni costos ocultos.
           </p>
@@ -88,7 +88,7 @@ export default function Pricing() {
           {plans.map((plan, index) => (
             <motion.div
               key={index}
-              className={`relative flex flex-col p-8 rounded-3xl ${plan.popular ? "border-2 border-cyan-500 shadow-xl" : "border border-gray-200 shadow-sm"} bg-white`}
+              className={`relative flex flex-col p-8 rounded-3xl ${plan.popular ? "border-2 border-primary shadow-xl" : "border shadow-sm"} bg-card`}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -97,7 +97,7 @@ export default function Pricing() {
             >
               {plan.popular && (
                 <div className="absolute top-0 right-0 transform translate-x-2 -translate-y-2">
-                  <div className="bg-cyan-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                  <div className="bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
                     Más popular
                   </div>
                 </div>
@@ -108,9 +108,9 @@ export default function Pricing() {
                   <span className={`text-4xl font-extrabold ${plan.color}`}>
                     Gs. {plan.price}
                   </span>
-                  <span className="ml-1 text-gray-500">/mes</span>
+                  <span className="ml-1 text-primary">/mes</span>
                 </div>
-                <p className="mt-2 text-zinc-600">{plan.description}</p>
+                <p className="mt-2 text-muted-foreground">{plan.description}</p>
               </div>
               <ul className="mb-8 space-y-3 flex-1">
                 {plan.features.map((feature, i) => (

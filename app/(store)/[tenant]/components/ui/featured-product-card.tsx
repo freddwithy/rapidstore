@@ -92,6 +92,7 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
           )}
         </Link>
         <Button
+          variant="secondary"
           className="absolute top-1 right-1 z-10"
           size="icon"
           type="button"

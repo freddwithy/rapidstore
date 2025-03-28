@@ -8,9 +8,7 @@ const BouncyLoader = () => {
     bouncy.register();
   }, []);
 
-  return (
-    <l-bouncy size="60" speed="1" color="hsl(var(--foreground))"></l-bouncy>
-  );
+  return <l-bouncy size="60" speed="1" color="hsl(var(--primary))"></l-bouncy>;
 };
 
 export default BouncyLoader;
