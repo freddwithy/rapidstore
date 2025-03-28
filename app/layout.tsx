@@ -11,8 +11,9 @@ const roboto = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "RapidStore",
-  description: "Create your store faster and easier",
+  title: "Tiendy",
+  description:
+    "Crea tu tienda sin complicaciones. Ideal para vendedores que quieren resultados rápidos sin invertir tiempo y dinero en otras soluciones más complejas.",
 };
 
 export default function RootLayout({
