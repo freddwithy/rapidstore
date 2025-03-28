@@ -138,7 +138,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                 <div>
                   <Link
                     href={`${tenant}/${item.id}`}
-                    className="text-sm md:text-md"
+                    className="text-sm md:text-md truncate line-clamp-3"
                   >
                     {item.name}
                   </Link>
