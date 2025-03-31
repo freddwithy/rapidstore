@@ -23,14 +23,14 @@ async function ProductByCategories({
       storeId,
       categoryId,
       isFeatured,
+      status: { in: ["EN_VENTA", "AGOTADO"] },
     },
     take: limit,
     include: {
       images: true,
       variants: {
         include: {
-          variant: true,
-          color: true,
+          options: true,
         },
       },
     },

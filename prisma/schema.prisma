@@ -40,8 +40,6 @@ model Store {
   logo        String?
   products    Product[]
   categories  Category[]
-  variants    Variant[]
-  colors      Color[]
   orders      Order[]
   customers   Customer[]
 
@@ -50,17 +48,19 @@ model Store {
 }
 
 model Product {
-  id          String           @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
-  isArchived  Boolean          @default(false)
-  isFeatured  Boolean          @default(false)
-  description String           @db.Text
-  category    Category         @relation(fields: [categoryId], references: [id])
+  isFeatured  Boolean       @default(false)
+  description String        @db.Text
+  price       Int?
+  salePrice   Int?
+  category    Category      @relation(fields: [categoryId], references: [id])
   categoryId  String
-  variants    VariantProduct[]
-  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  variants    Variant[]
+  store       Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId     String
   images      Image[]
+  status      ProductStatus @default(EN_VENTA)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,71 +86,50 @@ model Image {
 }
 
 model Variant {
-  id          String           @id @default(cuid())
-  name        String
-  description String
-  products    VariantProduct[]
-  store       Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId     String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Color {
-  id       String           @id @default(cuid())
-  name     String
-  value    String
-  products VariantProduct[]
-  store    Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model VariantProduct {
-  id           String         @id @default(cuid())
-  sku          String         @unique
-  price        Int
-  salePrice    Int?
-  currency     Currency       @default(PYG)
-  name         String?        @default("Normal")
-  stock        Int            @default(1)
-  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id           String           @id @default(cuid())
+  name         String?
+  product      Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String
-  color        Color?         @relation(fields: [colorId], references: [id])
-  colorId      String?
-  variant      Variant?       @relation(fields: [variantId], references: [id])
-  variantId    String?
-  OrderProduct OrderProduct[]
+  orderProduct OrderProduct[]
+  options      VariantOptions[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([productId, colorId, variantId])
+  @@unique([productId])
+}
+
+model VariantOptions {
+  id        String        @id @default(cuid())
+  name      String
+  price     Int
+  salePrice Int?
+  status    VariantStatus @default(DISPONIBLE)
+  variant   Variant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variantId String
 }
 
 model Order {
-  id            String         @id @default(uuid())
+  id            Int            @id @default(autoincrement())
   customer      Customer       @relation(fields: [customerId], references: [id])
   customerId    String
   store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId       String
   total         Int
-  orderProducts OrderProduct[]
+  products      OrderProduct[]
   status        OrderStatus    @default(PENDIENTE)
   paymentStatus OrderPayment   @default(PENDIENTE)
+  paymentMehod  PaymentMethod  @default(TRANSFERENCIA)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model OrderProduct {
-  id        String         @id @default(cuid())
-  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  orderId   String
-  variant   VariantProduct @relation(fields: [variantId], references: [id])
+  id        String  @id @default(cuid())
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   Int
+  variant   Variant @relation(fields: [variantId], references: [id])
   variantId String
   qty       Int
   total     Int
@@ -190,6 +169,7 @@ enum OrderStatus {
   PENDIENTE
   ENTREGADO
   CANCELADO
+  PREPARANDO
 }
 
 enum OrderPayment {
@@ -201,4 +181,21 @@ enum OrderPayment {
 enum Currency {
   PYG
   USD
+}
+
+enum PaymentMethod {
+  TARJETA
+  EFECTIVO
+  TRANSFERENCIA
+}
+
+enum ProductStatus {
+  EN_VENTA
+  ARCHIVADO
+  AGOTADO
+}
+
+enum VariantStatus {
+  DISPONIBLE
+  AGOTADO
 }

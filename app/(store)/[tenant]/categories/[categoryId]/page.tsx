@@ -27,8 +27,7 @@ const CategoryPage = async ({
           images: true,
           variants: {
             include: {
-              variant: true,
-              color: true,
+              options: true,
             },
           },
         },

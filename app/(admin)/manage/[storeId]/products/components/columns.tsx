@@ -10,7 +10,7 @@ export type ProductColumn = {
   id: string;
   name: string;
   category: string;
-  isArchived: boolean;
+  status: string;
   isFeatured: boolean;
   image: string;
   variants: number;
@@ -39,9 +39,9 @@ export const columns: ColumnDef<ProductColumn>[] = [
     header: "Categoria",
   },
   {
-    accessorKey: "isArchived",
-    header: "Archivado",
-    cell: ({ row }) => (row.original.isArchived ? "Si" : "No"),
+    accessorKey: "status",
+    header: "Estado",
+    cell: ({ row }) => row.original.status,
   },
   {
     accessorKey: "id",

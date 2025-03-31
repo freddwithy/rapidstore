@@ -1,8 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import useCart from "@/hooks/use-cart";
-import { cn, formatter, usdFormatter } from "@/lib/utils";
-import { Currency, Prisma } from "@prisma/client";
+import { cn, formatter } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,8 +12,7 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
       include: {
-        variant: true;
-        color: true;
+        options: true;
       };
     };
     images: true;
@@ -28,7 +27,7 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const { addItem, items, updateItem } = useCart();
 
-  const selectedVariant = product.variants[0];
+  const selectedVariant = product.variants[0].options[0];
 
   const isInCart = items.some((item) => item.variantId === selectedVariant.id);
 
@@ -36,15 +35,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
     (item) => item.variantId === selectedVariant.id
   );
 
-  const price =
-    selectedVariant.currency === Currency.USD
-      ? usdFormatter.format(selectedVariant.price)
-      : formatter.format(selectedVariant.price);
+  const price = formatter.format(selectedVariant.price);
 
-  const salePrice =
-    selectedVariant.currency === Currency.USD
-      ? usdFormatter.format(selectedVariant.salePrice ?? 0)
-      : formatter.format(selectedVariant.salePrice ?? 0);
+  const salePrice = formatter.format(selectedVariant.salePrice ?? 0);
 
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {

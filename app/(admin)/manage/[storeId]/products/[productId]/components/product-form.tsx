@@ -34,11 +34,12 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { formatter, uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Category, Color, Currency, Prisma, Variant } from "@prisma/client";
+import { Category, Prisma } from "@prisma/client";
 import {
   ImageOff,
   Loader2,
   LoaderCircle,
+  Pencil,
   Plus,
   Trash,
   Upload,
@@ -56,46 +57,51 @@ const ProductFormSchema = z.object({
     message: "El nombre es requerido",
   }),
   variantName: z.string().optional(),
+  optionName: z.string().optional(),
   description: z
     .string()
     .min(1, "La descripción es requerida")
     .max(1500, "La descripción no puede tener más de 1500 caracteres"),
   images: z.string().url("Debe ser una URL válida").optional(),
   category: z.string().min(1, "La categoría es requerida"),
-  color: z.string().optional(),
-  variant: z.string().optional(),
   price: z.coerce
     .number({
       invalid_type_error: "El precio debe ser un número válido",
     })
-    .min(1, "El precio es requerido")
-    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs."),
+    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
   salePrice: z.coerce
     .number({
       invalid_type_error: "El precio de venta debe ser un número válido",
     })
     .max(99999999, "El precio de venta no puede ser mayor a 99.999.999 Gs.")
-    .optional()
-    .default(0),
-  stock: z.coerce
+    .optional(),
+  valuePrice: z.coerce
     .number({
-      invalid_type_error: "El stock debe ser un número válido",
+      invalid_type_error: "El precio debe ser un número valido",
     })
-    .min(0, "El stock no puede ser negativo")
-    .max(10000, "El stock no puede ser mayor a 10.000 unidades")
-    .optional()
-    .default(0),
-  isArchived: z.boolean().optional().default(false),
+    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
+  valueSalePrice: z.coerce
+    .number({
+      invalid_type_error: "El precio de venta debe ser un número valido",
+    })
+    .max(99999999, "El precio de venta no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
   isFeatured: z.boolean().optional().default(false),
-  currency: z.boolean().optional().default(false),
+  status: z
+    .string()
+    .min(1, "El estado es requerido")
+    .optional()
+    .default("EN_VENTA"),
+  optionStatus: z.string().optional().default("DISPONIBLE"),
 });
 
 type ProductsWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
       include: {
-        color: true;
-        variant: true;
+        options: true;
       };
     };
     images: true;
@@ -103,48 +109,55 @@ type ProductsWithVariants = Prisma.ProductGetPayload<{
 }>;
 
 type Option = {
-  colorId?: string;
-  variantId?: string;
-  price: number;
-  salePrice?: number;
-  stock?: number;
-  name?: string;
+  values: Values[];
+  name: string;
+};
+
+type Values = {
+  name: string;
+  price?: number;
+  salePrice?: number | null; // Change this line
+  status: string | "DISPONIBLE";
 };
 
 interface ProductFormProps {
   storeId: string;
   initialData: ProductsWithVariants | null;
-  colors: Color[];
   categories: Category[];
-  variants: Variant[];
   userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
   storeId,
   initialData,
-  colors,
   categories,
-  variants,
   userType,
 }) => {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
   const [loadingImage, setLoadingImage] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  const [values, setValues] = useState<Values[]>([]);
 
   useEffect(() => {
     if (initialData) {
       setImages(initialData.images.map((i) => i.url) || []);
       setOptions(
-        initialData.variants.map((v) => ({
-          colorId: v.color?.id || "",
-          variantId: v.variant?.id || "",
-          price: v.price,
-          salePrice: v.salePrice || 0,
-          stock: v.stock,
-          name: v.name || "",
-        }))
+        initialData.variants.flatMap((v) =>
+          v.options.length > 0
+            ? v.options.map((o) => ({
+                name: o.name,
+                values: [
+                  {
+                    name: o.name,
+                    price: o.price,
+                    salePrice: o.salePrice,
+                    status: o.status,
+                  },
+                ],
+              }))
+            : []
+        )
       );
     }
   }, [initialData]);
@@ -155,27 +168,19 @@ const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
-      isArchived: initialData?.isArchived || false,
+      status: initialData?.status,
       isFeatured: initialData?.isFeatured || false,
       category: initialData?.categoryId || "",
-      variant: initialData?.variants[0].variant?.name || "",
-      color: initialData?.variants[0].color?.name || "",
-      price: initialData?.variants[0].price || 0,
-      salePrice: initialData?.variants[0].salePrice || 0,
-      stock: initialData?.variants[0].stock || 0,
-      variantName: initialData?.variants[0].name || "",
+      price: initialData?.variants[0].options[0].price || 0,
+      salePrice: initialData?.variants[0].options[0].salePrice || 0,
     },
   });
 
   const handleAddOption = () => {
     //filtrar y no agregar combinaciones de colorId y variantId que ya existan al estado
-    const colorId = form.getValues("color");
-    const variantId = form.getValues("variant");
-    const price = form.getValues("price");
-    const salePrice = form.getValues("salePrice");
-    const stock = form.getValues("stock");
     const name = form.getValues("variantName");
-    const currency = form.getValues("currency");
+
+    const valueName = form.getValues("optionName");
     //si el usuario es free solo puede agregar 1 opcion
 
     if (userType === "FREE" && options.length > 0) {
@@ -183,27 +188,16 @@ const ProductForm: React.FC<ProductFormProps> = ({
       return;
     }
 
-    //si no se selecciona ningun color o variante no hacer la comparacion de colorId y variantId
-
-    if (colorId || variantId) {
-      if (
-        options.some((o) => o.colorId === colorId && o.variantId === variantId)
-      ) {
-        toast.error("La combinación de color y variante ya existe");
-        return;
-      }
+    if (!name || !valueName) {
+      toast.error("Todos los campos son requeridos");
+      return;
     }
 
     setOptions((current) => [
       ...current,
       {
-        colorId: colorId || "",
-        variantId: variantId || "",
-        price: price || 0,
-        salePrice: salePrice || 0,
-        stock: stock || 1,
-        name: name || "Normal",
-        currency: currency ? Currency.USD : Currency.PYG,
+        name: name,
+        values: values,
       },
     ]);
 
@@ -211,11 +205,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const handleRemoveOption = (id: string) => {
-    setOptions((current) =>
-      current.filter(
-        (o) => `${o.colorId || ""}${o.variantId || ""}${o.name || ""}` !== id
-      )
-    );
+    setOptions((current) => current.filter((o) => o.name !== id));
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -377,26 +367,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
             <div className="space-y-4">
               <FormField
                 control={form.control}
-                name="isArchived"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Archivar</FormLabel>
-                      <FormDescription>
-                        Archiva el producto, no será visible en la tienda.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="isFeatured"
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
@@ -503,42 +473,87 @@ const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <Separator />
           <div className="flex flex-col gap-y-4">
-            <FormLabel>Agregar opciones</FormLabel>
-            {options.length > 0 && (
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                {options.map((option) => (
-                  <div
-                    key={`${option.colorId || ""}${option.variantId || ""}${option.name || ""}`}
-                    className="border rounded-lg p-4 flex-col gap-y-1 hover:bg-primary-foreground hover:text-primary transition-colors relative"
-                  >
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className=" absolute top-2 right-2"
-                      onClick={() =>
-                        handleRemoveOption(
-                          `${option.colorId || ""}${option.variantId || ""}${option.name || ""}`
-                        )
-                      }
-                    >
-                      <Trash className="size-4" />
-                    </Button>
+            <div>
+              <FormLabel>Variantes</FormLabel>
+              <FormDescription>
+                Agrega variaciones a tu producto, como tallas, colores, etc.
+              </FormDescription>
+            </div>
 
-                    {!option.name && (
-                      <p className="">
-                        {colors.find((c) => c.id === option.colorId)?.name}
-                        {" - "}
-                        {variants.find((v) => v.id === option.variantId)?.name}
-                      </p>
-                    )}
-                    {option.name && <p className="">{option.name}</p>}
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {formatter.format(option.price)}
-                    </p>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {option.stock} un
-                    </p>
+            {options.length > 0 && (
+              <div className="space-y-2">
+                {options.map((option, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex items-center gap-x-2 justify-between">
+                      <FormLabel>{option.name}</FormLabel>
+                      <Button variant="outline">
+                        <Pencil />
+                        Editar
+                      </Button>
+                    </div>
+
+                    {option.values.map((value, i) => (
+                      <div
+                        key={i}
+                        className="bg-secondary p-4 rounded-lg space-y-4"
+                      >
+                        <FormLabel>
+                          <div className="flex items-center gap-x-2">
+                            <div
+                              className={`rounded-full size-2 bg-green-500 ${value.status === "DISPONIBLE" ? "bg-green-500" : "bg-zinc-200"}`}
+                            />{" "}
+                            {value.name}
+                          </div>
+                        </FormLabel>
+                        <div className="flex items-center gap-x-2">
+                          <FormItem>
+                            <FormLabel>Precio</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={value.price || 0}
+                                value={value.price}
+                                type="number"
+                                className="bg-background"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                          <FormItem>
+                            <FormLabel>Promoci&oacute;n</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder={value.salePrice || 0}
+                                value={value.salePrice || 0}
+                                type="number"
+                                className="bg-background"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                          <FormItem>
+                            <FormLabel>Disponibilidad</FormLabel>
+                            <FormControl>
+                              <Select>
+                                <SelectTrigger className="bg-background">
+                                  <SelectValue
+                                    defaultValue={value.status}
+                                    placeholder="Disponibilidad"
+                                  />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="DISPONIBLE">
+                                    Disponible
+                                  </SelectItem>
+                                  <SelectItem value="AGOTADO">
+                                    Agotado
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                          </FormItem>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
@@ -560,12 +575,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 <DialogHeader>
                   <DialogTitle>Agregar opción</DialogTitle>
                   <DialogDescription>
-                    Agrega una opción al producto, si necesitas alguna variante
-                    de color o tamaño, agregalo primero. Si no, con el nombre y
-                    los precios es suficiente.
+                    Agrega opciones para el producto.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
                   <FormField
                     control={form.control}
                     name="variantName"
@@ -575,7 +588,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         <FormControl>
                           <Input
                             disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="Con cuello, sin cuello, etc."
+                            placeholder="Color, talla, etc."
                             type="text"
                             {...field}
                           />
@@ -584,139 +597,74 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       </FormItem>
                     )}
                   />
+                  <div className="space-y-2">
+                    <FormField
+                      control={form.control}
+                      name="optionName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Valores disponibles</FormLabel>
+                          <FormControl>
+                            <div className="space-y-2">
+                              {values.length > 0 &&
+                                values.map((value) => (
+                                  <div
+                                    key={value.name}
+                                    className="flex items-center gap-x-2"
+                                  >
+                                    <div className="flex items-center justify-between bg-zinc-100 dark:bg-zinc-800 dark:border-zinc-700 py-1.5 px-4 border rounded-md text-sm w-full">
+                                      <span>{value.name}</span>
+                                    </div>
+                                    <Button
+                                      variant="secondary"
+                                      size="icon"
+                                      onClick={() => {
+                                        setValues((prev) =>
+                                          prev.filter(
+                                            (item) => item.name !== value.name
+                                          )
+                                        );
+                                      }}
+                                    >
+                                      <Trash />
+                                    </Button>
+                                  </div>
+                                ))}
 
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Precio <Obligatory />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="2.000.000"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="salePrice"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Precio de promoción</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="1.500.000"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Usas dolares?</FormLabel>
-                          <FormDescription>
-                            Activa esta opción si el precio está en dolares.
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="stock"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stock</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="10"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="color"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Color</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={options.length > 0 && userType === "FREE"}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="min-w-[200px]">
-                              <SelectValue defaultValue={field.value} />
-                            </SelectTrigger>
+                              <div className="flex items-center gap-x-2">
+                                <Input
+                                  disabled={
+                                    options.length > 0 && userType === "FREE"
+                                  }
+                                  placeholder="Blanco, negro, etc."
+                                  type="text"
+                                  {...field}
+                                />
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  variant="secondary"
+                                  onClick={() =>
+                                    setValues((prev) => [
+                                      ...prev,
+                                      {
+                                        name: field.value as string,
+                                        price: 0,
+                                        status: "DISPONIBLE",
+                                      },
+                                    ])
+                                  }
+                                >
+                                  <Plus />
+                                </Button>
+                              </div>
+                            </div>
                           </FormControl>
-                          <SelectContent>
-                            {colors.map((color) => (
-                              <SelectItem key={color.id} value={color.id}>
-                                {color.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="variant"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Variante/Tamaño</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={options.length > 0 && userType === "FREE"}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="min-w-[200px]">
-                              <SelectValue defaultValue={field.value} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {variants.map((variant) => (
-                              <SelectItem key={variant.id} value={variant.id}>
-                                {variant.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button

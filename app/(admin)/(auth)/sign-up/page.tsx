@@ -38,10 +38,6 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-// Regex for password validation
-const passwordValidation =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/;
-
 // Regex for username validation (alphanumeric, underscores, no spaces)
 const usernameValidation = /^[a-zA-Z0-9_]+$/;
 
@@ -72,15 +68,16 @@ const formSchema = z
       }),
     password: z
       .string()
-      .min(8, {
-        message: "La contraseña debe tener al menos 8 caracteres",
+      .min(8, { message: "La contraseña debe tener al menos 8 caracteres" })
+      .max(32, { message: "La contraseña no puede exceder los 32 caracteres" })
+      .regex(/[a-z]/, { message: "Debe contener al menos una letra minúscula" })
+      .regex(/[A-Z]/, { message: "Debe contener al menos una letra mayúscula" })
+      .regex(/[0-9]/, { message: "Debe contener al menos un número" })
+      .regex(/[-_!@#$%^&*(),.?":{}|<>]/, {
+        message: "Debe contener al menos un carácter especial",
       })
-      .max(50, {
-        message: "La contraseña no puede tener más de 50 caracteres",
-      })
-      .regex(passwordValidation, {
-        message:
-          "La contraseña debe tener al menos una letra mayúscula, una letra minúscula, un número y un carácter especial",
+      .refine((password) => !/\s/.test(password), {
+        message: "La contraseña no debe contener espacios",
       }),
     confirmPassword: z.string().min(8, {
       message: "La contraseña debe tener al menos 8 caracteres",
@@ -149,7 +146,10 @@ const Page = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setLoading(false);
-      toast.error("Error al crear la cuenta", err.errors[0].message);
+      if (err.errors[0].code === "form_password_pwned") {
+        toast.error("La contraseña aparece en una lista de claves robadas");
+      }
+      console.log(err.errors[0].code);
     }
   };
 
