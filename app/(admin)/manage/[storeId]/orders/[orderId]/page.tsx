@@ -23,14 +23,14 @@ const OrderPage = async ({
 
   const order = await prismadb.order.findFirst({
     where: {
-      id: orderId,
+      id: parseInt(orderId),
     },
     include: {
-      orderProducts: {
+      products: {
         include: {
           variant: {
             include: {
-              product: true,
+              options: true,
             },
           },
         },
@@ -51,8 +51,7 @@ const OrderPage = async ({
     include: {
       variants: {
         include: {
-          color: true,
-          variant: true,
+          options: true,
         },
       },
       images: true,

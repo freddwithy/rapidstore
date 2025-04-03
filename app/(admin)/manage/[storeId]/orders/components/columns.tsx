@@ -8,14 +8,18 @@ import { CellAction } from "./cell-action";
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type OrderColumn = {
-  id: string;
+  id: number;
   customer: string;
-  status: "PENDIENTE" | "ENTREGADO" | "CANCELADO";
+  status: "PENDIENTE" | "ENTREGADO" | "CANCELADO" | "PREPARANDO";
   paymentStatus: "PENDIENTE" | "PAGADO" | "CANCELADO";
   total: number;
 };
 
-export const columns: ColumnDef<OrderColumn>[] = [
+export const columns: ColumnDef<OrderColumn, unknown>[] = [
+  {
+    accessorKey: "id",
+    header: "Numero de Pedido",
+  },
   {
     accessorKey: "customer",
     header: "Ciente",
