@@ -5,9 +5,7 @@ import { formatter } from "@/lib/utils";
 import { CellAction } from "./cell-action";
 
 export type OrderProductColumn = {
-  variantId: string;
   product: string;
-  color: string | undefined;
   variant: string | undefined;
   quantity: number;
   total: number;

@@ -117,7 +117,7 @@ model Order {
   products      OrderProduct[]
   status        OrderStatus    @default(PENDIENTE)
   paymentStatus OrderPayment   @default(PENDIENTE)
-  paymentMehod  PaymentMethod  @default(TRANSFERENCIA)
+  paymentMethod PaymentMethod  @default(TRANSFERENCIA)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -134,8 +134,6 @@ model OrderProduct {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([variantId, orderId])
 }
 
 model Customer {
