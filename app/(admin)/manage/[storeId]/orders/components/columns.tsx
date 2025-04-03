@@ -4,18 +4,19 @@ import { formatter } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import StatusBadge from "./statusBadge";
 import { CellAction } from "./cell-action";
+import { OrderStatus, OrderPayment } from "@prisma/client";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type OrderColumn = {
   id: number;
   customer: string;
-  status: "PENDIENTE" | "ENTREGADO" | "CANCELADO" | "PREPARANDO";
-  paymentStatus: "PENDIENTE" | "PAGADO" | "CANCELADO";
+  status: OrderStatus;
+  paymentStatus: OrderPayment;
   total: number;
 };
 
-export const columns: ColumnDef<OrderColumn, unknown>[] = [
+export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "id",
     header: "Numero de Pedido",
