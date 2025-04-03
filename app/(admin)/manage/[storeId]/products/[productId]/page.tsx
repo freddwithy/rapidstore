@@ -26,19 +26,6 @@ const OrderPage = async ({
       clerk_id: user?.id,
     },
   });
-
-  const colors = await prismadb.color.findMany({
-    where: {
-      storeId,
-    },
-  });
-
-  const variants = await prismadb.variant.findMany({
-    where: {
-      storeId,
-    },
-  });
-
   const categories = await prismadb.category.findMany({
     where: {
       storeId,
@@ -52,8 +39,7 @@ const OrderPage = async ({
     include: {
       variants: {
         include: {
-          color: true,
-          variant: true,
+          options: true,
         },
       },
       images: true,
@@ -74,8 +60,6 @@ const OrderPage = async ({
       </CardHeader>
       <CardContent>
         <ProductForm
-          colors={colors}
-          variants={variants}
           categories={categories}
           initialData={product}
           storeId={storeId}

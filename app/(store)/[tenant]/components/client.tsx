@@ -49,29 +49,31 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
           className="space-y-4 animate-fade-up delay-150"
           id={cat.name}
         >
-          {cat.products.length > 0 && (
-            <div className="flex gap-2 items-center">
-              <Titles
-                title={cat.name}
-                description={
-                  cat.description
-                    ? cat.description[0].toUpperCase() +
-                      cat.description.slice(1)
-                    : "Categoría de productos"
-                }
-              />
-              <Link
-                href={`/${tenant}/categories/${cat.id}`}
-                className={buttonVariants({
-                  variant: "link",
-                  className: "text-secondary-foreground",
-                })}
-              >
-                Ver todo
-                <ArrowUpRight className="size-4" />
-              </Link>
-            </div>
-          )}
+          {
+            -(
+              <div className="flex gap-2 items-center">
+                <Titles
+                  title={cat.name}
+                  description={
+                    cat.description
+                      ? cat.description[0].toUpperCase() +
+                        cat.description.slice(1)
+                      : "Categoría de productos"
+                  }
+                />
+                <Link
+                  href={`/${tenant}/categories/${cat.id}`}
+                  className={buttonVariants({
+                    variant: "link",
+                    className: "text-secondary-foreground",
+                  })}
+                >
+                  Ver todo
+                  <ArrowUpRight className="size-4" />
+                </Link>
+              </div>
+            )
+          }
           <div className=" grid grid-cols-2 md:grid-cols-4 gap-4">
             <Suspense fallback={<ProductsSkeleton numberOfProducts={10} />}>
               <ProductByCategories

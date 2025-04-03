@@ -1,7 +1,17 @@
 import prismadb from "@/lib/prismadb";
-import { generateSKU } from "@/utils/generateSku";
-import { Currency, VariantProduct } from "@prisma/client";
 import { NextResponse } from "next/server";
+
+export type Option = {
+  values: Values[];
+  name: string;
+};
+
+export type Values = {
+  name: string | undefined;
+  price?: number;
+  salePrice?: number | null;
+  status: string | "DISPONIBLE";
+};
 
 export async function POST(request: Request) {
   try {
@@ -9,12 +19,14 @@ export async function POST(request: Request) {
     const {
       name,
       description,
-      isArchived,
+      status,
       isFeatured,
       storeId,
       images,
       category,
       options,
+      price,
+      salePrice,
     } = body;
 
     if (!name) {
@@ -65,35 +77,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const variants = await Promise.all(
-      options.map(async (option: VariantProduct) => ({
-        ...option,
-        sku: await generateSKU(
-          name,
-          option.name,
-          option.variantId,
-          option.colorId
-        ),
-        price: Number(option.price), // Convertir a número
-        salePrice: Number(option.salePrice), // Convertir a número
-        stock: Number(option.stock), // Convertir a número
-      }))
-    );
-
-    if (!variants) {
-      console.log("Missing variants");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     const product = await prismadb.product.create({
       data: {
         name,
         description,
-        isArchived,
+        status,
         isFeatured,
+        price,
+        salePrice,
         store: {
           connect: {
             id: storeId,
@@ -110,29 +101,16 @@ export async function POST(request: Request) {
           },
         },
         variants: {
-          create: variants.map((variant: VariantProduct) => ({
-            // Conexión condicional para color
-            ...(variant.colorId && {
-              color: {
-                connect: {
-                  id: variant.colorId,
-                },
-              },
-            }),
-            // Conexión condicional para variant
-            ...(variant.variantId && {
-              variant: {
-                connect: {
-                  id: variant.variantId,
-                },
-              },
-            }),
-            price: variant.price,
-            salePrice: variant.salePrice,
-            stock: variant.stock,
-            sku: variant.sku,
-            name: variant.name,
-            currency: variant.currency || Currency.PYG,
+          create: options.map((option: Option) => ({
+            name: option.name,
+            options: {
+              create: option.values.map((value: Values) => ({
+                name: value.name,
+                price: value.price,
+                salePrice: value.salePrice,
+                status: value.status,
+              })),
+            },
           })),
         },
       },
@@ -141,43 +119,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ product }, { status: 200 });
   } catch (err) {
     console.log("[PRODUCT_POST]", err);
-    return NextResponse.json(
-      { error: "Something went wrong" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function GET(
-  request: Request,
-  params: { params: { storeId: string } }
-) {
-  try {
-    const { storeId } = params.params;
-    if (!storeId) {
-      return NextResponse.json(
-        { error: "Store id is required" },
-        { status: 400 }
-      );
-    }
-    const products = await prismadb.product.findMany({
-      where: {
-        storeId,
-      },
-      include: {
-        images: true,
-        category: true,
-        variants: {
-          include: {
-            color: true,
-            variant: true,
-          },
-        },
-      },
-    });
-    return NextResponse.json({ products }, { status: 200 });
-  } catch (err) {
-    console.log("[PRODUCT_GET]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }

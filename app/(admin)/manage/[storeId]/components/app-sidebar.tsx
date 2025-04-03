@@ -35,11 +35,11 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import { useClerk } from "@clerk/nextjs";
 import { Store } from "@prisma/client";
 import {
   Archive,
-  Boxes,
   ChevronsUpDown,
   ClipboardCheck,
   Cog,
@@ -47,14 +47,13 @@ import {
   LayoutDashboard,
   LogOut,
   Package,
-  Palette,
   Plus,
   Settings,
   Sparkles,
   User,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface AppSidebarpProps {
   store: Store | undefined | null;
@@ -73,6 +72,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
   const { isMobile } = useSidebar();
   const clerk = useClerk();
   const router = useRouter();
+  const pathname = usePathname();
 
   const items = [
     {
@@ -106,20 +106,10 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
         url: `/manage/${store?.id}/categories`,
         icon: Layers,
       },
-      {
-        title: "Colores",
-        url: `/manage/${store?.id}/colors`,
-        icon: Palette,
-      },
-      {
-        title: "Variantes",
-        url: `/manage/${store?.id}/variants`,
-        icon: Boxes,
-      },
     ],
   };
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -129,14 +119,14 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                   size="lg"
                   className="data-[state=open]:bg-accent data-[state=open]:text-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                    <Avatar className="size-8 rounded-lg">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                    <Avatar className="size-8 rounded-md">
                       <AvatarImage
                         src={store?.logo || ""}
                         alt={store?.name}
                         className="object-center object-cover"
                       />
-                      <AvatarFallback className="text-sm rounded-lg">
+                      <AvatarFallback className="text-sm rounded-md">
                         {store?.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -153,7 +143,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-md"
                 align="start"
                 side="bottom"
                 sideOffset={4}
@@ -168,13 +158,13 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                     className="gap-2 p-2"
                   >
                     <div className="flex size-6 items-center justify-center rounded-sm border">
-                      <Avatar className="size-6 rounded-lg">
+                      <Avatar className="size-6 rounded-md">
                         <AvatarImage
                           src={store?.logo || ""}
                           alt={store?.name}
                           className="object-center object-cover"
                         />
-                        <AvatarFallback className="text-sm rounded-lg">
+                        <AvatarFallback className="text-sm rounded-md">
                           {store?.name.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -206,20 +196,32 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                <SidebarMenuItem
+                  key={item.title}
+                  className={cn(
+                    pathname === item.url ? "translate-x-1" : "",
+                    "transition-all"
+                  )}
+                >
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
-                      <item.icon className="text-primary" />
+                      <item.icon />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
               {products.items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                <SidebarMenuItem
+                  key={item.title}
+                  className={cn(
+                    pathname === item.url ? "translate-x-1" : "",
+                    "transition-all"
+                  )}
+                >
+                  <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
-                      <item.icon className="text-primary" />
+                      <item.icon />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -238,11 +240,11 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
                     {profileImage ? (
-                      <Avatar className="rounded-lg size-8">
+                      <Avatar className="rounded-md size-8">
                         <AvatarImage src={profileImage} alt={username} />
-                        <AvatarFallback className="rounded-lg">
+                        <AvatarFallback className="rounded-md">
                           {username?.slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
@@ -258,16 +260,16 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-md"
                 side={isMobile ? "bottom" : "right"}
                 align="end"
                 sideOffset={4}
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
+                    <Avatar className="h-8 w-8 rounded-md">
                       <AvatarImage src={profileImage} alt={username} />
-                      <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-md">CN</AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">{username}</span>

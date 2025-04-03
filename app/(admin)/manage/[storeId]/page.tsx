@@ -76,7 +76,7 @@ const Page = async ({
     <div className="w-full flex flex-col p-4 gap-y-2">
       <div className="p-4">
         <h2 className="text-xl text-muted-foreground">Tus ingresos totales</h2>
-        <p className="text-4xl font-semibold bg-gradient-to-r from-blue-500 to-pink-500  bg-clip-text text-transparent">
+        <p className="text-4xl font-semibold text-primary">
           {formatter.format(
             store.orders.reduce((acc, order) => acc + order.total, 0)
           )}
@@ -86,17 +86,17 @@ const Page = async ({
         <StatsCard
           title="Productos"
           value={store?.products.length.toString()}
-          icon={<Package className="text-zinc-700 size-20" />}
+          icon={<Package className="text-primary size-20" />}
         />
         <StatsCard
           title="Categorias"
           value={store?.categories.length.toString()}
-          icon={<Layers2 className="text-zinc-700 size-20" />}
+          icon={<Layers2 className="text-primary size-20" />}
         />
         <StatsCard
           title="Pedidos"
           value={store?.orders.length.toString()}
-          icon={<ClipboardCheck className="text-zinc-700 size-20" />}
+          icon={<ClipboardCheck className="text-primary size-20" />}
         />
       </section>
       <Card>

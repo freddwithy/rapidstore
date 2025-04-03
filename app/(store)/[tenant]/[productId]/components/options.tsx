@@ -9,11 +9,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import useCart from "@/hooks/use-cart";
-import { formatter, usdFormatter } from "@/lib/utils";
+import { formatter } from "@/lib/utils";
 import { Field, Label, Radio, RadioGroup } from "@headlessui/react";
-import { Currency, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import clsx from "clsx";
-import { Check, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,8 +23,7 @@ type ProductWithOptions = Prisma.ProductGetPayload<{
   include: {
     variants: {
       include: {
-        color: true;
-        variant: true;
+        options: true;
       };
     };
   };
@@ -36,7 +35,9 @@ interface OptionsProps {
 
 const Options: React.FC<OptionsProps> = ({ product }) => {
   const { addItem, items, updateItem } = useCart();
-  const [selectedVariant, setSelectedVariant] = useState(product.variants[0]);
+  const [selectedVariant, setSelectedVariant] = useState(
+    product.variants[0].options[0]
+  );
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
@@ -93,15 +94,9 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
     }
   };
 
-  const price =
-    selectedVariant.currency === Currency.USD
-      ? usdFormatter.format(selectedVariant.price)
-      : formatter.format(selectedVariant.price);
+  const price = formatter.format(selectedVariant.price);
 
-  const salePrice =
-    selectedVariant.currency === Currency.USD
-      ? usdFormatter.format(selectedVariant.salePrice ?? 0)
-      : formatter.format(selectedVariant.salePrice ?? 0);
+  const salePrice = formatter.format(selectedVariant.salePrice ?? 0);
 
   return (
     <Card className="w-full">
@@ -120,33 +115,27 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
             className="flex gap-2 flex-wrap"
           >
             {product.variants.map((variant) => (
-              <Field
-                key={variant.id}
-                className="flex items-center gap-2 py-2 px-4 bg-secondary rounded-md relative"
-              >
-                <Radio value={variant} className="">
-                  {({ checked, disabled }) => (
-                    <span
-                      className={clsx(
-                        "absolute inset-0 ring-2 rounded-md cursor-pointer flex items-center px-2",
-                        checked ? "ring-primary/60" : "ring-transparent",
-                        disabled && "cursor-not-allowed"
+              <div key={variant.id} className="space-y-2">
+                {variant.options.map((option) => (
+                  <Field
+                    key={variant.id}
+                    className="flex items-center gap-2 py-2 px-4 bg-secondary rounded-md relative"
+                  >
+                    <Radio value={variant} className="">
+                      {({ checked, disabled }) => (
+                        <span
+                          className={clsx(
+                            "absolute inset-0 ring-2 rounded-md cursor-pointer flex items-center px-2",
+                            checked ? "ring-primary/60" : "ring-transparent",
+                            disabled && "cursor-not-allowed"
+                          )}
+                        ></span>
                       )}
-                    >
-                      {checked && (
-                        <span className="bg-green-500 text-white p-1 rounded-full">
-                          <Check className="size-3" />
-                        </span>
-                      )}
-                    </span>
-                  )}
-                </Radio>
-                <Label className="ml-3">
-                  {variant.variant?.name || variant.color?.name
-                    ? variant.color?.name + " - " + variant.variant?.name
-                    : variant.name}
-                </Label>
-              </Field>
+                    </Radio>
+                    <Label className="ml-3">{option.name}</Label>
+                  </Field>
+                ))}
+              </div>
             ))}
           </RadioGroup>
         </div>

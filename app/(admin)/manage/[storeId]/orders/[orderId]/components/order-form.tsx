@@ -84,10 +84,9 @@ const OrderFormSchema = z.object({
     }),
 });
 
-type VariantProductWithOptions = Prisma.VariantProductGetPayload<{
+type VariantProductWithOptions = Prisma.VariantGetPayload<{
   include: {
-    color: true;
-    variant: true;
+    options: true;
   };
 }>;
 
@@ -95,8 +94,7 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
       include: {
-        color: true;
-        variant: true;
+        options: true;
       };
     };
     images: true;
@@ -105,11 +103,11 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 type orderWithProducts = Prisma.OrderGetPayload<{
   include: {
-    orderProducts: {
+    products: {
       include: {
         variant: {
           include: {
-            product: true;
+            options: true;
           };
         };
       };
@@ -143,10 +141,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
       customerId: initialData?.customerId || "",
       status: initialData?.status || "PENDIENTE",
       paymentStatus: initialData?.paymentStatus || "PENDIENTE",
-      productId:
-        initialData?.orderProducts[0].variant.product.id || "Sin productId",
-      variantId: initialData?.orderProducts[0].variantId || "Sin variantId",
-      qty: initialData?.orderProducts[0].qty || 1,
+      productId: initialData?.products[0].variant.productId || "Sin productId",
+      variantId: initialData?.products[0].variantId || "Sin variantId",
+      qty: initialData?.products[0].qty || 1,
       total: initialData?.total || 1,
     },
   });
@@ -155,7 +152,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
     if (initialData) {
       removeAll();
       addItems(
-        initialData.orderProducts.map((item) => {
+        initialData.products.map((item) => {
           return {
             productId: item.variant.productId,
             variantId: item.variantId,
@@ -196,7 +193,8 @@ const OrderForm: React.FC<OrderFormProps> = ({
     (variant) => variant.id === form.watch("variantId")
   );
 
-  const totalItem = (variantSelected?.price ?? 0) * (form.watch("qty") ?? 0);
+  const totalItem =
+    (variantSelected?.options[0].price ?? 0) * (form.watch("qty") ?? 0);
 
   const total = items.reduce((acc, item) => acc + item.total, 0);
 
@@ -270,14 +268,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   const formattedItems = items.map((item) => {
     const product = products.find((product) => product.id === item.productId);
-    const variant = product?.variants.find(
-      (variant) => variant.id === item.variantId
-    );
     return {
-      variantId: item.variantId,
+      variant: item.variantId,
       product: product?.name || "",
-      color: variant?.color?.name || "",
-      variant: variant?.variant?.name || "",
       quantity: item.quantity,
       total: item.total,
     };
@@ -409,10 +402,6 @@ const OrderForm: React.FC<OrderFormProps> = ({
                           {productSelected?.variants.map(
                             (variant: VariantProductWithOptions) => (
                               <SelectItem key={variant.id} value={variant.id}>
-                                {variant.color?.name ? variant.color?.name : ""}{" "}
-                                {variant.variant?.name
-                                  ? variant.variant?.name
-                                  : ""}{" "}
                                 {variant.name ? variant.name : ""}
                               </SelectItem>
                             )
@@ -428,7 +417,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
                   <FormLabel>Precio</FormLabel>
                   <Input
                     readOnly
-                    value={formatter.format(variantSelected?.price ?? 0)}
+                    value={formatter.format(
+                      variantSelected?.options[0].price ?? 0
+                    )}
                   />
                 </FormItem>
                 <FormField

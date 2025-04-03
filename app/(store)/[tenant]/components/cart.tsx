@@ -177,29 +177,16 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
         )}
         <SheetFooter>
           <div className="w-full py-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Productos USD:</p>
-              <p className="text-sm font-semibold text-muted-foreground">
-                {usdFormatter.format(total().sumUSD)}
-              </p>
-            </div>
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">Productos Gs:</p>
-              <p className="text-sm font-semibold text-muted-foreground">
-                {formatter.format(total().sumPYG)}
-              </p>
-            </div>
-
             <div className="mt-10">
               <div className="flex items-center justify-between">
-                <p className="text-lg text-muted-foreground">Total USD:</p>
-                <p className="text-lg font-semibold">
+                <p className="text-base text-muted-foreground">Total USD:</p>
+                <p className="text-base font-semibold">
                   {usdFormatter.format(total().totalUSD)}
                 </p>
               </div>
               <div className="flex items-center justify-between">
-                <p className="text-lg text-muted-foreground">Total Gs:</p>
-                <p className="text-lg font-semibold">
+                <p className="text-base text-muted-foreground">Total Gs:</p>
+                <p className="text-base font-semibold">
                   {formatter.format(total().totalPYG)}
                 </p>
               </div>

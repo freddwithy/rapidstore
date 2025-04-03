@@ -32,10 +32,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { formatter, uploadToCloudinary } from "@/lib/utils";
+import { uploadToCloudinary } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Category, Color, Currency, Prisma, Variant } from "@prisma/client";
+import { Category, Prisma } from "@prisma/client";
 import {
+  Boxes,
   ImageOff,
   Loader2,
   LoaderCircle,
@@ -56,46 +57,51 @@ const ProductFormSchema = z.object({
     message: "El nombre es requerido",
   }),
   variantName: z.string().optional(),
+  optionName: z.string().optional(),
   description: z
     .string()
     .min(1, "La descripción es requerida")
     .max(1500, "La descripción no puede tener más de 1500 caracteres"),
   images: z.string().url("Debe ser una URL válida").optional(),
   category: z.string().min(1, "La categoría es requerida"),
-  color: z.string().optional(),
-  variant: z.string().optional(),
   price: z.coerce
     .number({
       invalid_type_error: "El precio debe ser un número válido",
     })
-    .min(1, "El precio es requerido")
-    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs."),
+    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
   salePrice: z.coerce
     .number({
       invalid_type_error: "El precio de venta debe ser un número válido",
     })
     .max(99999999, "El precio de venta no puede ser mayor a 99.999.999 Gs.")
-    .optional()
-    .default(0),
-  stock: z.coerce
+    .optional(),
+  valuePrice: z.coerce
     .number({
-      invalid_type_error: "El stock debe ser un número válido",
+      invalid_type_error: "El precio debe ser un número valido",
     })
-    .min(0, "El stock no puede ser negativo")
-    .max(10000, "El stock no puede ser mayor a 10.000 unidades")
-    .optional()
-    .default(0),
-  isArchived: z.boolean().optional().default(false),
+    .max(99999999, "El precio no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
+  valueSalePrice: z.coerce
+    .number({
+      invalid_type_error: "El precio de venta debe ser un número valido",
+    })
+    .max(99999999, "El precio de venta no puede ser mayor a 99.999.999 Gs.")
+    .optional(),
   isFeatured: z.boolean().optional().default(false),
-  currency: z.boolean().optional().default(false),
+  status: z
+    .string()
+    .min(1, "El estado es requerido")
+    .optional()
+    .default("EN_VENTA"),
+  optionStatus: z.string().optional().default("DISPONIBLE"),
 });
 
 type ProductsWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
       include: {
-        color: true;
-        variant: true;
+        options: true;
       };
     };
     images: true;
@@ -103,47 +109,49 @@ type ProductsWithVariants = Prisma.ProductGetPayload<{
 }>;
 
 type Option = {
-  colorId?: string;
-  variantId?: string;
-  price: number;
-  salePrice?: number;
-  stock?: number;
-  name?: string;
+  values: Values[];
+  name: string;
+};
+
+type Values = {
+  name: string | undefined;
+  price?: number;
+  salePrice?: number | null;
+  status: string | "DISPONIBLE";
 };
 
 interface ProductFormProps {
   storeId: string;
   initialData: ProductsWithVariants | null;
-  colors: Color[];
   categories: Category[];
-  variants: Variant[];
   userType: "PRO" | "FREE" | "PREMIUM" | undefined;
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({
   storeId,
   initialData,
-  colors,
   categories,
-  variants,
   userType,
 }) => {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<Option[]>([]);
   const [loadingImage, setLoadingImage] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  const [values, setValues] = useState<Values[]>([]);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setImages(initialData.images.map((i) => i.url) || []);
       setOptions(
         initialData.variants.map((v) => ({
-          colorId: v.color?.id || "",
-          variantId: v.variant?.id || "",
-          price: v.price,
-          salePrice: v.salePrice || 0,
-          stock: v.stock,
-          name: v.name || "",
+          name: v.name,
+          values: v.options.map((o) => ({
+            name: o.name,
+            price: o.price,
+            salePrice: o.salePrice,
+            status: o.status,
+          })),
         }))
       );
     }
@@ -155,67 +163,102 @@ const ProductForm: React.FC<ProductFormProps> = ({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
-      isArchived: initialData?.isArchived || false,
+      status: initialData?.status || "EN_VENTA",
       isFeatured: initialData?.isFeatured || false,
       category: initialData?.categoryId || "",
-      variant: initialData?.variants[0].variant?.name || "",
-      color: initialData?.variants[0].color?.name || "",
-      price: initialData?.variants[0].price || 0,
-      salePrice: initialData?.variants[0].salePrice || 0,
-      stock: initialData?.variants[0].stock || 0,
-      variantName: initialData?.variants[0].name || "",
+      price: initialData?.price || 0,
+      salePrice: initialData?.salePrice || 0,
+      optionStatus: "DISPONIBLE",
     },
   });
 
+  const removeValue = (o: Option, v: Values) => {
+    const updatedOptions = options.map((option) => {
+      if (option.name === o.name) {
+        return {
+          ...option,
+          values: option.values.filter((value) => value.name !== v.name),
+        };
+      }
+      return option;
+    });
+
+    // Verificar si alguna opción quedó sin values
+    const optionsWithValues = updatedOptions.filter(
+      (option) => option.values.length > 0
+    );
+
+    setOptions(optionsWithValues);
+  };
+
+  // Función para actualizar una opción en el estado options
+  const handleUpdateValues = (optionName: string, updatedItem: Values) => {
+    if (!updatedItem) return toast.error("Es necesario rellenar los campos.");
+    if (!optionName) return toast.error("Falta la variante.");
+
+    setOptions((prevOptions) =>
+      prevOptions.map((option) => {
+        if (option.name === optionName) {
+          return {
+            ...option,
+            values: option.values.map((value) =>
+              value.name === updatedItem.name ? updatedItem : value
+            ),
+          };
+        }
+        return option;
+      })
+    );
+
+    toast.success(`Valor "${updatedItem.name}" actualizado correctamente.`);
+  };
+
   const handleAddOption = () => {
-    //filtrar y no agregar combinaciones de colorId y variantId que ya existan al estado
-    const colorId = form.getValues("color");
-    const variantId = form.getValues("variant");
-    const price = form.getValues("price");
-    const salePrice = form.getValues("salePrice");
-    const stock = form.getValues("stock");
     const name = form.getValues("variantName");
-    const currency = form.getValues("currency");
-    //si el usuario es free solo puede agregar 1 opcion
+
+    if (!name) {
+      toast.error("Todos los campos son requeridos");
+      return;
+    }
 
     if (userType === "FREE" && options.length > 0) {
       toast.error("No puedes agregar más opciones");
       return;
     }
 
-    //si no se selecciona ningun color o variante no hacer la comparacion de colorId y variantId
+    const existingOption = options.find((option) => option.name === name);
+    if (existingOption) {
+      // Si la opción ya existe, actualiza los valores
+      const updatedOption = {
+        ...existingOption,
+        values,
+      };
 
-    if (colorId || variantId) {
-      if (
-        options.some((o) => o.colorId === colorId && o.variantId === variantId)
-      ) {
-        toast.error("La combinación de color y variante ya existe");
-        return;
-      }
+      setOptions((current) =>
+        current.map((option) => (option.name === name ? updatedOption : option))
+      );
+      toast.success(`Variante "${name}" actualizada correctamente.`);
+      return;
     }
 
     setOptions((current) => [
       ...current,
       {
-        colorId: colorId || "",
-        variantId: variantId || "",
-        price: price || 0,
-        salePrice: salePrice || 0,
-        stock: stock || 1,
-        name: name || "Normal",
-        currency: currency ? Currency.USD : Currency.PYG,
+        name: name,
+        values,
       },
     ]);
 
-    toast.success("Opción agregada correctamente");
-  };
+    toast.success(`Variante "${name}" agregada correctamente.`);
 
-  const handleRemoveOption = (id: string) => {
-    setOptions((current) =>
-      current.filter(
-        (o) => `${o.colorId || ""}${o.variantId || ""}${o.name || ""}` !== id
-      )
-    );
+    // Limpiar campos después de agregar
+    form.resetField("variantName");
+    form.resetField("optionName");
+    form.resetField("valuePrice");
+    form.resetField("valueSalePrice");
+    form.resetField("optionStatus");
+    setValues([]);
+    setOpen(false);
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -226,20 +269,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
     if (target.files) {
       setLoadingImage(true);
       const file = target.files[0];
-      const imageUrl = await uploadToCloudinary(file);
 
-      //valdidate image format
+      // Validar formato de imagen
       const allowedFormats = ["jpg", "jpeg", "png", "webp"];
-      const extension = file.name.split(".").pop();
-      if (!allowedFormats.includes(extension as string)) {
+      const extension = file.name.split(".").pop()?.toLowerCase();
+      if (!extension || !allowedFormats.includes(extension)) {
         setLoadingImage(false);
         toast.error("Formato de imagen no permitido");
         return;
       }
 
+      const imageUrl = await uploadToCloudinary(file);
       if (imageUrl) {
         setImages([...images, imageUrl]);
         setLoadingImage(false);
+      } else {
+        setLoadingImage(false);
+        toast.error("Error al subir la imagen");
       }
     } else {
       setLoadingImage(false);
@@ -252,54 +298,45 @@ const ProductForm: React.FC<ProductFormProps> = ({
   };
 
   const onSubmit = async (data: z.infer<typeof ProductFormSchema>) => {
-    if (!initialData) {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/product`, {
-          method: "POST",
-          body: JSON.stringify({
-            ...data,
-            images,
-            options,
-            storeId,
-          }),
-        });
+    if (!images.length) {
+      toast.error("Debes agregar al menos una imagen");
+      return;
+    }
 
-        if (res.ok) {
-          setLoading(false);
-          toast.success("Producto creado correctamente");
-          router.push(`/manage/${storeId}/products`);
-          router.refresh();
-        }
-      } catch {
-        setLoading(false);
-        toast.error("Error al crear el producto");
-        return;
-      }
-    } else {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/product/${initialData.id}`, {
-          method: "PATCH",
-          body: JSON.stringify({
-            ...data,
-            images,
-            options,
-            storeId,
-          }),
-        });
+    try {
+      setLoading(true);
+      const endpoint = initialData
+        ? `/api/product/${initialData.id}`
+        : `/api/product`;
+      const method = initialData ? "PATCH" : "POST";
 
-        if (res.ok) {
-          setLoading(false);
-          toast.success("Producto actualizada correctamente");
-          router.push(`/manage/${storeId}/products`);
-          router.refresh();
-        }
-      } catch {
+      const res = await fetch(endpoint, {
+        method,
+        body: JSON.stringify({
+          ...data,
+          images,
+          options,
+          storeId,
+        }),
+      });
+
+      if (res.ok) {
         setLoading(false);
-        toast.error("Error al actualizar el producto");
-        return;
+        toast.success(
+          `Producto ${initialData ? "actualizado" : "creado"} correctamente`
+        );
+        router.push(`/manage/${storeId}/products`);
+        router.refresh();
+      } else {
+        throw new Error();
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setLoading(false);
+      toast.error(
+        `Error al ${initialData ? "actualizar" : "crear"} el producto`,
+        err
+      );
     }
   };
 
@@ -339,7 +376,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   >
                     <FormControl>
                       <SelectTrigger className="min-w-[200px]">
-                        <SelectValue defaultValue={field.value} />
+                        <SelectValue
+                          defaultValue={field.value}
+                          placeholder="Seleccione una categoría"
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -355,6 +395,40 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 </FormItem>
               )}
             />
+            {options.length <= 0 && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Precio <Obligatory />
+                      </FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                      <FormDescription>El precio del producto</FormDescription>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="salePrice"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Promoción</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                      <FormDescription>Precio de promoción</FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
             <FormField
               control={form.control}
               name="description"
@@ -375,26 +449,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
               )}
             />
             <div className="space-y-4">
-              <FormField
-                control={form.control}
-                name="isArchived"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Archivar</FormLabel>
-                      <FormDescription>
-                        Archiva el producto, no será visible en la tienda.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
               <FormField
                 control={form.control}
                 name="isFeatured"
@@ -444,7 +498,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         />
                       </div>
                     ) : (
-                      <div className="h-40 flex items-center justify-center border  rounded-md relative">
+                      <div className="h-40 flex items-center justify-center border rounded-md relative">
                         <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-40">
                           <LoaderCircle className="text-zinc-600 dark:text-zinc-400 animate-spin size-6" />
                           <p className="text-zinc-600 dark:text-zinc-400 text-sm">
@@ -474,7 +528,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       className="size-32 rounded-lg bg-foreground relative hover:scale-105 transition-all overflow-hidden"
                     >
                       <Image
-                        className="object-cover"
+                        className="object-cover object-center"
                         width={128}
                         height={128}
                         src={image}
@@ -503,47 +557,129 @@ const ProductForm: React.FC<ProductFormProps> = ({
           </div>
           <Separator />
           <div className="flex flex-col gap-y-4">
-            <FormLabel>Agregar opciones</FormLabel>
-            {options.length > 0 && (
-              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                {options.map((option) => (
-                  <div
-                    key={`${option.colorId || ""}${option.variantId || ""}${option.name || ""}`}
-                    className="border rounded-lg p-4 flex-col gap-y-1 hover:bg-primary-foreground hover:text-primary transition-colors relative"
-                  >
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className=" absolute top-2 right-2"
-                      onClick={() =>
-                        handleRemoveOption(
-                          `${option.colorId || ""}${option.variantId || ""}${option.name || ""}`
-                        )
-                      }
-                    >
-                      <Trash className="size-4" />
-                    </Button>
+            <div>
+              <FormLabel>Variantes</FormLabel>
+              <FormDescription>
+                Agrega variaciones a tu producto, como tallas, colores, etc.
+              </FormDescription>
+            </div>
+            <div className="space-y-2">
+              {options.length > 0 &&
+                options.map((o, i) => (
+                  <div key={i} className="space-y-2 border p-4 rounded-md">
+                    <div className="flex items-center gap-2">
+                      <Boxes className="size-5" />
+                      <p className="text-lg font-medium">{o.name}</p>
+                    </div>
 
-                    {!option.name && (
-                      <p className="">
-                        {colors.find((c) => c.id === option.colorId)?.name}
-                        {" - "}
-                        {variants.find((v) => v.id === option.variantId)?.name}
-                      </p>
-                    )}
-                    {option.name && <p className="">{option.name}</p>}
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {formatter.format(option.price)}
-                    </p>
-                    <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                      {option.stock} un
-                    </p>
+                    {o.values.length > 0 &&
+                      o.values.map((v, i) => {
+                        // Crear un ID único para cada valor
+                        const valueId = `${o.name}-${v.name}-${i}`;
+
+                        return (
+                          <div
+                            className="flex flex-col space-y-4 p-4 rounded-md bg-secondary"
+                            key={valueId}
+                          >
+                            <div className="flex justify-between items-center">
+                              <div className="flex items-center gap-x-2">
+                                <div
+                                  className={`rounded-full  size-2 ${v.status === "DISPONIBLE" ? "bg-green-500" : "bg-zinc-200"}`}
+                                />
+                                <FormLabel>{v.name}</FormLabel>
+                              </div>
+                              <Button
+                                variant="destructive"
+                                size="icon"
+                                onClick={() => removeValue(o, v)}
+                              >
+                                <Trash />
+                              </Button>
+                            </div>
+
+                            <div className="grid grid-cols-2 md:flex items-center gap-2">
+                              <div className="w-full space-y-1">
+                                <FormLabel>Precio</FormLabel>
+                                <Input
+                                  id={`${valueId}-price`}
+                                  defaultValue={v.price}
+                                  disabled={
+                                    options.length > 0 && userType === "FREE"
+                                  }
+                                  placeholder="Gs. 100.000"
+                                  type="number"
+                                  className="bg-background"
+                                  onChange={(e) => {
+                                    v.price = Number(e.target.value);
+                                  }}
+                                />
+                              </div>
+                              <div className="w-full space-y-1">
+                                <FormLabel>Promoción</FormLabel>
+                                <Input
+                                  id={`${valueId}-salePrice`}
+                                  defaultValue={v.salePrice || ""}
+                                  disabled={
+                                    options.length > 0 && userType === "FREE"
+                                  }
+                                  placeholder="Gs. 50.000"
+                                  type="number"
+                                  className="bg-background"
+                                  onChange={(e) => {
+                                    v.salePrice = e.target.value
+                                      ? Number(e.target.value)
+                                      : null;
+                                  }}
+                                />
+                              </div>
+                              <div className="w-full space-y-1">
+                                <FormLabel>Estado</FormLabel>
+                                <Select
+                                  defaultValue={v.status}
+                                  onValueChange={(value) => {
+                                    v.status = value;
+                                  }}
+                                >
+                                  <SelectTrigger className="min-w-[200px] bg-background">
+                                    <SelectValue defaultValue={v.status} />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="DISPONIBLE">
+                                      Disponible
+                                    </SelectItem>
+                                    <SelectItem value="AGOTADO">
+                                      Agotado
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                            <div>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  const updatedItem: Values = {
+                                    name: v.name,
+                                    price: v.price,
+                                    salePrice: v.salePrice,
+                                    status: v.status,
+                                  };
+                                  handleUpdateValues(o.name, updatedItem);
+                                }}
+                              >
+                                Actualizar
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 ))}
-              </div>
-            )}
-            <Dialog>
+            </div>
+
+            <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <div className="flex">
                   <Button
@@ -560,22 +696,22 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 <DialogHeader>
                   <DialogTitle>Agregar opción</DialogTitle>
                   <DialogDescription>
-                    Agrega una opción al producto, si necesitas alguna variante
-                    de color o tamaño, agregalo primero. Si no, con el nombre y
-                    los precios es suficiente.
+                    Agrega opciones para el producto.
                   </DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-8">
                   <FormField
                     control={form.control}
                     name="variantName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nombre</FormLabel>
+                        <FormLabel>
+                          Nombre <Obligatory />
+                        </FormLabel>
                         <FormControl>
                           <Input
                             disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="Con cuello, sin cuello, etc."
+                            placeholder="Color, talla, etc."
                             type="text"
                             {...field}
                           />
@@ -584,139 +720,87 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Precio <Obligatory />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="2.000.000"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                  <div className="space-y-2">
+                    <FormLabel>Opciones disponibles</FormLabel>
+                    {values.length > 0 && (
+                      <div className="space-y-2">
+                        {values.map((value, i) => (
+                          <div
+                            className="px-4 py-1.5 rounded-md bg-zinc-100 justify-between flex items-center animate-fade-up duration-150 ease-out"
+                            key={i}
+                          >
+                            {value.name}
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              type="button"
+                              onClick={() =>
+                                setValues((current) => {
+                                  return current.filter((v, j) => j !== i);
+                                })
+                              }
+                            >
+                              <Trash className="size-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="salePrice"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Precio de promoción</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="1.500.000"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="currency"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Usas dolares?</FormLabel>
-                          <FormDescription>
-                            Activa esta opción si el precio está en dolares.
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="stock"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stock</FormLabel>
-                        <FormControl>
-                          <Input
-                            disabled={options.length > 0 && userType === "FREE"}
-                            placeholder="10"
-                            type="number"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="color"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Color</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={options.length > 0 && userType === "FREE"}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="min-w-[200px]">
-                              <SelectValue defaultValue={field.value} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {colors.map((color) => (
-                              <SelectItem key={color.id} value={color.id}>
-                                {color.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="variant"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Variante/Tamaño</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          disabled={options.length > 0 && userType === "FREE"}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="min-w-[200px]">
-                              <SelectValue defaultValue={field.value} />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {variants.map((variant) => (
-                              <SelectItem key={variant.id} value={variant.id}>
-                                {variant.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                    <div className="">
+                      <FormField
+                        control={form.control}
+                        name="optionName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="space-y-2 w-full">
+                                <div className="flex items-center w-full justify-between gap-x-2 relative">
+                                  <Input
+                                    disabled={
+                                      options.length > 0 && userType === "FREE"
+                                    }
+                                    placeholder="Blanco, negro, etc."
+                                    type="text"
+                                    className="p-6"
+                                    {...field}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    className="absolute right-4"
+                                    onClick={() => {
+                                      if (!field.value) {
+                                        toast.error(
+                                          "Ingresa un nombre para la opción"
+                                        );
+                                        return;
+                                      }
+                                      setValues((prevState: Values[]) => {
+                                        return [
+                                          ...prevState,
+                                          {
+                                            name: field.value,
+                                            price: 0,
+                                            salePrice: 0,
+                                            status: "DISPONIBLE",
+                                          },
+                                        ];
+                                      });
+                                      field.onChange("");
+                                    }}
+                                  >
+                                    <Plus className="size-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
                 </div>
                 <DialogFooter>
                   <Button

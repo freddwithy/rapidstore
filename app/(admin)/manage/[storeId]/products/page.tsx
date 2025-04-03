@@ -32,8 +32,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
       category: true,
       variants: {
         include: {
-          color: true,
-          variant: true,
+          options: true,
         },
       },
       images: true,
@@ -48,7 +47,7 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
     name: product.name,
     description: product.description,
     category: product.category.name || "Sin categoría",
-    isArchived: product.isArchived,
+    status: product.status,
     isFeatured: product.isFeatured,
     image: product.images[0].url || "",
     variants: product.variants.length || 0,

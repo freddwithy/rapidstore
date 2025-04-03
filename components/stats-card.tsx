@@ -8,7 +8,7 @@ interface StatsCardProps {
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, icon }) => {
   return (
-    <div className="px-4 pb-2 pt-4 border rounded-lg flex items-end justify-between overflow-hidden relative group hover:bg-muted transition-colors">
+    <div className="px-4 pb-2 pt-4 border bg-card rounded-lg flex items-end justify-between overflow-hidden relative group hover:bg-card/80 transition-colors">
       <div className="">
         <h3 className="text-lg text-muted-foreground">{title}</h3>
         <p className="text-3xl font-bold">{value}</p>

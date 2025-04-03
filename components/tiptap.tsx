@@ -38,6 +38,7 @@ const Tiptap: React.FC<TiptapProps> = ({ description, onChange }) => {
       onChange(editor.getHTML());
       console.log(editor.getHTML());
     },
+    immediatelyRender: false,
   });
 
   React.useEffect(() => {
