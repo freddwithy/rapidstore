@@ -87,7 +87,7 @@ model Image {
 
 model Variant {
   id           String           @id @default(cuid())
-  name         String?
+  name         String
   product      Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId    String
   orderProduct OrderProduct[]
@@ -95,8 +95,6 @@ model Variant {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@unique([productId])
 }
 
 model VariantOptions {

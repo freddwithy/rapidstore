@@ -9,5 +9,19 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  }
+  },
+  "colorize.decoration_type": "square-dot",
+  "colorize.languages": [
+    "css",
+    "sass",
+    "scss",
+    "less",
+    "postcss",
+    "javascript"
+  ],
+  "colorize.colorized_colors": [
+    "HEXA",
+    "HSL",
+    "RGB",
+  ]
 }
