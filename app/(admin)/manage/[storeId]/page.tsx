@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { formatter } from "@/lib/utils";
 import { DataTable } from "@/components/data-table";
-import { columns } from "./components/columns";
+import { columns, OrderColumn } from "./components/columns";
 
 const Page = async ({
   params,
@@ -39,17 +39,18 @@ const Page = async ({
     include: {
       products: true,
       categories: true,
-      orders: {
-        where: {
-          paymentStatus: "PAGADO",
-        },
-        include: {
-          customer: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+    },
+  });
+
+  const orders = await prismadb.order.findMany({
+    where: {
+      storeId,
+    },
+    include: {
+      customer: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
 
@@ -64,7 +65,7 @@ const Page = async ({
     );
   }
 
-  const formattedData = store.orders.map((order) => ({
+  const formattedData: OrderColumn[] = orders.map((order) => ({
     id: order.id,
     customer: order.customer.rucName,
     status: order.status,
@@ -78,7 +79,7 @@ const Page = async ({
         <h2 className="text-xl text-muted-foreground">Tus ingresos totales</h2>
         <p className="text-4xl font-semibold text-primary">
           {formatter.format(
-            store.orders.reduce((acc, order) => acc + order.total, 0)
+            orders.reduce((acc, order) => acc + order.total, 0)
           )}
         </p>
       </div>
@@ -95,7 +96,7 @@ const Page = async ({
         />
         <StatsCard
           title="Pedidos"
-          value={store?.orders.length.toString()}
+          value={orders.length.toString()}
           icon={<ClipboardCheck className="text-primary size-20" />}
         />
       </section>

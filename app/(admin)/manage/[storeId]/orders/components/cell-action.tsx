@@ -75,7 +75,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
             <Edit className="mr-2 size-4" />
             Editar
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onCopy(data.id)}>
+          <DropdownMenuItem onClick={() => onCopy(data.id.toString())}>
             <Copy className="mr-2 size-4" />
             Copiar ID
           </DropdownMenuItem>

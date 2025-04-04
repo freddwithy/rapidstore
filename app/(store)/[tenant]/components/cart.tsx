@@ -10,8 +10,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import useCart from "@/hooks/use-cart";
-import { formatter, usdFormatter } from "@/lib/utils";
-import { Currency, Prisma } from "@prisma/client";
+import { formatter } from "@/lib/utils";
+import { Prisma } from "@prisma/client";
 import { ShoppingCart, Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,7 +19,11 @@ import React from "react";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
-    variants: true;
+    variants: {
+      include: {
+        options: true;
+      };
+    };
     images: true;
   };
 }>;
@@ -35,61 +39,39 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
   //mapear productos mezclando items con productos
   const productos = items.map((item) => {
     const product = products.find((product) =>
-      product.variants.find((variant) => variant.id === item.variantId)
+      product.variants.find((variant) => variant.id === item.optionId)
     );
     return {
       ...product,
       quantity: item.quantity,
       price:
-        product?.variants.find((variant) => variant.id === item.variantId)
-          ?.price || 0,
+        product?.variants
+          .find((variant) => variant.id === item.optionId)
+          ?.options.find((option) => option.id === item.optionId)?.price || 0,
       variant: product?.variants.find(
-        (variant) => variant.id === item.variantId
+        (variant) => variant.id === item.optionId
       ),
+      optionId: item.optionId,
     };
   });
 
   const total = () => {
-    const variantsUSD = productos.filter(
-      (item) => item.variant?.currency === "USD"
-    );
-    const variantsPYG = productos.filter(
-      (item) => item.variant?.currency === "PYG"
-    );
-
-    const sumUSD = variantsUSD.reduce(
+    const sum = productos.reduce(
       (acc, item) => acc + item.price * item.quantity,
       0
     );
-    const sumPYG = variantsPYG.reduce(
-      (acc, item) => acc + item.price * item.quantity,
-      0
-    );
-
-    const pygConverted = Number(sumPYG / 8000);
-    const usdConverted = sumUSD * 8000;
-
-    const totalUSD = sumUSD + pygConverted;
-    const totalPYG = sumPYG + usdConverted;
-    return {
-      usdConverted,
-      pygConverted,
-      sumUSD,
-      sumPYG,
-      totalUSD,
-      totalPYG,
-    };
+    return sum;
   };
 
-  const onRemove = (variantId: string) => {
-    const cartItem = items.find((item) => item.variantId === variantId);
+  const onRemove = (optionId: string) => {
+    const cartItem = items.find((item) => item.optionId === optionId);
     console.log(cartItem);
-    updateItem(variantId, (cartItem?.quantity ?? 1) - 1 || 0);
+    updateItem(optionId, (cartItem?.quantity ?? 1) - 1 || 0);
   };
 
-  const onAdd = (variantId: string) => {
-    const cartItem = items.find((item) => item.variantId === variantId);
-    updateItem(variantId, (cartItem?.quantity ?? 0) + 1);
+  const onAdd = (optionId: string) => {
+    const cartItem = items.find((item) => item.optionId === optionId);
+    updateItem(optionId, (cartItem?.quantity ?? 0) + 1);
   };
 
   return (
@@ -121,7 +103,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
         {items.length > 0 ? (
           productos.map((item) => (
             <div
-              key={item.id}
+              key={item.optionId}
               className="border-b flex justify-between items-center py-4"
             >
               <div className="flex gap-x-2">
@@ -143,9 +125,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                     {item.name?.slice(0, 25)}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {item.variant?.currency === Currency.USD
-                      ? usdFormatter.format(item.variant?.price || 0)
-                      : formatter.format(item.variant?.price || 0)}
+                    {formatter.format(item.price)}
                   </p>
                 </div>
               </div>
@@ -179,15 +159,9 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
           <div className="w-full py-4 space-y-2">
             <div className="mt-10">
               <div className="flex items-center justify-between">
-                <p className="text-base text-muted-foreground">Total USD:</p>
-                <p className="text-base font-semibold">
-                  {usdFormatter.format(total().totalUSD)}
-                </p>
-              </div>
-              <div className="flex items-center justify-between">
                 <p className="text-base text-muted-foreground">Total Gs:</p>
                 <p className="text-base font-semibold">
-                  {formatter.format(total().totalPYG)}
+                  {formatter.format(total())}
                 </p>
               </div>
             </div>
