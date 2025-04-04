@@ -16,11 +16,15 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
   const products = await prismadb.product.findMany({
     where: {
       storeId: store.id,
-      isArchived: false,
+      status: "EN_VENTA",
     },
     include: {
       images: true,
-      variants: true,
+      variants: {
+        include: {
+          options: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",

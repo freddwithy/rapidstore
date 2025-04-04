@@ -41,10 +41,10 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
-  const isInCart = items.some((item) => item.variantId === selectedVariant.id);
+  const isInCart = items.some((item) => item.optionId === selectedVariant.id);
 
   const isInCartQuantity = items.find(
-    (item) => item.variantId === selectedVariant.id
+    (item) => item.optionId === selectedVariant.id
   );
 
   const SafeHTML = () => {
@@ -59,6 +59,28 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   };
 
   const addToCart = () => {
+    if (selectedVariant.id === "") {
+      if (isInCart && isInCartQuantity?.quantity) {
+        updateItem(product.id, isInCartQuantity.quantity + quantity);
+        toast.success("Producto agregado al carrito", {
+          position: "top-center",
+          action: (
+            <Button onClick={() => router.push("cart")} size="sm">
+              <ShoppingCart />
+              Carrito
+            </Button>
+          ),
+          style: {
+            justifyContent: "space-between",
+          },
+        });
+      }
+      addItem({
+        productId: product.id,
+        quantity,
+        total: product?.salePrice || product?.price || 0,
+      });
+    }
     if (isInCart && isInCartQuantity?.quantity) {
       updateItem(selectedVariant.id, isInCartQuantity.quantity + quantity);
       toast.success("Producto agregado al carrito", {
@@ -75,7 +97,8 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
       });
     } else {
       addItem({
-        variantId: selectedVariant.id,
+        optionId: selectedVariant.id,
+        productId: product.id,
         quantity,
         total: selectedVariant.salePrice || selectedVariant.price,
       });
@@ -94,51 +117,74 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
     }
   };
 
-  const price = formatter.format(selectedVariant.price);
+  const precios = () => {
+    if (selectedVariant.id) {
+      if (selectedVariant.salePrice) {
+        const price = formatter.format(selectedVariant.salePrice);
 
-  const salePrice = formatter.format(selectedVariant.salePrice ?? 0);
+        return { price };
+      }
+
+      return { price: formatter.format(selectedVariant.price) };
+    }
+
+    if (product.id) {
+      if (product.salePrice) {
+        return { price: formatter.format(product.salePrice) };
+      }
+
+      return { price: formatter.format(product.price || 0) };
+    }
+  };
 
   return (
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-2xl">{product.name}</CardTitle>
         <CardDescription className="text-lg">
-          {selectedVariant.salePrice ? salePrice : price}
+          {precios()?.price}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <p className="font-semibold">Opciones</p>
-          <RadioGroup
-            value={selectedVariant}
-            onChange={setSelectedVariant}
-            className="flex gap-2 flex-wrap"
-          >
-            {product.variants.map((variant) => (
-              <div key={variant.id} className="space-y-2">
-                {variant.options.map((option) => (
-                  <Field
-                    key={variant.id}
-                    className="flex items-center gap-2 py-2 px-4 bg-secondary rounded-md relative"
-                  >
-                    <Radio value={variant} className="">
-                      {({ checked, disabled }) => (
-                        <span
-                          className={clsx(
-                            "absolute inset-0 ring-2 rounded-md cursor-pointer flex items-center px-2",
-                            checked ? "ring-primary/60" : "ring-transparent",
-                            disabled && "cursor-not-allowed"
+        {product.variants.length > 1 && (
+          <div className="space-y-2">
+            <p className="font-semibold">Opciones</p>
+            <RadioGroup
+              value={selectedVariant}
+              onChange={setSelectedVariant}
+              className="space-y-2"
+            >
+              {product.variants.map((variant) => (
+                <div key={variant.id} className="space-y-2">
+                  <Label>{variant.name}</Label>
+                  <div className="flex gap-2 items-center">
+                    {variant.options.map((option) => (
+                      <Field
+                        key={option.id}
+                        className="flex items-center gap-2 py-2 px-4 bg-secondary rounded-md relative justify-center"
+                      >
+                        <Radio value={option} className="">
+                          {({ checked, disabled }) => (
+                            <span
+                              className={clsx(
+                                "absolute inset-0 ring-2 rounded-md cursor-pointer flex items-center",
+                                checked
+                                  ? "ring-primary/60"
+                                  : "ring-transparent",
+                                disabled && "cursor-not-allowed"
+                              )}
+                            ></span>
                           )}
-                        ></span>
-                      )}
-                    </Radio>
-                    <Label className="ml-3">{option.name}</Label>
-                  </Field>
-                ))}
-              </div>
-            ))}
-          </RadioGroup>
-        </div>
+                        </Radio>
+                        <Label>{option.name}</Label>
+                      </Field>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
         <div className="space-y-2">
           <p className="font-semibold">Cantidad</p>
           <div className="flex gap-x-2 items-center">
