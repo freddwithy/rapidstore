@@ -53,6 +53,11 @@ export async function PATCH(
       );
     }
 
+    if (options.length > 1) {
+      console.log("Too many options");
+      return NextResponse.json({ error: "Too many options" }, { status: 400 });
+    }
+
     // First, fetch the existing product with its relations
     const existingProduct = await prismadb.product.findUnique({
       where: { id: productId },

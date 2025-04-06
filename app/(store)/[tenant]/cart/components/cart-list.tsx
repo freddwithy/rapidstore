@@ -37,7 +37,6 @@ const CartList: React.FC<CartItem> = ({ products }) => {
   const { items, updateItem, removeAll } = useCart();
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
 
-  console.log(items);
   //mapear productos mezclando items con productos
   const productos = items.map((item) => {
     const product = products.find((product) => product.id === item.productId);
@@ -68,7 +67,6 @@ const CartList: React.FC<CartItem> = ({ products }) => {
       }
     };
 
-    console.log(precios());
     return {
       ...product,
       quantity: item.quantity,
@@ -112,7 +110,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
           {items.length > 0 ? (
             productos.map((item) => (
               <div
-                key={item.id}
+                key={item.option}
                 className="border-b flex justify-between items-center py-4"
               >
                 <div className="flex gap-x-2">

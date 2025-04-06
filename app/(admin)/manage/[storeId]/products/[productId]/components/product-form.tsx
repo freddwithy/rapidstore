@@ -536,7 +536,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       />
                       <button
                         type="button"
-                        className="absolute top-2 right-2 bg-background rounded-full p-1 hover:scale-105 transition-all"
+                        className="absolute top-2 right-2 bg-white rounded-full p-1 hover:scale-105 transition-all"
                         onClick={() => handleRemoveImage(image)}
                       >
                         <X className="size-4 text-primary" />
@@ -609,7 +609,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                   }
                                   placeholder="Gs. 100.000"
                                   type="number"
-                                  className="bg-background"
+                                  className="bg-white"
                                   onChange={(e) => {
                                     v.price = Number(e.target.value);
                                   }}
@@ -625,7 +625,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                   }
                                   placeholder="Gs. 50.000"
                                   type="number"
-                                  className="bg-background"
+                                  className="bg-white"
                                   onChange={(e) => {
                                     v.salePrice = e.target.value
                                       ? Number(e.target.value)
@@ -641,7 +641,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     v.status = value;
                                   }}
                                 >
-                                  <SelectTrigger className="min-w-[200px] bg-background">
+                                  <SelectTrigger className="min-w-[200px] bg-white">
                                     <SelectValue defaultValue={v.status} />
                                   </SelectTrigger>
                                   <SelectContent>

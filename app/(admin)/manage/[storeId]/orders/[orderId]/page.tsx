@@ -19,11 +19,11 @@ const OrderPage = async ({
   };
 }) => {
   const storeId = params.storeId;
-  const orderId = params.orderId;
+  const orderId = params.orderId === "new" ? undefined : Number(params.orderId);
 
   const order = await prismadb.order.findFirst({
     where: {
-      id: parseInt(orderId),
+      id: orderId,
     },
     include: {
       products: {

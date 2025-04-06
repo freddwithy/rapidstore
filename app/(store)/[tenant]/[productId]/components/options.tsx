@@ -146,9 +146,8 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {product.variants.length > 1 && (
+        {product.variants.length > 0 && (
           <div className="space-y-2">
-            <p className="font-semibold">Opciones</p>
             <RadioGroup
               value={selectedVariant}
               onChange={setSelectedVariant}
@@ -156,7 +155,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
             >
               {product.variants.map((variant) => (
                 <div key={variant.id} className="space-y-2">
-                  <Label>{variant.name}</Label>
+                  <Label className="font-semibold">{variant.name}</Label>
                   <div className="flex gap-2 items-center">
                     {variant.options.map((option) => (
                       <Field
