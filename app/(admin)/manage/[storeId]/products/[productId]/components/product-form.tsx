@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Obligatory from "@/components/ui/obligatory";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -38,7 +37,6 @@ import { Category, Prisma } from "@prisma/client";
 import {
   Boxes,
   Check,
-  ImageOff,
   Loader2,
   LoaderCircle,
   Pencil,
@@ -557,7 +555,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </div>
 
             <Separator />
-            <div className="flex gap-x-4">
+            <div className="flex flex-col gap-2">
               <FormField
                 control={form.control}
                 name="images"
@@ -566,23 +564,23 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     <FormLabel>Imágenes</FormLabel>
                     <FormControl onChange={handleFileChange}>
                       {!loadingImage ? (
-                        <div className="h-40 flex items-center justify-center border rounded-lg relative">
-                          <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-40">
+                        <div className="h-60 md:w-[600px] flex items-center justify-center border-2 bg-secondary border-dashed hover:border-stone-300 transition-all rounded-lg relative">
+                          <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-60">
                             <Upload className="text-zinc-600 dark:text-zinc-400 size-6" />
                             <p className="text-zinc-600 dark:text-zinc-400 text-sm">
                               Selecciona una imagen
                             </p>
                           </div>
                           <Input
-                            className="opacity-0 h-24 cursor-pointer"
+                            className="opacity-0 h-60 cursor-pointer"
                             type="file"
                             accept="image/*"
                             {...field}
                           />
                         </div>
                       ) : (
-                        <div className="h-40 flex items-center justify-center border rounded-md relative">
-                          <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-40">
+                        <div className="h-60 md:w-[600px] flex items-center justify-center border rounded-md relative">
+                          <div className="flex flex-col items-center justify-center w-full absolute top-0 left-0 h-60">
                             <LoaderCircle className="text-zinc-600 dark:text-zinc-400 animate-spin size-6" />
                             <p className="text-zinc-600 dark:text-zinc-400 text-sm">
                               Cargando imagen
@@ -590,7 +588,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                           </div>
                           <Input
                             disabled
-                            className="opacity-0 h-40"
+                            className="opacity-0 h-60"
                             type="file"
                             accept="image/*"
                             {...field}
@@ -602,41 +600,29 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   </FormItem>
                 )}
               />
-              <ScrollArea className="w-80 rounded-lg border mt-8">
-                <div className="gap-x-2 p-2 h-40 flex items-center">
-                  {images.length > 0 ? (
-                    images.map((image) => (
-                      <div
-                        key={image}
-                        className="size-32 rounded-lg bg-foreground relative hover:scale-105 transition-all overflow-hidden"
-                      >
-                        <Image
-                          className="object-cover object-center"
-                          width={128}
-                          height={128}
-                          src={image}
-                          alt="Imagen del producto"
-                        />
-                        <button
-                          type="button"
-                          className="absolute top-2 right-2 bg-white rounded-full p-1 hover:scale-105 transition-all"
-                          onClick={() => handleRemoveImage(image)}
-                        >
-                          <X className="size-4 text-primary" />
-                        </button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full w-full">
-                      <ImageOff className="size-6 text-zinc-600 dark:text-zinc-400" />
-                      <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
-                        No hay imagenes
-                      </p>
-                    </div>
-                  )}
-                </div>
-                <ScrollBar orientation="horizontal" />
-              </ScrollArea>
+              <div className="flex gap-2 overflow-x-auto pb-2 min-h-[128px] w-full no-scrollbar">
+                {images.map((image) => (
+                  <div
+                    key={image}
+                    className="size-32 flex-shrink-0 rounded-lg bg-foreground relative hover:scale-105 transition-all overflow-hidden"
+                  >
+                    <Image
+                      className="object-cover object-center"
+                      width={128}
+                      height={128}
+                      src={image}
+                      alt="Imagen del producto"
+                    />
+                    <button
+                      type="button"
+                      className="absolute top-2 right-2 bg-white rounded-full p-1 hover:scale-105 transition-all"
+                      onClick={() => handleRemoveImage(image)}
+                    >
+                      <X className="size-4 text-primary" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
             <Separator />
             <div className="flex flex-col gap-y-4">
@@ -649,10 +635,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
               <div className="space-y-3">
                 {options.length > 0 &&
                   options.map((o, i) => (
-                    <div
-                      key={i}
-                      className="space-y-3 border p-3 sm:p-4 rounded-md overflow-hidden"
-                    >
+                    <div key={i} className="space-y-3 p-0 overflow-hidden">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-2">
                         <div className="flex items-center gap-2">
                           <Boxes className="size-5" />
