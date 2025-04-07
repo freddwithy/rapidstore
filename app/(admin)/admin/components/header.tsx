@@ -1,5 +1,6 @@
 import { ModeToggle } from "@/components/mode-toggle";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -42,9 +43,7 @@ const DashboardHeader: React.FC<DashboardProps> = ({ user, userDb }) => {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/admin/upgrade" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={`${navigationMenuTriggerStyle()} dark:bg-blue-900 dark:hover:bg-blue-800 bg-blue-500 hover:bg-blue-400 text-white hover:text-white`}
-                  >
+                  <NavigationMenuLink className={`${buttonVariants()}`}>
                     MEJORAR PLAN <Rocket className="size-4 ml-1" />
                   </NavigationMenuLink>
                 </Link>

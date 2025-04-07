@@ -35,7 +35,6 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 import { useClerk } from "@clerk/nextjs";
 import { Store } from "@prisma/client";
 import {
@@ -196,13 +195,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={cn(
-                    pathname === item.url ? "translate-x-1" : "",
-                    "transition-all"
-                  )}
-                >
+                <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon />
@@ -212,13 +205,7 @@ const AppSidebar: React.FC<AppSidebarpProps> = ({
                 </SidebarMenuItem>
               ))}
               {products.items.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className={cn(
-                    pathname === item.url ? "translate-x-1" : "",
-                    "transition-all"
-                  )}
-                >
+                <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
                     <Link href={item.url}>
                       <item.icon />

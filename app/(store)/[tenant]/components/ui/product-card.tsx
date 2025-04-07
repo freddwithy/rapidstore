@@ -29,15 +29,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
 
   const selectedVariant = product.variants[0].options[0];
 
-  const isInCart = items.some((item) => item.variantId === selectedVariant.id);
+  const isInCart = items.some((item) => item.optionId === selectedVariant.id);
 
   const isInCartQuantity = items.find(
-    (item) => item.variantId === selectedVariant.id
+    (item) => item.optionId === selectedVariant.id
   );
 
-  const price = formatter.format(selectedVariant.price);
+  const precios = () => {
+    if (selectedVariant?.id) {
+      if (selectedVariant?.salePrice) {
+        return { price: Number(selectedVariant?.salePrice) };
+      }
 
-  const salePrice = formatter.format(selectedVariant.salePrice ?? 0);
+      return { price: Number(selectedVariant?.price || 0) };
+    }
+
+    if (product?.id) {
+      if (product?.salePrice) {
+        return { price: Number(product?.salePrice) };
+      }
+
+      return { price: Number(product?.price || 0) };
+    }
+  };
+
+  const price = formatter.format(precios()?.price || 0);
 
   const addToCart = () => {
     if (isInCart && isInCartQuantity?.quantity) {
@@ -47,7 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
       });
     } else {
       addItem({
-        variantId: selectedVariant.id,
+        optionId: selectedVariant.id,
         quantity: 1,
         total: selectedVariant.salePrice || selectedVariant.price,
       });
@@ -97,7 +113,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             </p>
             <div className="flex flex-col">
               <span className="text-foreground text-base md:text-lg font-semibold">
-                {selectedVariant.salePrice ? salePrice : price}
+                {price}
               </span>
               <span
                 className={cn(
@@ -105,7 +121,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
                   selectedVariant.salePrice ? "visible" : "invisible"
                 )}
               >
-                {price}
+                {formatter.format(selectedVariant.price)}
               </span>
             </div>
           </div>

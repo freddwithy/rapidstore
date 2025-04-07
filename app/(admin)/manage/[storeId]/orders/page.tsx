@@ -24,6 +24,9 @@ const OrdersPage = async ({
     include: {
       customer: true,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   const formattedData = orders.map((order) => ({

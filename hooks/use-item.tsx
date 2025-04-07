@@ -4,7 +4,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 export interface OrderProductHook {
   quantity: number;
   productId: string;
-  variantId: string;
+  optionId: string;
   total: number;
 }
 
@@ -24,13 +24,13 @@ const useItem = create(
       addItem: (data: OrderProductHook) => {
         const items = get().items;
         const existingItem = items.find(
-          (item) => item.variantId === data.variantId
+          (item) => item.optionId === data.optionId
         );
 
         if (existingItem) {
           set({
             items: items.map((item) =>
-              item.variantId === data.variantId ? data : item
+              item.optionId === data.optionId ? data : item
             ),
           });
         } else {
@@ -42,7 +42,7 @@ const useItem = create(
       },
       removeItem: (id: string) => {
         set({
-          items: [...get().items.filter((item) => item.variantId !== id)],
+          items: [...get().items.filter((item) => item.optionId !== id)],
         });
       },
       removeAll: () => {

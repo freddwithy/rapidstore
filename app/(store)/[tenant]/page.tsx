@@ -49,7 +49,11 @@ export default async function SubdomainPage({
       products: {
         include: {
           images: true,
-          variants: true,
+          variants: {
+            include: {
+              options: true,
+            },
+          },
         },
       },
       categories: true,

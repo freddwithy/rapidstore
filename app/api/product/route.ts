@@ -77,6 +77,11 @@ export async function POST(request: Request) {
       );
     }
 
+    if (options.length > 1) {
+      console.log("Too many options");
+      return NextResponse.json({ error: "Too many options" }, { status: 400 });
+    }
+
     const product = await prismadb.product.create({
       data: {
         name,

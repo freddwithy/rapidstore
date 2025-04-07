@@ -61,7 +61,7 @@ export async function PATCH(
 
     await prismadb.order.update({
       where: {
-        id: orderId,
+        id: Number(orderId),
       },
       data: {
         customer: {
@@ -80,18 +80,23 @@ export async function PATCH(
 
     const order = await prismadb.order.update({
       where: {
-        id: orderId,
+        id: Number(orderId),
       },
       data: {
         orderProducts: {
           create: orderProducts.map((p: OrderProductHook) => ({
-            variant: {
+            product: {
               connect: {
-                id: p.variantId,
+                id: p.productId,
               },
             },
-            total: Number(p.total),
-            qty: Number(p.quantity),
+            variant: {
+              connect: {
+                id: p.optionId,
+              },
+            },
+            qty: p.quantity,
+            total: p.total,
           })),
         },
       },
@@ -122,7 +127,7 @@ export async function DELETE(
     }
     const product = await prismadb.order.delete({
       where: {
-        id: orderId,
+        id: Number(orderId),
       },
     });
     return NextResponse.json({ product }, { status: 200 });

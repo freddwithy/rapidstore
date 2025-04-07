@@ -32,10 +32,10 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
 
   const selectedVariant = product.variants[0].options[0];
 
-  const isInCart = items.some((item) => item.variantId === selectedVariant.id);
+  const isInCart = items.some((item) => item.optionId === selectedVariant.id);
 
   const isInCartQuantity = items.find(
-    (item) => item.variantId === selectedVariant.id
+    (item) => item.optionId === selectedVariant.id
   );
 
   const price = formatter.format(selectedVariant.price);
@@ -50,7 +50,7 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
       });
     } else {
       addItem({
-        variantId: selectedVariant.id,
+        optionId: selectedVariant.id,
         quantity: 1,
         total: selectedVariant.salePrice || selectedVariant.price,
       });

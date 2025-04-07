@@ -63,7 +63,7 @@ const OrderFormSchema = z.object({
   productId: z.string().min(1, {
     message: "El producto es requerido",
   }),
-  variantId: z.string().min(1, {
+  optionId: z.string().min(1, {
     message: "La variante es requerida",
   }),
   qty: z.coerce
@@ -103,13 +103,10 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 type orderWithProducts = Prisma.OrderGetPayload<{
   include: {
-    products: {
+    orderProducts: {
       include: {
-        variant: {
-          include: {
-            options: true;
-          };
-        };
+        product: true;
+        variant: true;
       };
     };
   };
@@ -141,9 +138,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
       customerId: initialData?.customerId || "",
       status: initialData?.status || "PENDIENTE",
       paymentStatus: initialData?.paymentStatus || "PENDIENTE",
-      productId: initialData?.products[0].variant.productId || "Sin productId",
-      variantId: initialData?.products[0].variantId || "Sin variantId",
-      qty: initialData?.products[0].qty || 1,
+      productId: initialData?.orderProducts[0].product.id || "Sin productId",
+      optionId: initialData?.orderProducts[0].variant.id || "Sin optionId",
+      qty: initialData?.orderProducts[0].qty || 1,
       total: initialData?.total || 1,
     },
   });
@@ -152,10 +149,10 @@ const OrderForm: React.FC<OrderFormProps> = ({
     if (initialData) {
       removeAll();
       addItems(
-        initialData.products.map((item) => {
+        initialData.orderProducts.map((item) => {
           return {
-            productId: item.variant.productId,
-            variantId: item.variantId,
+            productId: item.product.id,
+            optionId: item.variant.id,
             quantity: item.qty,
             total: item.total,
           };
@@ -190,7 +187,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   );
 
   const variantSelected = productSelected?.variants.find(
-    (variant) => variant.id === form.watch("variantId")
+    (variant) => variant.id === form.watch("optionId")
   );
 
   const totalItem =
@@ -201,7 +198,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const onAddProducts = () => {
     addItem({
       productId: form.getValues("productId"),
-      variantId: form.getValues("variantId"),
+      optionId: form.getValues("optionId"),
       quantity: form.getValues("qty"),
       total: totalItem,
     });
@@ -269,7 +266,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const formattedItems = items.map((item) => {
     const product = products.find((product) => product.id === item.productId);
     return {
-      variant: item.variantId,
+      variant: item.optionId,
       product: product?.name || "",
       quantity: item.quantity,
       total: item.total,
@@ -385,7 +382,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                 />
                 <FormField
                   control={form.control}
-                  name="variantId"
+                  name="optionId"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Variante</FormLabel>
