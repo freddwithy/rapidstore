@@ -646,11 +646,14 @@ const ProductForm: React.FC<ProductFormProps> = ({
                   Agrega variaciones a tu producto, como tallas, colores, etc.
                 </FormDescription>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {options.length > 0 &&
                   options.map((o, i) => (
-                    <div key={i} className="space-y-2 border p-4 rounded-md">
-                      <div className="flex items-center justify-between w-full">
+                    <div
+                      key={i}
+                      className="space-y-3 border p-3 sm:p-4 rounded-md overflow-hidden"
+                    >
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-2">
                         <div className="flex items-center gap-2">
                           <Boxes className="size-5" />
                           {editingOption === o.name ? (
@@ -658,7 +661,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                               <Input
                                 value={editedName}
                                 onChange={(e) => setEditedName(e.target.value)}
-                                className="max-w-xs bg-white"
+                                className="max-w-xs bg-white dark:bg-background"
                                 autoFocus
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter") {
@@ -721,8 +724,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
                               form.setValue("variantName", o.name); // Preseleccionar la opción actual
                             }}
                           >
-                            <Plus />
-                            Añadir variante
+                            <Plus className="size-4 mr-1" />
+                            <span className="hidden sm:inline">
+                              Añadir variante
+                            </span>
+                            <span className="sm:hidden">Variante</span>
                           </Button>
 
                           {/* Botón para eliminar toda la opción */}
@@ -735,8 +741,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
                               setDeleteDialogOpen(true);
                             }}
                           >
-                            <Trash />
-                            Eliminar opción
+                            <Trash className="size-4 mr-1" />
+                            <span className="hidden sm:inline">
+                              Eliminar opción
+                            </span>
+                            <span className="sm:hidden">Eliminar</span>
                           </Button>
                         </div>
                       </div>
@@ -748,10 +757,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
                           return (
                             <div
-                              className="flex flex-col space-y-4 p-4 rounded-md bg-secondary"
+                              className="flex flex-col space-y-4 p-3 sm:p-4 rounded-md bg-secondary"
                               key={valueId}
                             >
-                              <div className="flex justify-between items-center">
+                              <div className="flex flex-row justify-between items-center gap-2 w-full">
                                 <div className="flex items-center gap-x-2">
                                   <div
                                     className={`rounded-full size-2 ${v.status === "DISPONIBLE" ? "bg-green-500" : "bg-zinc-200"}`}
@@ -765,7 +774,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                         onChange={(e) =>
                                           setEditedName(e.target.value)
                                         }
-                                        className="max-w-xs bg-white"
+                                        className="max-w-xs bg-white dark:bg-background"
                                         autoFocus
                                         onKeyDown={(e) => {
                                           if (e.key === "Enter") {
@@ -831,15 +840,18 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                 <Button
                                   variant="destructive"
                                   size="icon"
+                                  className="flex-shrink-0"
                                   onClick={() => removeValue(o, v)}
                                 >
-                                  <Trash />
+                                  <Trash className="size-4" />
                                 </Button>
                               </div>
 
-                              <div className="grid grid-cols-2 md:flex items-center gap-2">
-                                <div className="w-full space-y-1">
-                                  <FormLabel>Precio</FormLabel>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                <div className="w-full space-y-1 min-w-0">
+                                  <FormLabel className="text-sm sm:text-base">
+                                    Precio
+                                  </FormLabel>
                                   <Input
                                     id={`${valueId}-price`}
                                     defaultValue={v.price}
@@ -848,7 +860,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     }
                                     placeholder="Gs. 100.000"
                                     type="number"
-                                    className="bg-white"
+                                    className="bg-white dark:bg-background text-sm sm:text-base"
                                     onChange={(e) => {
                                       const updatedItem: Values = {
                                         name: v.name || "",
@@ -860,8 +872,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     }}
                                   />
                                 </div>
-                                <div className="w-full space-y-1">
-                                  <FormLabel>Promoción</FormLabel>
+                                <div className="w-full space-y-1 min-w-0">
+                                  <FormLabel className="text-sm sm:text-base">
+                                    Promoción
+                                  </FormLabel>
                                   <Input
                                     id={`${valueId}-salePrice`}
                                     defaultValue={v.salePrice || ""}
@@ -870,7 +884,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     }
                                     placeholder="Gs. 50.000"
                                     type="number"
-                                    className="bg-white"
+                                    className="bg-white dark:bg-background text-sm sm:text-base"
                                     onChange={(e) => {
                                       const salePrice = e.target.value
                                         ? Number(e.target.value)
@@ -885,8 +899,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     }}
                                   />
                                 </div>
-                                <div className="w-full space-y-1">
-                                  <FormLabel>Estado</FormLabel>
+                                <div className="w-full space-y-1 min-w-0">
+                                  <FormLabel className="text-sm sm:text-base">
+                                    Estado
+                                  </FormLabel>
                                   <Select
                                     defaultValue={v.status}
                                     onValueChange={(value) => {
@@ -899,7 +915,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                       handleUpdateValues(o.name, updatedItem);
                                     }}
                                   >
-                                    <SelectTrigger className="min-w-[200px] bg-white">
+                                    <SelectTrigger className="bg-white dark:bg-background text-sm">
                                       <SelectValue defaultValue={v.status} />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -922,7 +938,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
 
               <Dialog open={open} onOpenChange={setOpen}>
                 <DialogTrigger asChild>
-                  <div className="flex">
+                  <div className="flex w-full">
                     {options.length === 0 && (
                       <Button type="button" variant={"secondary"}>
                         <Plus className="size-4" />
@@ -931,7 +947,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                     )}
                   </div>
                 </DialogTrigger>
-                <DialogContent className="">
+                <DialogContent className="max-w-md sm:max-w-lg w-full">
                   <DialogHeader>
                     <DialogTitle>Agregar opción</DialogTitle>
                     <DialogDescription>
@@ -961,13 +977,13 @@ const ProductForm: React.FC<ProductFormProps> = ({
                         )}
                       />
                     )}
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <FormLabel>Opciones disponibles</FormLabel>
                       {values.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {values.map((value, i) => (
                             <div
-                              className="px-4 py-1.5 rounded-md bg-zinc-100 justify-between flex items-center animate-fade-up duration-150 ease-out"
+                              className="px-4 py-1.5 rounded-md bg-zinc-100 dark:bg-zinc-800 border justify-between flex items-center animate-fade-up duration-150 ease-out"
                               key={i}
                             >
                               {value.name}
@@ -999,7 +1015,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                     <Input
                                       placeholder="Blanco, negro, etc."
                                       type="text"
-                                      className="p-6"
+                                      className="p-4 sm:p-6"
                                       {...field}
                                     />
                                     <Button
