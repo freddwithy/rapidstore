@@ -205,7 +205,9 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <div className="flex h-full w-full flex-col">
+              {children}
+            </div>
           </SheetContent>
         </Sheet>
       );
@@ -554,7 +556,7 @@ const SidebarMenuButton = React.forwardRef<
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
-    const { isMobile, state } = useSidebar();
+    const { isMobile, state, setOpenMobile } = useSidebar();
 
     const button = (
       <Comp
@@ -563,6 +565,10 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        onClick={(e) => {
+          if (isMobile) setOpenMobile(false);
+          props.onClick?.(e);
+        }}
         {...props}
       />
     );

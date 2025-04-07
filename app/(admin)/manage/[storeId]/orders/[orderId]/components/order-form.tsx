@@ -107,6 +107,7 @@ type orderWithProducts = Prisma.OrderGetPayload<{
       include: {
         product: true;
         variant: true;
+        customer: true;
       };
     };
   };
