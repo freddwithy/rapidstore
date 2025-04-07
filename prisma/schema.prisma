@@ -48,19 +48,20 @@ model Store {
 }
 
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  isFeatured  Boolean       @default(false)
-  description String        @db.Text
-  price       Int?
-  salePrice   Int?
-  category    Category      @relation(fields: [categoryId], references: [id])
-  categoryId  String
-  variants    Variant[]
-  store       Store         @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  storeId     String
-  images      Image[]
-  status      ProductStatus @default(EN_VENTA)
+  id            String         @id @default(cuid())
+  name          String
+  isFeatured    Boolean        @default(false)
+  description   String         @db.Text
+  price         Int?
+  salePrice     Int?
+  category      Category       @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  variants      Variant[]
+  store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  storeId       String
+  images        Image[]
+  orderProducts OrderProduct[]
+  status        ProductStatus  @default(EN_VENTA)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -86,25 +87,25 @@ model Image {
 }
 
 model Variant {
-  id           String           @id @default(cuid())
-  name         String
-  product      Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
-  productId    String
-  orderProduct OrderProduct[]
-  options      VariantOptions[]
+  id        String           @id @default(cuid())
+  name      String
+  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  options   VariantOptions[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model VariantOptions {
-  id        String        @id @default(cuid())
-  name      String
-  price     Int
-  salePrice Int?
-  status    VariantStatus @default(DISPONIBLE)
-  variant   Variant       @relation(fields: [variantId], references: [id], onDelete: Cascade)
-  variantId String
+  id           String         @id @default(cuid())
+  name         String
+  price        Int
+  salePrice    Int?
+  status       VariantStatus  @default(DISPONIBLE)
+  variant      Variant        @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  variantId    String
+  orderProduct OrderProduct[]
 }
 
 model Order {
@@ -114,7 +115,7 @@ model Order {
   store         Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
   storeId       String
   total         Int
-  products      OrderProduct[]
+  orderProducts OrderProduct[]
   status        OrderStatus    @default(PENDIENTE)
   paymentStatus OrderPayment   @default(PENDIENTE)
   paymentMethod PaymentMethod  @default(TRANSFERENCIA)
@@ -124,10 +125,12 @@ model Order {
 }
 
 model OrderProduct {
-  id        String  @id @default(cuid())
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  id        String         @id @default(cuid())
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
   orderId   Int
-  variant   Variant @relation(fields: [variantId], references: [id])
+  product   Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  variant   VariantOptions @relation(fields: [variantId], references: [id], onDelete: Cascade)
   variantId String
   qty       Int
   total     Int

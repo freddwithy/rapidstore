@@ -70,13 +70,18 @@ export async function POST(request: Request) {
         },
         orderProducts: {
           create: orderProducts.map((p: OrderProductHook) => ({
-            variant: {
+            product: {
               connect: {
-                id: p.variantId,
+                id: p.productId,
               },
             },
-            total: Number(p.total),
-            qty: Number(p.quantity),
+            variant: {
+              connect: {
+                id: p.optionId,
+              },
+            },
+            qty: p.quantity,
+            total: p.total,
           })),
         },
         total,

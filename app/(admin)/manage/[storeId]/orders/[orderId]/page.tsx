@@ -26,13 +26,10 @@ const OrderPage = async ({
       id: orderId,
     },
     include: {
-      products: {
+      orderProducts: {
         include: {
-          variant: {
-            include: {
-              options: true,
-            },
-          },
+          product: true,
+          variant: true,
         },
       },
     },

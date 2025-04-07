@@ -103,13 +103,10 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 
 type orderWithProducts = Prisma.OrderGetPayload<{
   include: {
-    products: {
+    orderProducts: {
       include: {
-        variant: {
-          include: {
-            options: true;
-          };
-        };
+        product: true;
+        variant: true;
       };
     };
   };
@@ -141,10 +138,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
       customerId: initialData?.customerId || "",
       status: initialData?.status || "PENDIENTE",
       paymentStatus: initialData?.paymentStatus || "PENDIENTE",
-      productId: initialData?.products[0].variant.productId || "Sin productId",
-      optionId:
-        initialData?.products[0].variant.options[0].id || "Sin optionId",
-      qty: initialData?.products[0].qty || 1,
+      productId: initialData?.orderProducts[0].product.id || "Sin productId",
+      optionId: initialData?.orderProducts[0].variant.id || "Sin optionId",
+      qty: initialData?.orderProducts[0].qty || 1,
       total: initialData?.total || 1,
     },
   });
@@ -153,10 +149,10 @@ const OrderForm: React.FC<OrderFormProps> = ({
     if (initialData) {
       removeAll();
       addItems(
-        initialData.products.map((item) => {
+        initialData.orderProducts.map((item) => {
           return {
-            productId: item.variant.productId,
-            optionId: item.variant.options[0].id,
+            productId: item.product.id,
+            optionId: item.variant.id,
             quantity: item.qty,
             total: item.total,
           };
