@@ -46,6 +46,26 @@ const OrderPage = async ({
     },
   });
 
+  const existingProducts = await prismadb.product.findMany({
+    where: {
+      storeId,
+    },
+  });
+
+  if (existingProducts.length >= 10 && userDb?.user_type === "FREE") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Ya no puedes agregar más productos. 😔</CardTitle>
+          <CardDescription>
+            Si deseas agregar más productos y disfrutar de otros beneficios de
+            Tiendy, le recomendamos revisar nuestros planes premium.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

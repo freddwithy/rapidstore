@@ -1,12 +1,19 @@
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
 import { Option, Values } from "../route";
+import { auth } from "@clerk/nextjs/server";
 
 export async function PATCH(
   request: Request,
   { params }: { params: { productId: string } }
 ) {
   try {
+    const { userId } = auth();
+
+    if (!userId) {
+      return new NextResponse("Unauthenticated", { status: 403 });
+    }
+
     const productId = params.productId;
     const body = await request.json();
     const {
@@ -19,7 +26,29 @@ export async function PATCH(
       options,
       price,
       salePrice,
+      storeId,
     } = body;
+
+    const user = await prismadb.user.findUnique({
+      where: {
+        clerk_id: userId,
+      },
+    });
+
+    if (!user) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
+
+    const storeByUserId = await prismadb.store.findFirst({
+      where: {
+        id: storeId,
+        ownerId: user.id,
+      },
+    });
+
+    if (!storeByUserId) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
 
     if (!productId) {
       return NextResponse.json(
@@ -63,8 +92,6 @@ export async function PATCH(
       where: { id: productId },
       include: { images: true, variants: { include: { options: true } } },
     });
-
-    console.log("Existing Product", existingProduct);
 
     if (!existingProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -129,6 +156,66 @@ export async function PATCH(
     return NextResponse.json(updatedProduct, { status: 200 });
   } catch (err) {
     console.log("[PRODUCT_PATCH]", err);
+    return NextResponse.json(
+      { error: "Something went wrong" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { productId: string } }
+) {
+  const { userId } = auth();
+
+  if (!userId) {
+    return new NextResponse("Unauthenticated", { status: 403 });
+  }
+
+  try {
+    const user = await prismadb.user.findUnique({
+      where: {
+        clerk_id: userId,
+      },
+    });
+
+    if (!user) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
+
+    const storeByUserId = await prismadb.store.findFirst({
+      where: {
+        ownerId: user.id,
+        products: {
+          some: {
+            id: params.productId,
+          },
+        },
+      },
+    });
+
+    if (!storeByUserId) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
+
+    const productId = params.productId;
+    if (!productId) {
+      return NextResponse.json(
+        { error: "Product ID is required" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prismadb.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    return NextResponse.json(product, { status: 200 });
+  } catch (err) {
+    console.log("[PRODUCT_DELETE]", err);
     return NextResponse.json(
       { error: "Something went wrong" },
       { status: 500 }
