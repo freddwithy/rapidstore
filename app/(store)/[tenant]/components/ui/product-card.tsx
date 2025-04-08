@@ -27,7 +27,8 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   const { addItem, items, updateItem } = useCart();
 
-  const selectedVariant = product.variants[0].options[0];
+  const selectedVariant =
+    product.variants.length > 0 ? product.variants[0].options[0] : product;
 
   const isInCart = items.some((item) => item.optionId === selectedVariant.id);
 
@@ -36,12 +37,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   );
 
   const precios = () => {
-    if (selectedVariant?.id) {
-      if (selectedVariant?.salePrice) {
-        return { price: Number(selectedVariant?.salePrice) };
+    if (selectedVariant.id) {
+      if (selectedVariant.salePrice) {
+        return { price: Number(selectedVariant.salePrice) };
       }
 
-      return { price: Number(selectedVariant?.price || 0) };
+      return { price: Number(selectedVariant.price || 0) };
     }
 
     if (product?.id) {
@@ -65,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
       addItem({
         optionId: selectedVariant.id,
         quantity: 1,
-        total: selectedVariant.salePrice || selectedVariant.price,
+        total: Number(selectedVariant.salePrice || selectedVariant.price),
       });
       toast.success("Producto agregado al carrito", {
         position: "top-center",
@@ -86,7 +87,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             alt={product.name}
             fill
           />
-          {selectedVariant.salePrice && (
+          {selectedVariant.salePrice && selectedVariant.price && (
             <span className="px-1 bg-red-500 text-white font-semibold text-md rounded-r-md absolute left-0 bottom-5">
               {(
                 ((selectedVariant.salePrice - selectedVariant.price) /
@@ -121,7 +122,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
                   selectedVariant.salePrice ? "visible" : "invisible"
                 )}
               >
-                {formatter.format(selectedVariant.price)}
+                {formatter.format(selectedVariant.price || 0)}
               </span>
             </div>
           </div>

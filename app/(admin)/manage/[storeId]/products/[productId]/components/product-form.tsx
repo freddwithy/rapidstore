@@ -148,6 +148,11 @@ const ProductForm: React.FC<ProductFormProps> = ({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [optionToDelete, setOptionToDelete] = useState<string | null>(null);
 
+  // Función para contar el total de variantes en todas las opciones
+  const getTotalVariants = () => {
+    return options.reduce((total, option) => total + option.values.length, 0);
+  };
+
   useEffect(() => {
     if (initialData) {
       setImages(initialData.images.map((i) => i.url) || []);
@@ -312,6 +317,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
     // Validar que haya al menos una variante
     if (values.length === 0) {
       toast.error("Agrega al menos una variante");
+      return;
+    }
+
+    // Verificar límite de 3 variantes para usuarios FREE
+    if (userType === "FREE" && values.length > 3) {
+      toast.error("Los usuarios gratuitos pueden añadir hasta 3 variantes.");
       return;
     }
 
@@ -838,9 +849,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                   <Input
                                     id={`${valueId}-price`}
                                     defaultValue={v.price}
-                                    disabled={
-                                      options.length > 0 && userType === "FREE"
-                                    }
+                                    disabled={false}
                                     placeholder="Gs. 100.000"
                                     type="number"
                                     className="bg-white dark:bg-background text-sm sm:text-base"
@@ -862,9 +871,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                                   <Input
                                     id={`${valueId}-salePrice`}
                                     defaultValue={v.salePrice || ""}
-                                    disabled={
-                                      options.length > 0 && userType === "FREE"
-                                    }
+                                    disabled={false}
                                     placeholder="Gs. 50.000"
                                     type="number"
                                     className="bg-white dark:bg-background text-sm sm:text-base"
@@ -949,7 +956,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             </FormLabel>
                             <FormControl>
                               <Input
-                                disabled={userType === "FREE"}
+                                disabled={false}
                                 placeholder="Color, talla, etc."
                                 type="text"
                                 {...field}
@@ -1057,6 +1064,12 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             toast.error("Agrega al menos una variante");
                             return;
                           }
+                          
+                          // Verificar límite de 3 variantes para usuarios FREE
+                          if (userType === "FREE" && getTotalVariants() + values.length > 3) {
+                            toast.error("Los usuarios gratuitos pueden añadir hasta 3 variantes en total.");
+                            return;
+                          }
                           // Agregar las variantes a la opción existente
                           setOptions((prevOptions) => {
                             return prevOptions.map((option) => {
@@ -1098,8 +1111,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </Dialog>
               {options.length > 0 && userType === "FREE" && (
                 <p className="text-sm text-muted-foreground">
-                  Si quieres agregar mas variantes debes actualizar tu plan
-                  actual.
+                  {getTotalVariants() >= 3 
+                    ? "Has alcanzado el límite de 3 variantes para usuarios gratuitos. Actualiza tu plan para añadir más."
+                    : `Puedes añadir hasta 3 variantes (${getTotalVariants()}/3). Para más variantes actualiza tu plan.`
+                  }
                   <Obligatory />
                 </p>
               )}
