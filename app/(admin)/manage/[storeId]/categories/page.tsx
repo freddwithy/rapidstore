@@ -41,7 +41,7 @@ const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Categorías de productos</CardTitle>
+        <CardTitle>Categorías de productos ({categories.length})</CardTitle>
         <CardDescription>
           Aquí podrás ver y editar las categorías de los productos de tu tienda.
         </CardDescription>
@@ -53,7 +53,7 @@ const CategoriesPage = async ({ params }: { params: { storeId: string } }) => {
             <AlertTitle>Ya no puedes agregar más categorías.</AlertTitle>
             <AlertDescription>
               Si deseas agregar más categorías y disfrutrar de otros beneficios
-              de Giddi, le recomendamos revisar nuestros planes premium.
+              de Tiendy, le recomendamos revisar nuestros planes premium.
             </AlertDescription>
           </Alert>
         )}

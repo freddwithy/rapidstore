@@ -1,5 +1,6 @@
 import prismadb from "@/lib/prismadb";
 import { NextResponse } from "next/server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function PATCH(
   request: Request,
@@ -8,7 +9,25 @@ export async function PATCH(
   try {
     const body = await request.json();
     const { categoryId } = params.params;
-    const { name, description } = body;
+    const { name, description, storeId } = body;
+    const user = await currentUser();
+    const userDb = await prismadb.user.findFirst({
+      where: {
+        clerk_id: user?.id,
+      },
+    });
+
+    //user-store validation
+    const storeByUserId = await prismadb.store.findFirst({
+      where: {
+        id: storeId,
+        ownerId: userDb?.id,
+      },
+    });
+
+    if (!storeByUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     if (!name || !description) {
       return NextResponse.json(
@@ -43,6 +62,28 @@ export async function DELETE(
 ) {
   try {
     const { categoryId } = params.params;
+    const user = await currentUser();
+    const userDb = await prismadb.user.findFirst({
+      where: {
+        clerk_id: user?.id,
+      },
+    });
+
+    //user-store validation
+    const storeByUserId = await prismadb.store.findFirst({
+      where: {
+        ownerId: userDb?.id,
+        categories: {
+          some: {
+            id: categoryId,
+          },
+        },
+      },
+    });
+
+    if (!storeByUserId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     if (!categoryId) {
       return NextResponse.json(
