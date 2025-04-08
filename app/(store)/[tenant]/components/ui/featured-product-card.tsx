@@ -30,13 +30,24 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
 }) => {
   const { addItem, items, updateItem } = useCart();
 
-  const selectedVariant =
-    product.variants.length > 0 ? product.variants[0].options[0] : product;
+  // Determinar si es un producto con variantes o sin variantes
+  const hasVariants = product.variants.length > 0;
+  
+  // Seleccionar la primera variante si existe, sino el producto mismo
+  const selectedVariant = hasVariants ? product.variants[0].options[0] : product;
 
-  const isInCart = items.some((item) => item.optionId === selectedVariant.id);
+  // Comprobar si está en el carrito (variante u opción)
+  const isInCart = items.some(item => 
+    hasVariants
+      ? item.optionId === selectedVariant.id
+      : item.productId === product.id
+  );
 
-  const isInCartQuantity = items.find(
-    (item) => item.optionId === selectedVariant.id
+  // Encontrar el item en el carrito si existe
+  const isInCartQuantity = items.find(item => 
+    hasVariants
+      ? item.optionId === selectedVariant.id
+      : item.productId === product.id
   );
 
   const price = formatter.format(selectedVariant.price || 0);
@@ -44,17 +55,32 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
   const salePrice = formatter.format(selectedVariant.salePrice ?? 0);
 
   const addToCart = () => {
+    // Calcular el precio correcto
+    const itemPrice = Number(selectedVariant.salePrice || selectedVariant.price || 0);
+    
     if (isInCart && isInCartQuantity?.quantity) {
-      updateItem(selectedVariant.id, isInCartQuantity.quantity + 1);
+      // Actualizar cantidad si ya está en el carrito
+      if (hasVariants) {
+        // Si tiene variantes, usar optionId
+        updateItem(selectedVariant.id, '', isInCartQuantity.quantity + 1);
+      } else {
+        // Si no tiene variantes, usar productId
+        updateItem('', product.id, isInCartQuantity.quantity + 1);
+      }
+      
       toast.success("Producto agregado al carrito", {
         position: "top-center",
       });
     } else {
+      // Añadir nuevo item al carrito
       addItem({
-        optionId: selectedVariant.id,
+        // Si tiene variantes, usar optionId, sino usar solo productId
+        optionId: hasVariants ? selectedVariant.id : undefined,
+        productId: product.id,
         quantity: 1,
-        total: Number(selectedVariant.salePrice || selectedVariant.price),
+        total: itemPrice,
       });
+      
       toast.success("Producto agregado al carrito", {
         position: "top-center",
       });

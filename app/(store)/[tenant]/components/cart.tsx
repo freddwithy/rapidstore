@@ -38,22 +38,44 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
   //mapear productos mezclando items con productos
   const productos = items.map((item) => {
-    const product = products.find((product) =>
-      product.variants.find((variant) => variant.id === item.optionId)
-    );
+    let product;
+    let price = 0;
+    let variant = null;
+    
+    if (item.optionId) {
+      // Es un producto con variantes
+      product = products.find((p) =>
+        p.variants.some((v) =>
+          v.options.some((o) => o.id === item.optionId)
+        )
+      );
+      
+      if (product) {
+        // Buscar la variante y opción correcta
+        const foundVariant = product.variants.find((v) =>
+          v.options.some((o) => o.id === item.optionId)
+        );
+        
+        const option = foundVariant?.options.find((o) => o.id === item.optionId);
+        
+        price = option?.salePrice || option?.price || 0;
+        variant = foundVariant;
+      }
+    } else if (item.productId) {
+      // Es un producto sin variantes
+      product = products.find((p) => p.id === item.productId);
+      price = product?.salePrice || product?.price || 0;
+    }
+    
     return {
       ...product,
       quantity: item.quantity,
-      price:
-        product?.variants
-          .find((variant) => variant.id === item.optionId)
-          ?.options.find((option) => option.id === item.optionId)?.price || 0,
-      variant: product?.variants.find(
-        (variant) => variant.id === item.optionId
-      ),
+      price,
+      variant,
       optionId: item.optionId,
+      productId: item.productId,
     };
-  });
+  }).filter(item => item.id); // Filtrar items que no se pudieron encontrar
 
   const total = () => {
     const sum = productos.reduce(
@@ -63,15 +85,36 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
     return sum;
   };
 
-  const onRemove = (optionId: string) => {
-    const cartItem = items.find((item) => item.optionId === optionId);
-    console.log(cartItem);
-    updateItem(optionId, (cartItem?.quantity ?? 1) - 1 || 0);
+  const onRemove = (itemId: string, isProductId: boolean = false) => {
+    const cartItem = isProductId
+      ? items.find((item) => item.productId === itemId)
+      : items.find((item) => item.optionId === itemId);
+      
+    if (cartItem) {
+      const newQuantity = (cartItem.quantity ?? 1) - 1;
+      // Si es producto sin variante (solo productId)
+      if (isProductId) {
+        updateItem('', itemId, newQuantity);
+      } else {
+        // Si es producto con variante (tiene optionId)
+        updateItem(itemId, '', newQuantity);
+      }
+    }
   };
 
-  const onAdd = (optionId: string) => {
-    const cartItem = items.find((item) => item.optionId === optionId);
-    updateItem(optionId, (cartItem?.quantity ?? 0) + 1);
+  const onAdd = (itemId: string, isProductId: boolean = false) => {
+    const cartItem = isProductId
+      ? items.find((item) => item.productId === itemId)
+      : items.find((item) => item.optionId === itemId);
+    
+    const newQuantity = (cartItem?.quantity ?? 0) + 1;
+    // Si es producto sin variante (solo productId)
+    if (isProductId) {
+      updateItem('', itemId, newQuantity);
+    } else {
+      // Si es producto con variante (tiene optionId)
+      updateItem(itemId, '', newQuantity);
+    }
   };
 
   return (
@@ -103,7 +146,7 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
         {items.length > 0 ? (
           productos.map((item) => (
             <div
-              key={item.optionId}
+              key={item.optionId || item.productId}
               className="border-b flex justify-between items-center py-4"
             >
               <div className="flex gap-x-2">
@@ -123,6 +166,9 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                     className="text-sm md:text-md line-clamp-3"
                   >
                     {item.name?.slice(0, 25)}
+                    {item.variant?.name && item.variant.name !== item.name && (
+                      <span className="text-xs text-muted-foreground"> - {item.variant.name}</span>
+                    )}
                   </Link>
                   <p className="text-sm text-muted-foreground">
                     {formatter.format(item.price)}
@@ -133,7 +179,15 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onRemove(item.variant?.id || "")}
+                  onClick={() => {
+                    if (item.optionId) {
+                      // Es un producto con variante
+                      onRemove(item.optionId);
+                    } else if (item.productId) {
+                      // Es un producto sin variante
+                      onRemove(item.productId, true);
+                    }
+                  }}
                 >
                   -
                 </Button>
@@ -141,7 +195,15 @@ const Cart: React.FC<CartItem> = ({ products, tenant }) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => onAdd(item.variant?.id || "")}
+                  onClick={() => {
+                    if (item.optionId) {
+                      // Es un producto con variante
+                      onAdd(item.optionId);
+                    } else if (item.productId) {
+                      // Es un producto sin variante
+                      onAdd(item.productId, true);
+                    }
+                  }}
                 >
                   +
                 </Button>

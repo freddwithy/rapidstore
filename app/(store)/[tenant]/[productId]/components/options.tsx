@@ -36,15 +36,26 @@ interface OptionsProps {
 const Options: React.FC<OptionsProps> = ({ product }) => {
   const { addItem, items, updateItem } = useCart();
   const [selectedVariant, setSelectedVariant] = useState(
-    product.variants[0].options[0]
+    product.variants.length > 0 ? product.variants[0].options[0] : product
   );
   const [quantity, setQuantity] = useState(1);
   const router = useRouter();
 
-  const isInCart = items.some((item) => item.optionId === selectedVariant.id);
+  // Determinar si es un producto con variantes
+  const hasVariants = product.variants.length > 0;
 
-  const isInCartQuantity = items.find(
-    (item) => item.optionId === selectedVariant.id
+  // Comprobar si está en el carrito
+  const isInCart = items.some(item => 
+    hasVariants
+      ? item.optionId === selectedVariant.id
+      : item.productId === product.id
+  );
+
+  // Encontrar el item en el carrito si existe
+  const isInCartQuantity = items.find(item => 
+    hasVariants
+      ? item.optionId === selectedVariant.id
+      : item.productId === product.id
   );
 
   const SafeHTML = () => {
@@ -59,61 +70,46 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   };
 
   const addToCart = () => {
-    if (selectedVariant.id === "") {
-      if (isInCart && isInCartQuantity?.quantity) {
-        updateItem(product.id, isInCartQuantity.quantity + quantity);
-        toast.success("Producto agregado al carrito", {
-          position: "top-center",
-          action: (
-            <Button onClick={() => router.push("cart")} size="sm">
-              <ShoppingCart />
-              Carrito
-            </Button>
-          ),
-          style: {
-            justifyContent: "space-between",
-          },
-        });
-      }
-      addItem({
-        productId: product.id,
-        quantity,
-        total: product?.salePrice || product?.price || 0,
+    // Calcular el precio correcto según si es producto o variante
+    const itemPrice = hasVariants 
+      ? selectedVariant.salePrice || selectedVariant.price || 0
+      : product.salePrice || product.price || 0;
+    
+    const successToast = () => {
+      toast.success("Producto agregado al carrito", {
+        position: "top-center",
+        action: (
+          <Button onClick={() => router.push("cart")} size="sm">
+            <ShoppingCart />
+            Carrito
+          </Button>
+        ),
+        style: {
+          justifyContent: "space-between",
+        },
       });
-    }
+    };
+    
     if (isInCart && isInCartQuantity?.quantity) {
-      updateItem(selectedVariant.id, isInCartQuantity.quantity + quantity);
-      toast.success("Producto agregado al carrito", {
-        position: "top-center",
-        action: (
-          <Button onClick={() => router.push("cart")} size="sm">
-            <ShoppingCart />
-            Carrito
-          </Button>
-        ),
-        style: {
-          justifyContent: "space-between",
-        },
-      });
+      // Ya está en el carrito, actualizar cantidad
+      if (hasVariants) {
+        // Producto con variantes: usar optionId
+        updateItem(selectedVariant.id, '', isInCartQuantity.quantity + quantity);
+      } else {
+        // Producto sin variantes: usar productId
+        updateItem('', product.id, isInCartQuantity.quantity + quantity);
+      }
+      successToast();
     } else {
+      // No está en el carrito, añadir nuevo item
       addItem({
-        optionId: selectedVariant.id,
+        // Usar optionId solo si tiene variantes
+        optionId: hasVariants ? selectedVariant.id : undefined,
         productId: product.id,
         quantity,
-        total: selectedVariant.salePrice || selectedVariant.price,
+        total: itemPrice,
       });
-      toast.success("Producto agregado al carrito", {
-        position: "top-center",
-        action: (
-          <Button onClick={() => router.push("cart")} size="sm">
-            <ShoppingCart />
-            Carrito
-          </Button>
-        ),
-        style: {
-          justifyContent: "space-between",
-        },
-      });
+      successToast();
     }
   };
 
@@ -125,7 +121,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         return { price };
       }
 
-      return { price: formatter.format(selectedVariant.price) };
+      return { price: formatter.format(selectedVariant.price || 0) };
     }
 
     if (product.id) {
