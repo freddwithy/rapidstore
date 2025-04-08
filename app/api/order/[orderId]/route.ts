@@ -1,5 +1,6 @@
 import { OrderProductHook } from "@/hooks/use-item";
 import prismadb from "@/lib/prismadb";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function PATCH(
@@ -9,7 +10,30 @@ export async function PATCH(
   try {
     const body = await request.json();
     const { orderId } = params;
-    const { customerId, orderProducts, status, paymentStatus, total } = body;
+    const {
+      customerId,
+      orderProducts,
+      status,
+      paymentStatus,
+      total,
+      isStatusUpdate,
+      storeId,
+    } = body;
+
+    const user = await currentUser();
+
+    if (!user) {
+      console.log("Unauthorized");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!storeId) {
+      console.log("Missing storeId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
     if (!orderId) {
       console.log("Missing orderId");
@@ -19,20 +43,25 @@ export async function PATCH(
       );
     }
 
-    if (!customerId) {
-      console.log("Missing customerId");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    if (!orderProducts) {
-      console.log("Missing orderProducts");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    if (isStatusUpdate) {
+      if (status || paymentStatus) {
+        const order = await prismadb.order.update({
+          where: {
+            id: Number(orderId),
+          },
+          data: {
+            status,
+            paymentStatus,
+          },
+        });
+        return NextResponse.json({ order }, { status: 200 });
+      } else {
+        console.log("Missing status or paymentStatus");
+        return NextResponse.json(
+          { error: "Missing required fields" },
+          { status: 400 }
+        );
+      }
     }
 
     if (!status) {
@@ -53,6 +82,22 @@ export async function PATCH(
 
     if (!total) {
       console.log("Missing total");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!customerId) {
+      console.log("Missing customerId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!orderProducts) {
+      console.log("Missing orderProducts");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

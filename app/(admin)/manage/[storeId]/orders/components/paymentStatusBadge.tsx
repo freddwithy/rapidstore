@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { OrderStatus } from "@prisma/client";
+import { OrderPayment } from "@prisma/client";
 import {
   Select,
   SelectContent,
@@ -12,14 +12,14 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-interface StatusBadgeProps {
-  status: OrderStatus;
+interface PaymentStatusBadgeProps {
+  paymentStatus: OrderPayment;
   orderId: number;
   storeId: string;
 }
 
-const StatusBadge: React.FC<StatusBadgeProps> = ({
-  status,
+const PaymentStatusBadge: React.FC<PaymentStatusBadgeProps> = ({
+  paymentStatus,
   orderId,
   storeId,
 }) => {
@@ -44,7 +44,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
       const res = await fetch(`/api/order/${orderId}`, {
         method: "PATCH",
         body: JSON.stringify({
-          status: value,
+          paymentStatus: value,
           storeId,
           isStatusUpdate: true,
         }),
@@ -62,11 +62,11 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
     }
   };
   return (
-    <Select value={status} onValueChange={onSubmit}>
+    <Select value={paymentStatus} onValueChange={onSubmit}>
       <SelectTrigger
         disabled={loading}
         className={cn(
-          colorBy[status],
+          colorBy[paymentStatus],
           "w-36 ",
           loading && "cursor-not-allowed disabled:opacity-50"
         )}
@@ -74,9 +74,9 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         <SelectValue placeholder="Selecciona una opcion" />
       </SelectTrigger>
       <SelectContent>
-        {Object.values(OrderStatus).map((status) => (
-          <SelectItem key={status} value={status}>
-            {status}
+        {Object.values(OrderPayment).map((paymentStatus) => (
+          <SelectItem key={paymentStatus} value={paymentStatus}>
+            {paymentStatus}
           </SelectItem>
         ))}
       </SelectContent>
@@ -84,4 +84,4 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
   );
 };
 
-export default StatusBadge;
+export default PaymentStatusBadge;

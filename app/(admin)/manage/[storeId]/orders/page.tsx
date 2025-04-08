@@ -35,6 +35,8 @@ const OrdersPage = async ({
     status: order.status,
     paymentStatus: order.paymentStatus,
     total: order.total,
+    storeId: order.storeId,
+    createdAt: order.createdAt,
   }));
 
   return (
