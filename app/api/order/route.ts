@@ -1,5 +1,6 @@
 import { OrderProductHook } from "@/hooks/use-item";
 import prismadb from "@/lib/prismadb";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -7,6 +8,13 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { customerId, orderProducts, status, paymentStatus, total, storeId } =
       body;
+
+    const user = await currentUser();
+
+    if (!user) {
+      console.log("Unauthorized");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     if (!customerId) {
       console.log("Missing customerId");

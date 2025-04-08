@@ -17,10 +17,6 @@ export const columns: ColumnDef<OrderProductColumn>[] = [
     header: "Producto",
   },
   {
-    accessorKey: "color",
-    header: "Color",
-  },
-  {
     accessorKey: "variant",
     header: "Variante",
   },

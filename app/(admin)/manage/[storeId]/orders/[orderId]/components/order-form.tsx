@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Customer, Prisma } from "@prisma/client";
+import { Customer, OrderPayment, OrderStatus, Prisma } from "@prisma/client";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -84,12 +84,6 @@ const OrderFormSchema = z.object({
     }),
 });
 
-type VariantProductWithOptions = Prisma.VariantGetPayload<{
-  include: {
-    options: true;
-  };
-}>;
-
 type ProductWithVariants = Prisma.ProductGetPayload<{
   include: {
     variants: {
@@ -131,6 +125,9 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
+
+  const statusOptions = Object.values(OrderStatus);
+  const paymentStatusOptions = Object.values(OrderPayment);
 
   const form = useForm<z.infer<typeof OrderFormSchema>>({
     resolver: zodResolver(OrderFormSchema),
@@ -186,12 +183,11 @@ const OrderForm: React.FC<OrderFormProps> = ({
     (product) => product.id === form.watch("productId")
   );
 
-  const variantSelected = productSelected?.variants.find(
-    (variant) => variant.id === form.watch("optionId")
+  const variantSelected = productSelected?.variants[0].options.find(
+    (option) => option.id === form.watch("optionId")
   );
 
-  const totalItem =
-    (variantSelected?.options[0].price ?? 0) * (form.watch("qty") ?? 0);
+  const totalItem = (variantSelected?.price ?? 0) * (form.watch("qty") ?? 0);
 
   const total = items.reduce((acc, item) => acc + item.total, 0);
 
@@ -265,8 +261,11 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   const formattedItems = items.map((item) => {
     const product = products.find((product) => product.id === item.productId);
+    const variant = product?.variants[0].options.find(
+      (option) => option.id === item.optionId
+    );
     return {
-      variant: item.optionId,
+      variant: variant?.name || "",
       product: product?.name || "",
       quantity: item.quantity,
       total: item.total,
@@ -364,18 +363,16 @@ const OrderForm: React.FC<OrderFormProps> = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Producto</FormLabel>
-                      <FormControl>
-                        <Combobox
-                          field={field}
-                          placeholder="Busca un producto"
-                          items={products.map((item) => {
-                            return {
-                              id: item.id,
-                              name: item.name,
-                            };
-                          })}
-                        />
-                      </FormControl>
+                      <Combobox
+                        field={field}
+                        placeholder="Busca un producto"
+                        items={products.map((item) => {
+                          return {
+                            id: item.id,
+                            name: item.name,
+                          };
+                        })}
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -396,10 +393,10 @@ const OrderForm: React.FC<OrderFormProps> = ({
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {productSelected?.variants.map(
-                            (variant: VariantProductWithOptions) => (
-                              <SelectItem key={variant.id} value={variant.id}>
-                                {variant.name ? variant.name : ""}
+                          {productSelected?.variants[0].options.map(
+                            (option) => (
+                              <SelectItem key={option.id} value={option.id}>
+                                {option.name ? option.name : ""}
                               </SelectItem>
                             )
                           )}
@@ -414,9 +411,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                   <FormLabel>Precio</FormLabel>
                   <Input
                     readOnly
-                    value={formatter.format(
-                      variantSelected?.options[0].price ?? 0
-                    )}
+                    value={formatter.format(variantSelected?.price ?? 0)}
                   />
                 </FormItem>
                 <FormField
@@ -442,7 +437,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
                   Agregar
                   <span className="sr-only">Agregar producto</span>
                 </Button>
-                <DialogClose>
+                <DialogClose asChild>
                   <Button type="button" variant="secondary">
                     Cancelar
                   </Button>
@@ -500,9 +495,12 @@ const OrderForm: React.FC<OrderFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="PENDIENTE">Pendiente</SelectItem>
-                    <SelectItem value="PAGADO">Pagado</SelectItem>
-                    <SelectItem value="CANCELADO">Cancelado</SelectItem>
+                    {paymentStatusOptions.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status.charAt(0).toUpperCase() +
+                          status.slice(1).toLowerCase()}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -526,9 +524,12 @@ const OrderForm: React.FC<OrderFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="PENDIENTE">Pendiente</SelectItem>
-                    <SelectItem value="ENTREGADO">Entregado</SelectItem>
-                    <SelectItem value="CANCELADO">Cancelado</SelectItem>
+                    {statusOptions.map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {status.charAt(0).toUpperCase() +
+                          status.slice(1).toLowerCase()}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
