@@ -20,8 +20,14 @@ export type OrderColumn = {
 
 export const columns: ColumnDef<OrderColumn>[] = [
   {
-    accessorKey: "id",
-    header: "Numero de Pedido",
+    accessorKey: "createdAt",
+    header: "Fecha de creación",
+    cell: ({ row }) =>
+      row.original.createdAt.toLocaleDateString("es-PY", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }),
   },
   {
     accessorKey: "customer",

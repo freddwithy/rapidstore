@@ -8,6 +8,7 @@ import {
 import React from "react";
 import prismadb from "@/lib/prismadb";
 import CategoryForm from "./components/category-form";
+import { currentUser } from "@clerk/nextjs/server";
 
 const OrderPage = async ({
   params,
@@ -24,6 +25,33 @@ const OrderPage = async ({
       id: categoryId,
     },
   });
+
+  const existingCategories = await prismadb.category.findMany({
+    where: {
+      storeId,
+    },
+  });
+
+  const user = await currentUser();
+  const userDb = await prismadb.user.findFirst({
+    where: {
+      clerk_id: user?.id,
+    },
+  });
+
+  if (existingCategories.length >= 3 && userDb?.user_type === "FREE") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Ya no puedes agregar más categorías.</CardTitle>
+          <CardDescription>
+            Si deseas agregar más categorías y disfrutar de otros beneficios de
+            Tiendy, le recomendamos revisar nuestros planes premium.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
 
   return (
     <Card>
