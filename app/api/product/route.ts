@@ -1,4 +1,5 @@
 import prismadb from "@/lib/prismadb";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export type Option = {
@@ -14,6 +15,12 @@ export type Values = {
 };
 
 export async function POST(request: Request) {
+  const { userId } = auth();
+
+  if (!userId) {
+    return new NextResponse("Unauthenticated", { status: 403 });
+  }
+
   try {
     const body = await request.json();
     const {
@@ -28,6 +35,35 @@ export async function POST(request: Request) {
       price,
       salePrice,
     } = body;
+
+    if (!storeId) {
+      console.log("Missing storeId");
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    const user = await prismadb.user.findUnique({
+      where: {
+        clerk_id: userId,
+      },
+    });
+
+    if (!user) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
+
+    const storeByUserId = await prismadb.store.findFirst({
+      where: {
+        id: storeId,
+        ownerId: user.id,
+      },
+    });
+
+    if (!storeByUserId) {
+      return new NextResponse("Unauthorized", { status: 405 });
+    }
 
     if (!name) {
       console.log("Missing name");
@@ -69,17 +105,22 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!storeId) {
-      console.log("Missing storeId");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
     if (options.length > 1) {
       console.log("Too many options");
       return NextResponse.json({ error: "Too many options" }, { status: 400 });
+    }
+
+    const existingProducts = await prismadb.product.findMany({
+      where: {
+        storeId,
+      },
+    });
+
+    if (existingProducts.length >= 10 && user.user_type === "FREE") {
+      return NextResponse.json(
+        { error: "Free users can only have 10 products" },
+        { status: 400 }
+      );
     }
 
     const product = await prismadb.product.create({

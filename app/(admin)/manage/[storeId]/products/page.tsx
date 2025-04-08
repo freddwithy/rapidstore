@@ -55,19 +55,19 @@ const ProductsPage = async ({ params }: { params: { storeId: string } }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Productos</CardTitle>
+        <CardTitle>Productos ({products.length})</CardTitle>
         <CardDescription>
           Aqui podras ver y editar los productos de tu tienda.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {products.length > 9 && userDb.user_type === "FREE" && (
+        {products.length >= 10 && userDb.user_type === "FREE" && (
           <Alert>
             <AlertTriangle className="size-4" />
             <AlertTitle>Ya no puedes agregar más productos.</AlertTitle>
             <AlertDescription>
               Si deseas agregar más productos y disfrutrar de otros beneficios
-              de Giddi, le recomendamos revisar nuestros planes premium.
+              de Tiendy, le recomendamos revisar nuestros planes premium.
             </AlertDescription>
           </Alert>
         )}
