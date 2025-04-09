@@ -99,10 +99,10 @@ export async function POST(request: Request) {
                   include: {
                     variants: {
                       include: {
-                        options: true
-                      }
-                    }
-                  }
+                        options: true,
+                      },
+                    },
+                  },
                 });
 
                 if (!product) {
@@ -118,18 +118,20 @@ export async function POST(request: Request) {
                       },
                     },
                     qty: p.quantity,
-                    total: p.total,
+                    total: p.total * p.quantity,
                   };
                 }
 
                 // Producto con variantes
                 const variant = product.variants[0];
                 const option = p.optionId
-                  ? variant.options.find(opt => opt.id === p.optionId)
+                  ? variant.options.find((opt) => opt.id === p.optionId)
                   : variant.options[0];
 
                 if (!option) {
-                  throw new Error(`No se encontró la opción para el producto ${p.productId}`);
+                  throw new Error(
+                    `No se encontró la opción para el producto ${p.productId}`
+                  );
                 }
 
                 return {
@@ -144,13 +146,14 @@ export async function POST(request: Request) {
                     },
                   },
                   qty: p.quantity,
-                  total: p.total,
+                  total: p.total * p.quantity,
                 };
               })
             ),
           },
           total: items.reduce(
-            (acc: number, item: OrderProductHook) => acc + item.total,
+            (acc: number, item: OrderProductHook) =>
+              acc + item.total * item.quantity,
             0
           ),
         },
@@ -185,23 +188,69 @@ export async function POST(request: Request) {
           },
         },
         orderProducts: {
-          create: items.map((p: OrderProductHook) => ({
-            product: {
-              connect: {
-                id: p.productId,
-              },
-            },
-            variant: {
-              connect: {
-                id: p.optionId,
-              },
-            },
-            qty: p.quantity,
-            total: p.total,
-          })),
+          create: await Promise.all(
+            items.map(async (p: OrderProductHook) => {
+              // Verificar si el producto tiene variantes
+              const product = await prismadb.product.findUnique({
+                where: { id: p.productId },
+                include: {
+                  variants: {
+                    include: {
+                      options: true,
+                    },
+                  },
+                },
+              });
+
+              if (!product) {
+                throw new Error(`No se encontró el producto ${p.productId}`);
+              }
+
+              // Producto sin variantes
+              if (product.variants.length === 0) {
+                return {
+                  product: {
+                    connect: {
+                      id: p.productId,
+                    },
+                  },
+                  qty: p.quantity,
+                  total: p.total * p.quantity, // Usar el total que viene del carrito
+                };
+              }
+
+              // Producto con variantes
+              const variant = product.variants[0];
+              const option = p.optionId
+                ? variant.options.find((opt) => opt.id === p.optionId)
+                : variant.options[0];
+
+              if (!option) {
+                throw new Error(
+                  `No se encontró la opción para el producto ${p.productId}`
+                );
+              }
+
+              return {
+                product: {
+                  connect: {
+                    id: p.productId,
+                  },
+                },
+                variant: {
+                  connect: {
+                    id: option.id,
+                  },
+                },
+                qty: p.quantity,
+                total: p.total * p.quantity, // Usar el total que viene del carrito
+              };
+            })
+          ),
         },
         total: items.reduce(
-          (acc: number, item: OrderProductHook) => acc + item.total,
+          (acc: number, item: OrderProductHook) =>
+            acc + item.total * item.quantity,
           0
         ),
       },
