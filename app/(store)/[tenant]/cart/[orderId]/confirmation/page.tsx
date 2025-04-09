@@ -111,8 +111,8 @@ export default async function ConfirmationPage({
           <a
             href={generateWhatsAppMessage(
               order,
-              params.tenant,
               store.name,
+              params.tenant,
               store.whatsapp || ""
             )}
             target="_blank"
