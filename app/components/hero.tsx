@@ -56,7 +56,7 @@ export function HeroSectionOne() {
           }}
           className="relative z-10 mt-8 flex flex-col md:flex-row items-center justify-center gap-4"
         >
-          <a href="/revtek" className={buttonVariants({ size: "lg" })}>
+          <a href="/tiendy" className={buttonVariants({ size: "lg" })}>
             Ver Demo
           </a>
           <a

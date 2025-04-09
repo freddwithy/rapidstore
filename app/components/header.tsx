@@ -137,7 +137,7 @@ export default function Header() {
                 >
                   Iniciar sesión
                 </a>
-                <a href="/revtek" className={buttonVariants({})}>
+                <a href="/tiendy" className={buttonVariants({})}>
                   Ver Demo
                 </a>
               </div>
