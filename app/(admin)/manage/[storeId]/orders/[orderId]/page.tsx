@@ -21,7 +21,8 @@ const OrderPage = async ({
   const storeId = params.storeId;
   const orderId = params.orderId === "new" ? undefined : Number(params.orderId);
 
-  const order = await prismadb.order.findFirst({
+  // Solo buscar la orden si no estamos en la ruta 'new'
+  const order = params.orderId !== "new" ? await prismadb.order.findFirst({
     where: {
       id: orderId,
     },
@@ -33,7 +34,7 @@ const OrderPage = async ({
         },
       },
     },
-  });
+  }) : null;
 
   const customers = await prismadb.customer.findMany({
     where: {

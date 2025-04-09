@@ -50,6 +50,7 @@ import {
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 
+// Esquema para el formulario principal de la orden
 const OrderFormSchema = z.object({
   customerId: z.string().min(1, {
     message: "El cliente es requerido",
@@ -60,12 +61,14 @@ const OrderFormSchema = z.object({
   paymentStatus: z.string().min(1, {
     message: "El estado de pago es requerido",
   }),
+});
+
+// Esquema para el diálogo de agregar productos
+const ProductFormSchema = z.object({
   productId: z.string().min(1, {
     message: "El producto es requerido",
   }),
-  optionId: z.string().min(1, {
-    message: "La variante es requerida",
-  }),
+  optionId: z.string().optional(),  // Opcional para productos sin variantes
   qty: z.coerce
     .number()
     .min(1, {
@@ -73,14 +76,6 @@ const OrderFormSchema = z.object({
     })
     .max(100, {
       message: "La cantidad no puede ser mayor a 100",
-    }),
-  total: z.coerce
-    .number()
-    .min(1, {
-      message: "El total es requerido",
-    })
-    .max(100000000, {
-      message: "El total no puede ser mayor a Gs. 100.000.000",
     }),
 });
 
@@ -129,34 +124,57 @@ const OrderForm: React.FC<OrderFormProps> = ({
   const statusOptions = Object.values(OrderStatus);
   const paymentStatusOptions = Object.values(OrderPayment);
 
+  // Formulario principal para la orden
   const form = useForm<z.infer<typeof OrderFormSchema>>({
     resolver: zodResolver(OrderFormSchema),
+    defaultValues: initialData ? {
+      // Si hay initialData, estamos editando una orden existente
+      customerId: initialData.customerId,
+      status: initialData.status,
+      paymentStatus: initialData.paymentStatus,
+    } : {
+      // Si no hay initialData, estamos creando una nueva orden
+      customerId: "",
+      status: "PENDIENTE",
+      paymentStatus: "PENDIENTE",
+    },
+  });
+
+  // Formulario para agregar productos
+  const productForm = useForm<z.infer<typeof ProductFormSchema>>({
+    resolver: zodResolver(ProductFormSchema),
     defaultValues: {
-      customerId: initialData?.customerId || "",
-      status: initialData?.status || "PENDIENTE",
-      paymentStatus: initialData?.paymentStatus || "PENDIENTE",
-      productId: initialData?.orderProducts[0].product.id || "Sin productId",
-      optionId: initialData?.orderProducts[0].variant.id || "Sin optionId",
-      qty: initialData?.orderProducts[0].qty || 1,
-      total: initialData?.total || 1,
+      productId: "",
+      optionId: undefined,
+      qty: 1,
     },
   });
 
   useEffect(() => {
+    // Limpiar el carrito al montar el componente
+    removeAll();
+
+    // Si hay initialData, cargar los productos de la orden existente
     if (initialData) {
-      removeAll();
       addItems(
         initialData.orderProducts.map((item) => {
-          return {
+          const baseItem = {
             productId: item.product.id,
-            optionId: item.variant.id,
             quantity: item.qty,
             total: item.total,
           };
+
+          // Solo agregar optionId si existe la variante
+          if (item.variant) {
+            return {
+              ...baseItem,
+              optionId: item.variant.id,
+            };
+          }
+
+          return baseItem;
         })
       );
-    } else {
-      removeAll();
     }
   }, [initialData, addItems, removeAll]);
 
@@ -180,24 +198,50 @@ const OrderForm: React.FC<OrderFormProps> = ({
   );
 
   const productSelected = products?.find(
-    (product) => product.id === form.watch("productId")
+    (product) => product.id === productForm.watch("productId")
   );
 
-  const variantSelected = productSelected?.variants[0].options.find(
-    (option) => option.id === form.watch("optionId")
-  );
+  // Calcular el precio basado en si el producto tiene variantes o no
+  const price = (() => {
+    if (!productSelected) return 0;
+    
+    // Si el producto no tiene variantes, usar el precio del producto
+    if (productSelected.variants.length === 0) {
+      return productSelected.price || 0;
+    }
 
-  const totalItem = (variantSelected?.price ?? 0) * (form.watch("qty") ?? 0);
+    // Si tiene variantes, buscar el precio de la variante seleccionada
+    const variantSelected = productSelected.variants[0].options.find(
+      (option) => option.id === productForm.watch("optionId")
+    );
+    return variantSelected?.price || 0;
+  })();
+
+  const totalItem = price * (productForm.watch("qty") ?? 0);
 
   const total = items.reduce((acc, item) => acc + item.total, 0);
 
   const onAddProducts = () => {
-    addItem({
-      productId: form.getValues("productId"),
-      optionId: form.getValues("optionId"),
-      quantity: form.getValues("qty"),
+    const values = productForm.getValues();
+    const product = products?.find(p => p.id === values.productId);
+    
+    if (!product) {
+      toast.error("Producto no encontrado");
+      return;
+    }
+
+    // Crear el item con o sin optionId dependiendo de si tiene variantes
+    const item = {
+      productId: values.productId,
+      quantity: values.qty,
       total: totalItem,
-    });
+      ...(product.variants.length > 0 && {
+        optionId: values.optionId
+      })
+    };
+
+    addItem(item);
+    productForm.reset(); // Limpiar el formulario después de agregar
     toast.success("Producto agregado al carrito");
   };
 
@@ -261,12 +305,31 @@ const OrderForm: React.FC<OrderFormProps> = ({
 
   const formattedItems = items.map((item) => {
     const product = products.find((product) => product.id === item.productId);
-    const variant = product?.variants[0].options.find(
+    if (!product) return {
+      variant: "",
+      product: "Producto no encontrado",
+      quantity: item.quantity,
+      total: item.total,
+    };
+
+    // Si el producto no tiene variantes
+    if (product.variants.length === 0) {
+      return {
+        variant: "N/A",
+        product: product.name,
+        quantity: item.quantity,
+        total: item.total,
+      };
+    }
+
+    // Si el producto tiene variantes
+    const variant = product.variants[0].options.find(
       (option) => option.id === item.optionId
     );
+
     return {
-      variant: variant?.name || "",
-      product: product?.name || "",
+      variant: variant?.name || "Variante no encontrada",
+      product: product.name,
       quantity: item.quantity,
       total: item.total,
     };
@@ -358,7 +421,7 @@ const OrderForm: React.FC<OrderFormProps> = ({
               </DialogHeader>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
-                  control={form.control}
+                  control={productForm.control}
                   name="productId"
                   render={({ field }) => (
                     <FormItem>
@@ -377,45 +440,47 @@ const OrderForm: React.FC<OrderFormProps> = ({
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="optionId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Variante</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Selecciona variante" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {productSelected?.variants[0].options.map(
-                            (option) => (
+                {/* Solo mostrar el campo de variante si el producto tiene variantes */}
+                {productSelected && productSelected.variants.length > 0 && (
+                  <FormField
+                    control={productForm.control}
+                    name="optionId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Variante</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || ""}
+                          defaultValue={field.value || ""}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona variante" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {productSelected.variants[0].options.map((option) => (
                               <SelectItem key={option.id} value={option.id}>
-                                {option.name ? option.name : ""}
+                                {option.name || ""}
                               </SelectItem>
-                            )
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
 
                 <FormItem>
                   <FormLabel>Precio</FormLabel>
                   <Input
                     readOnly
-                    value={formatter.format(variantSelected?.price ?? 0)}
+                    value={formatter.format(price)}
                   />
                 </FormItem>
                 <FormField
-                  control={form.control}
+                  control={productForm.control}
                   name="qty"
                   render={({ field }) => (
                     <FormItem>

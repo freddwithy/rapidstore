@@ -38,7 +38,7 @@ const CartPage = async ({ params }: { params: { tenant: string } }) => {
           <BackButton />
         </div>
       </div>
-      <CartList products={products} tenant={tenant} />
+      <CartList products={products} tenant={tenant} storeId={store.id} />
     </div>
   );
 };

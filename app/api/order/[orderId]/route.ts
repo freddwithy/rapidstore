@@ -129,20 +129,63 @@ export async function PATCH(
       },
       data: {
         orderProducts: {
-          create: orderProducts.map((p: OrderProductHook) => ({
-            product: {
-              connect: {
-                id: p.productId,
-              },
-            },
-            variant: {
-              connect: {
-                id: p.optionId,
-              },
-            },
-            qty: p.quantity,
-            total: p.total,
-          })),
+          create: await Promise.all(
+            orderProducts.map(async (p: OrderProductHook) => {
+              // Verificar si el producto tiene variantes
+              const product = await prismadb.product.findUnique({
+                where: { id: p.productId },
+                include: {
+                  variants: {
+                    include: {
+                      options: true
+                    }
+                  }
+                }
+              });
+
+              if (!product) {
+                throw new Error(`No se encontró el producto ${p.productId}`);
+              }
+
+              // Producto sin variantes
+              if (product.variants.length === 0) {
+                return {
+                  product: {
+                    connect: {
+                      id: p.productId,
+                    },
+                  },
+                  qty: p.quantity,
+                  total: p.total,
+                };
+              }
+
+              // Producto con variantes
+              const variant = product.variants[0];
+              const option = p.optionId
+                ? variant.options.find(opt => opt.id === p.optionId)
+                : variant.options[0];
+
+              if (!option) {
+                throw new Error(`No se encontró la opción para el producto ${p.productId}`);
+              }
+
+              return {
+                product: {
+                  connect: {
+                    id: p.productId,
+                  },
+                },
+                variant: {
+                  connect: {
+                    id: option.id,
+                  },
+                },
+                qty: p.quantity,
+                total: p.total,
+              };
+            })
+          ),
         },
       },
     });
