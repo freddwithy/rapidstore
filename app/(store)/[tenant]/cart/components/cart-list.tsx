@@ -14,7 +14,7 @@ import { Prisma } from "@prisma/client";
 import { Trash } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import CartForm from "./cart-form";
 
 type ProductWithVariants = Prisma.ProductGetPayload<{
@@ -31,10 +31,12 @@ type ProductWithVariants = Prisma.ProductGetPayload<{
 interface CartItem {
   products: ProductWithVariants[];
   tenant: string;
+  storeId: string;
 }
 
-const CartList: React.FC<CartItem> = ({ products }) => {
+const CartList: React.FC<CartItem> = ({ products, storeId }) => {
   const { items, updateItem, removeAll } = useCart();
+  const [isLoading, setIsLoading] = useState(false);
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
 
   // Definir un tipo para los productos procesados
@@ -55,32 +57,32 @@ const CartList: React.FC<CartItem> = ({ products }) => {
       // Buscar el producto base por su productId
       const product = products.find((product) => product.id === item.productId);
       if (!product) return null; // Si no encontramos el producto, retornamos null
-      
+
       let price = 0;
-      let variantName = '';
-      
+      let variantName = "";
+
       // Determinar si es un producto con variantes o sin variantes
       if (item.optionId) {
         // Producto con variantes - buscar la variante y opción
         const variants = product.variants.find((variant) =>
           variant.options.some((option) => option.id === item.optionId)
         );
-        
+
         const option = variants?.options.find(
           (option) => option.id === item.optionId
         );
-        
+
         if (option) {
           // Usar el precio de la opción (con descuento si aplica)
           price = Number(option.salePrice || option.price || 0);
           // Guardar tanto el nombre de la variante como el nombre de la opción
-          variantName = `${variants?.name || ''}: ${option.name || ''}`;
+          variantName = `${variants?.name || ""}: ${option.name || ""}`;
         }
       } else {
         // Producto sin variantes - usar el precio del producto
         price = Number(product.salePrice || product.price || 0);
       }
-      
+
       return {
         id: product.id,
         name: product.name,
@@ -89,7 +91,7 @@ const CartList: React.FC<CartItem> = ({ products }) => {
         price: price,
         option: item.optionId,
         productId: item.productId,
-        variantName: variantName
+        variantName: variantName,
       };
     })
     .filter((item): item is CartProduct => item !== null); // Filtrar elementos nulos con type guard
@@ -106,15 +108,15 @@ const CartList: React.FC<CartItem> = ({ products }) => {
     const cartItem = isProductId
       ? items.find((item) => item.productId === itemId)
       : items.find((item) => item.optionId === itemId);
-    
+
     if (cartItem) {
       const newQuantity = (cartItem.quantity ?? 1) - 1;
       // Si es producto sin variante (solo productId)
       if (isProductId) {
-        updateItem('', itemId, newQuantity);
+        updateItem("", itemId, newQuantity);
       } else {
         // Si es producto con variante (tiene optionId)
-        updateItem(itemId, '', newQuantity);
+        updateItem(itemId, "", newQuantity);
       }
     }
   };
@@ -123,14 +125,14 @@ const CartList: React.FC<CartItem> = ({ products }) => {
     const cartItem = isProductId
       ? items.find((item) => item.productId === itemId)
       : items.find((item) => item.optionId === itemId);
-    
+
     const newQuantity = (cartItem?.quantity ?? 0) + 1;
     // Si es producto sin variante (solo productId)
     if (isProductId) {
-      updateItem('', itemId, newQuantity);
+      updateItem("", itemId, newQuantity);
     } else {
       // Si es producto con variante (tiene optionId)
-      updateItem(itemId, '', newQuantity);
+      updateItem(itemId, "", newQuantity);
     }
   };
   return (
@@ -169,7 +171,9 @@ const CartList: React.FC<CartItem> = ({ products }) => {
                     <Link href={`${item.id}`} className="text-sm">
                       {item.name}
                       {item.variantName && (
-                        <span className="text-xs text-muted-foreground ml-1">- {item.variantName}</span>
+                        <span className="text-xs text-muted-foreground ml-1">
+                          - {item.variantName}
+                        </span>
                       )}
                     </Link>
                     <p className="text-sm text-muted-foreground">
@@ -223,22 +227,33 @@ const CartList: React.FC<CartItem> = ({ products }) => {
       </Card>
       <div>
         <CardHeader>
-          <CardTitle>Resumen</CardTitle>
-          <CardDescription>Total al pagar</CardDescription>
+          <CardTitle>Datos adicionales</CardTitle>
+          <CardDescription>
+            Por favor, completa los siguientes datos para finalizar el pedido.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <CartForm />
+          <CartForm storeId={storeId} onLoadingChange={setIsLoading} />
           <div className="mt-10">
-            <div className="flex items-center justify-between">
-              <p className="text-base text-muted-foreground">Total Gs:</p>
-              <p className="text-base font-semibold">
-                {formatter.format(total())}
-              </p>
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <CardTitle>Resumen</CardTitle>
+                <CardDescription>Resumen de la compra.</CardDescription>
+              </div>
+
+              <div className="flex items-center justify-between mt-4">
+                <p className="text-base text-muted-foreground">Total Gs:</p>
+                <p className="text-base font-semibold">
+                  {formatter.format(total())}
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
         <CardFooter>
-          <Button>Realizar pedido</Button>
+          <Button type="submit" form="cart-form" disabled={isLoading}>
+            {isLoading ? "Enviando..." : "Realizar pedido"}
+          </Button>
         </CardFooter>
       </div>
     </div>
