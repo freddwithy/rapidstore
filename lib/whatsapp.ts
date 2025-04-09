@@ -27,7 +27,9 @@ export function generateWhatsAppMessage(
   storePhone: string
 ): string {
   // Formatear el número de teléfono (eliminar espacios, guiones, etc)
-  const formattedPhone = storePhone.replace(/\D/g, "");
+  let formattedPhone = storePhone.replace(/\D/g, "");
+  // Si el número comienza con 0, eliminarlo
+  formattedPhone = formattedPhone.replace(/^0+/, "");
 
   // Construir el mensaje
   let message = `*Nuevo pedido!*\n\n`;

@@ -1,6 +1,5 @@
 import { OrderProductHook } from "@/hooks/use-cart";
 import prismadb from "@/lib/prismadb";
-import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
@@ -20,13 +19,6 @@ export async function POST(request: Request) {
       email,
       isExistingCustomer,
     } = body;
-
-    const user = await currentUser();
-
-    if (!user) {
-      console.log("Unauthorized");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
 
     if (!storeId) {
       console.log("Missing storeId");
