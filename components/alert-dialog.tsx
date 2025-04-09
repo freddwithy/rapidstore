@@ -38,8 +38,15 @@ const AlertCustomDialog: React.FC<AlertCustomDialogProps> = ({
     return null;
   }
 
+  // Esta función asegura que el estado se actualice adecuadamente
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      onClose();
+    }
+  };
+
   return (
-    <AlertDialog open={open} onOpenChange={onClose}>
+    <AlertDialog open={open} onOpenChange={handleOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
@@ -48,7 +55,7 @@ const AlertCustomDialog: React.FC<AlertCustomDialogProps> = ({
           )}
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={loading} onClick={onClose}>
+          <AlertDialogCancel disabled={loading}>
             Cancelar
           </AlertDialogCancel>
           <AlertDialogAction disabled={loading} onClick={action}>

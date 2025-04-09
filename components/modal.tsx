@@ -6,7 +6,7 @@ import {
     DialogContent, 
     DialogDescription, 
     DialogHeader, 
-    DialogTitle 
+    DialogTitle
 } from "@/components/ui/dialog";
 
 interface ModalProps {
@@ -24,14 +24,25 @@ export const Modal: React.FC<ModalProps> = ({
     onClose,
     children
 }) => {
+    const [isMounted, setIsMounted] = React.useState(false);
+
+    React.useEffect(() => {
+        setIsMounted(true);
+        return () => setIsMounted(false);
+    }, []);
+
     const onChange = (open: boolean) => {
         if (!open) {
-            onClose()
+            onClose();
         }
+    };
+
+    if (!isMounted) {
+        return null;
     }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onChange}> 
+        <Dialog open={isOpen} onOpenChange={onChange}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
@@ -42,5 +53,5 @@ export const Modal: React.FC<ModalProps> = ({
                 </div>
             </DialogContent>
         </Dialog>
-    )
+    );
 }

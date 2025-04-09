@@ -38,7 +38,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Producto eliminad0");
+        toast.success("Producto eliminado");
         router.refresh();
       }
     } catch (error) {
@@ -50,11 +50,18 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
     }
   };
 
+  // Función para manejar el cierre del diálogo
+  const handleClose = () => {
+    if (!loading) {
+      setOpen(false);
+    }
+  };
+
   return (
-    <div>
+    <>
       <AlertModal
         isOpen={open}
-        onClose={() => setOpen(false)}
+        onClose={handleClose}
         onConfirm={onDelete}
         loading={loading}
         title="Eliminar producto"
@@ -72,19 +79,23 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
           <DropdownMenuItem
             onClick={() => router.push(`${pathname}/${data.id}`)}
           >
-            <Edit className="mr-2 size-4" />
+            <Edit />
             Editar
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => onCopy(data.id)}>
-            <Copy className="mr-2 size-4" />
+            <Copy />
             Copiar ID
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setOpen(true)}>
-            <Trash className="mr-2 size-4" />
+          <DropdownMenuItem
+            onClick={() => {
+              setOpen(true);
+            }}
+          >
+            <Trash />
             Eliminar
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </>
   );
 };

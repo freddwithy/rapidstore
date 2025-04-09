@@ -51,7 +51,7 @@ export default function Cta() {
                 Empezar gratis
               </a>
               <a
-                href="/revtek"
+                href="/tiendy"
                 className={buttonVariants({ variant: "secondary", size: "lg" })}
               >
                 Ver demo

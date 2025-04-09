@@ -2,7 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Modal } from "../modal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "../ui/dialog";
 
 interface AlertModalProps {
   isOpen: boolean;
@@ -23,32 +30,71 @@ export const AlertModal: React.FC<AlertModalProps> = ({
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
+  // Montar/desmontar el componente
   useEffect(() => {
     setIsMounted(true);
+    return () => setIsMounted(false);
   }, []);
 
   if (!isMounted) {
     return null;
   }
 
+  // Esta función se llama cuando el diálogo cambia de estado (abierto/cerrado)
+  const handleOpenChange = (open: boolean) => {
+    if (!open && !loading) {
+      onClose();
+    }
+  };
+
+  // Esta función se llama cuando el usuario hace clic en el botón Cancelar
+  const handleCancel = () => {
+    if (!loading) {
+      onClose();
+    }
+  };
+
+  // Esta función se llama cuando el usuario hace clic en el botón Continuar
+  const handleConfirm = () => {
+    if (!loading) {
+      onConfirm();
+    }
+  };
+
   return (
-    <Modal
-      title={title || "¿Estás seguro de querer eliminar?"}
-      description={
-        description ||
-        "Esta acción no se puede deshacer, piensa bien antes de tomar una decisión."
-      }
-      isOpen={isOpen}
-      onClose={onClose}
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={handleOpenChange}
     >
-      <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-        <Button disabled={loading} variant="outline" onClick={onClose}>
-          Cancelar
-        </Button>
-        <Button disabled={loading} variant="destructive" onClick={onConfirm}>
-          Continuar
-        </Button>
-      </div>
-    </Modal>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {title || "¿Estás seguro de querer eliminar?"}
+          </DialogTitle>
+          <DialogDescription>
+            {description ||
+              "Esta acción no se puede deshacer, piensa bien antes de tomar una decisión."}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <div className="flex w-full justify-end space-x-2">
+            <Button 
+              disabled={loading} 
+              variant="outline" 
+              onClick={handleCancel}
+            >
+              Cancelar
+            </Button>
+            <Button
+              disabled={loading}
+              variant="destructive"
+              onClick={handleConfirm}
+            >
+              Continuar
+            </Button>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
