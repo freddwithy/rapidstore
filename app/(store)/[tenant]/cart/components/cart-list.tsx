@@ -34,7 +34,7 @@ interface CartItem {
   storeId: string;
 }
 
-const CartList: React.FC<CartItem> = ({ products, storeId }) => {
+const CartList: React.FC<CartItem> = ({ products, storeId, tenant }) => {
   const { items, updateItem, removeAll } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const totalProducts = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -233,7 +233,11 @@ const CartList: React.FC<CartItem> = ({ products, storeId }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <CartForm storeId={storeId} onLoadingChange={setIsLoading} />
+          <CartForm
+            storeId={storeId}
+            onLoadingChange={setIsLoading}
+            tenant={tenant}
+          />
           <div className="mt-10">
             <div className="space-y-4">
               <div className="space-y-1">

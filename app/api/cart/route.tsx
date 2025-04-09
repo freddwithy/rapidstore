@@ -1,4 +1,4 @@
-import { OrderProductHook } from "@/hooks/use-item";
+import { OrderProductHook } from "@/hooks/use-cart";
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       direction1,
       direction2,
       email,
+      isExistingCustomer,
     } = body;
 
     const user = await currentUser();
@@ -43,12 +44,24 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!name || !lastName || !tel || !city || !direction1 || !email) {
-      console.log("Missing required fields");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    // Si es cliente existente, solo verificamos el email
+    if (isExistingCustomer) {
+      if (!email) {
+        console.log("Missing email for existing customer");
+        return NextResponse.json(
+          { error: "El email es requerido" },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Si es cliente nuevo, verificamos todos los campos requeridos
+      if (!name || !lastName || !tel || !city || !direction1 || !email) {
+        console.log("Missing required fields");
+        return NextResponse.json(
+          { error: "Missing required fields" },
+          { status: 400 }
+        );
+      }
     }
 
     const existingCustomer = await prismadb.customer.findFirst({
@@ -60,22 +73,38 @@ export async function POST(request: Request) {
       },
     });
 
+    // Si es cliente existente pero no se encuentra en la base de datos
+    if (isExistingCustomer && !existingCustomer) {
+      console.log("Customer not found");
+      return NextResponse.json(
+        {
+          error:
+            "No se encontró ningún cliente con ese email. Por favor, registra tus datos completos.",
+        },
+        { status: 404 }
+      );
+    }
+
     if (existingCustomer) {
+      // Si es cliente existente, no actualizamos sus datos
+      // Si es cliente nuevo pero el email ya existe, actualizamos sus datos
       const updatedCustomer = await prismadb.customer.update({
         where: {
           id: existingCustomer.id,
         },
-        data: {
-          name,
-          lastName,
-          ruc,
-          rucName,
-          tel,
-          city,
-          direction1,
-          direction2,
-          email,
-        },
+        data: isExistingCustomer
+          ? {}
+          : {
+              name,
+              lastName,
+              ruc,
+              rucName,
+              tel,
+              city,
+              direction1,
+              direction2,
+              email,
+            },
       });
 
       const order = await prismadb.order.create({
@@ -99,10 +128,10 @@ export async function POST(request: Request) {
                   include: {
                     variants: {
                       include: {
-                        options: true
-                      }
-                    }
-                  }
+                        options: true,
+                      },
+                    },
+                  },
                 });
 
                 if (!product) {
@@ -118,18 +147,20 @@ export async function POST(request: Request) {
                       },
                     },
                     qty: p.quantity,
-                    total: p.total,
+                    total: p.total * p.quantity,
                   };
                 }
 
                 // Producto con variantes
                 const variant = product.variants[0];
                 const option = p.optionId
-                  ? variant.options.find(opt => opt.id === p.optionId)
+                  ? variant.options.find((opt) => opt.id === p.optionId)
                   : variant.options[0];
 
                 if (!option) {
-                  throw new Error(`No se encontró la opción para el producto ${p.productId}`);
+                  throw new Error(
+                    `No se encontró la opción para el producto ${p.productId}`
+                  );
                 }
 
                 return {
@@ -144,13 +175,14 @@ export async function POST(request: Request) {
                     },
                   },
                   qty: p.quantity,
-                  total: p.total,
+                  total: p.total * p.quantity,
                 };
               })
             ),
           },
           total: items.reduce(
-            (acc: number, item: OrderProductHook) => acc + item.total,
+            (acc: number, item: OrderProductHook) =>
+              acc + item.total * item.quantity,
             0
           ),
         },
@@ -185,23 +217,69 @@ export async function POST(request: Request) {
           },
         },
         orderProducts: {
-          create: items.map((p: OrderProductHook) => ({
-            product: {
-              connect: {
-                id: p.productId,
-              },
-            },
-            variant: {
-              connect: {
-                id: p.optionId,
-              },
-            },
-            qty: p.quantity,
-            total: p.total,
-          })),
+          create: await Promise.all(
+            items.map(async (p: OrderProductHook) => {
+              // Verificar si el producto tiene variantes
+              const product = await prismadb.product.findUnique({
+                where: { id: p.productId },
+                include: {
+                  variants: {
+                    include: {
+                      options: true,
+                    },
+                  },
+                },
+              });
+
+              if (!product) {
+                throw new Error(`No se encontró el producto ${p.productId}`);
+              }
+
+              // Producto sin variantes
+              if (product.variants.length === 0) {
+                return {
+                  product: {
+                    connect: {
+                      id: p.productId,
+                    },
+                  },
+                  qty: p.quantity,
+                  total: p.total * p.quantity, // Usar el total que viene del carrito
+                };
+              }
+
+              // Producto con variantes
+              const variant = product.variants[0];
+              const option = p.optionId
+                ? variant.options.find((opt) => opt.id === p.optionId)
+                : variant.options[0];
+
+              if (!option) {
+                throw new Error(
+                  `No se encontró la opción para el producto ${p.productId}`
+                );
+              }
+
+              return {
+                product: {
+                  connect: {
+                    id: p.productId,
+                  },
+                },
+                variant: {
+                  connect: {
+                    id: option.id,
+                  },
+                },
+                qty: p.quantity,
+                total: p.total * p.quantity, // Usar el total que viene del carrito
+              };
+            })
+          ),
         },
         total: items.reduce(
-          (acc: number, item: OrderProductHook) => acc + item.total,
+          (acc: number, item: OrderProductHook) =>
+            acc + item.total * item.quantity,
           0
         ),
       },
