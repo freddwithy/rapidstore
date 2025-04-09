@@ -1,4 +1,4 @@
-import { OrderProductHook } from "@/hooks/use-item";
+import { OrderProductHook } from "@/hooks/use-cart";
 import prismadb from "@/lib/prismadb";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       direction1,
       direction2,
       email,
+      isExistingCustomer,
     } = body;
 
     const user = await currentUser();
@@ -43,12 +44,24 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!name || !lastName || !tel || !city || !direction1 || !email) {
-      console.log("Missing required fields");
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+    // Si es cliente existente, solo verificamos el email
+    if (isExistingCustomer) {
+      if (!email) {
+        console.log("Missing email for existing customer");
+        return NextResponse.json(
+          { error: "El email es requerido" },
+          { status: 400 }
+        );
+      }
+    } else {
+      // Si es cliente nuevo, verificamos todos los campos requeridos
+      if (!name || !lastName || !tel || !city || !direction1 || !email) {
+        console.log("Missing required fields");
+        return NextResponse.json(
+          { error: "Missing required fields" },
+          { status: 400 }
+        );
+      }
     }
 
     const existingCustomer = await prismadb.customer.findFirst({
@@ -60,22 +73,38 @@ export async function POST(request: Request) {
       },
     });
 
+    // Si es cliente existente pero no se encuentra en la base de datos
+    if (isExistingCustomer && !existingCustomer) {
+      console.log("Customer not found");
+      return NextResponse.json(
+        {
+          error:
+            "No se encontró ningún cliente con ese email. Por favor, registra tus datos completos.",
+        },
+        { status: 404 }
+      );
+    }
+
     if (existingCustomer) {
+      // Si es cliente existente, no actualizamos sus datos
+      // Si es cliente nuevo pero el email ya existe, actualizamos sus datos
       const updatedCustomer = await prismadb.customer.update({
         where: {
           id: existingCustomer.id,
         },
-        data: {
-          name,
-          lastName,
-          ruc,
-          rucName,
-          tel,
-          city,
-          direction1,
-          direction2,
-          email,
-        },
+        data: isExistingCustomer
+          ? {}
+          : {
+              name,
+              lastName,
+              ruc,
+              rucName,
+              tel,
+              city,
+              direction1,
+              direction2,
+              email,
+            },
       });
 
       const order = await prismadb.order.create({

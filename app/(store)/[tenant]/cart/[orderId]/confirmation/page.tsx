@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import WhatsApp from "@/components/icons/whatsapp";
 
 export const metadata: Metadata = {
   title: "Confirmación de Pedido",
@@ -33,7 +34,7 @@ export default async function ConfirmationPage({
 }: ConfirmationPageProps) {
   const store = await prismadb.store.findFirst({
     where: {
-      id: params.tenant,
+      url: params.tenant,
     },
   });
 
@@ -44,7 +45,7 @@ export default async function ConfirmationPage({
   const order = await prismadb.order.findFirst({
     where: {
       id: Number(params.orderId),
-      storeId: params.tenant,
+      storeId: store.id,
     },
     include: {
       customer: true,
@@ -62,7 +63,7 @@ export default async function ConfirmationPage({
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen ">
+    <div className="flex items-center justify-center min-h-screen px-2">
       <Card className="w-full max-w-xl mx-4 shadow-lg">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex size-20 items-center animate-jump-in ease-in justify-center rounded-full bg-green-100">
@@ -106,41 +107,27 @@ export default async function ConfirmationPage({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-2">
+        <CardFooter className="flex flex-col md:flex-row gap-2 items-center justify-center">
           <a
             href={generateWhatsAppMessage(
               order,
               store.name,
-              store.id,
               store.whatsapp || ""
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full"
+            className="w-full md:w-auto"
           >
             <Button
               variant="default"
-              className="w-full bg-green-600 hover:bg-green-700"
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mr-2 size-5"
-              >
-                <path d="M3 21l1.9-5.7a8.5 8.5 0 113.8 3.6z" />
-              </svg>
+              <WhatsApp />
               Enviar por WhatsApp
             </Button>
           </a>
-          <Link href={`/${params.tenant}`} className="w-full">
-            <Button variant="outline" className="w-full">
+          <Link href={`/${params.tenant}`} className="w-full md:w-auto">
+            <Button variant="outline" className="w-full md:w-auto">
               Volver a la tienda
             </Button>
           </Link>

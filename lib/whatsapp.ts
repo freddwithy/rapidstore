@@ -24,7 +24,6 @@ interface Order {
 export function generateWhatsAppMessage(
   order: Order,
   storeName: string,
-  storeId: string,
   storePhone: string
 ): string {
   // Formatear el número de teléfono (eliminar espacios, guiones, etc)
@@ -63,7 +62,7 @@ export function generateWhatsAppMessage(
   }
 
   message += `\n*Muchas gracias!*\n\n`;
-  message += `Ver pedido: https://giddi.shop/${storeId}/orders/${order.id}/confirmation`;
+  message += `Ver pedido: https://giddi.shop/${storeName}/cart/${order.id}/confirmation`;
 
   // Generar el enlace de WhatsApp
   const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
