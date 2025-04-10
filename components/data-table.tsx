@@ -11,6 +11,9 @@ import {
   getFilteredRowModel,
   useReactTable,
   getPaginationRowModel,
+  VisibilityState,
+  SortingState,
+  getSortedRowModel,
 } from "@tanstack/react-table";
 
 import {
@@ -29,6 +32,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 type filterType = {
   filter: string;
@@ -51,6 +60,8 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [searchKey, setSearchKey] = useState(filterOptions?.[0]?.filter ?? "");
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
     data,
@@ -59,8 +70,13 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
     state: {
       columnFilters,
+      columnVisibility,
+      sorting,
     },
   });
 
@@ -78,6 +94,32 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columnas
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
           {filterOptions !== undefined && (
             <Select onValueChange={setSearchKey} value={searchKey}>
               <SelectTrigger className="w-[180px]">

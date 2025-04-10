@@ -94,7 +94,6 @@ const ProductFormSchema = z.object({
     .min(1, "El estado es requerido")
     .optional()
     .default("EN_VENTA"),
-  optionStatus: z.string().optional().default("DISPONIBLE"),
 });
 
 type ProductsWithVariants = Prisma.ProductGetPayload<{
@@ -181,7 +180,6 @@ const ProductForm: React.FC<ProductFormProps> = ({
       category: initialData?.categoryId || "",
       price: initialData?.price || 0,
       salePrice: initialData?.salePrice || 0,
-      optionStatus: "DISPONIBLE",
     },
   });
 
@@ -341,7 +339,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
     form.resetField("optionName");
     form.resetField("valuePrice");
     form.resetField("valueSalePrice");
-    form.resetField("optionStatus");
+    form.resetField("status");
     setValues([]);
     setOpen(false);
   };
@@ -517,30 +515,59 @@ const ProductForm: React.FC<ProductFormProps> = ({
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Disponibilidad</FormLabel>
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecciona la disponibilidad" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="EN_VENTA">DISPONIBLE</SelectItem>
+                            <SelectItem value="AGOTADO">AGOTADO</SelectItem>
+                            <SelectItem value="ARCHIVADO">ARCHIVADO</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        <FormDescription>
+                          Estado de disponibilidad del producto
+                        </FormDescription>
+                      </FormItem>
+                    )}
+                  />
                 </>
               )}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Descripción <Obligatory />
-                    </FormLabel>
-                    <FormControl>
-                      <Tiptap
-                        description={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                    <FormDescription>
-                      La descripción del producto
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
+
               <div className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>
+                        Descripción <Obligatory />
+                      </FormLabel>
+                      <FormControl>
+                        <Tiptap
+                          description={field.value}
+                          onChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                      <FormDescription>
+                        La descripción del producto
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="isFeatured"
@@ -1064,10 +1091,15 @@ const ProductForm: React.FC<ProductFormProps> = ({
                             toast.error("Agrega al menos una variante");
                             return;
                           }
-                          
+
                           // Verificar límite de 3 variantes para usuarios FREE
-                          if (userType === "FREE" && getTotalVariants() + values.length > 3) {
-                            toast.error("Los usuarios gratuitos pueden añadir hasta 3 variantes en total.");
+                          if (
+                            userType === "FREE" &&
+                            getTotalVariants() + values.length > 3
+                          ) {
+                            toast.error(
+                              "Los usuarios gratuitos pueden añadir hasta 3 variantes en total."
+                            );
                             return;
                           }
                           // Agregar las variantes a la opción existente
@@ -1111,10 +1143,9 @@ const ProductForm: React.FC<ProductFormProps> = ({
               </Dialog>
               {options.length > 0 && userType === "FREE" && (
                 <p className="text-sm text-muted-foreground">
-                  {getTotalVariants() >= 3 
+                  {getTotalVariants() >= 3
                     ? "Has alcanzado el límite de 3 variantes para usuarios gratuitos. Actualiza tu plan para añadir más."
-                    : `Puedes añadir hasta 3 variantes (${getTotalVariants()}/3). Para más variantes actualiza tu plan.`
-                  }
+                    : `Puedes añadir hasta 3 variantes (${getTotalVariants()}/3). Para más variantes actualiza tu plan.`}
                   <Obligatory />
                 </p>
               )}

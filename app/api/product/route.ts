@@ -123,6 +123,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verificamos si hay opciones/variantes definidas
+    const hasVariantOptions =
+      options.length > 0 && options[0].values.length > 0;
+
     const product = await prismadb.product.create({
       data: {
         name,
@@ -146,19 +150,21 @@ export async function POST(request: Request) {
             id: category,
           },
         },
-        variants: {
-          create: options.map((option: Option) => ({
-            name: option.name,
-            options: {
-              create: option.values.map((value: Values) => ({
-                name: value.name,
-                price: value.price,
-                salePrice: value.salePrice,
-                status: value.status,
+        variants: hasVariantOptions
+          ? {
+              create: options.map((option: Option) => ({
+                name: option.name,
+                options: {
+                  create: option.values.map((value: Values) => ({
+                    name: value.name,
+                    price: value.price,
+                    salePrice: value.salePrice,
+                    status: value.status,
+                  })),
+                },
               })),
-            },
-          })),
-        },
+            }
+          : {},
       },
     });
 

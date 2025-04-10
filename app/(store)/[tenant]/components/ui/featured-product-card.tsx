@@ -32,19 +32,21 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
 
   // Determinar si es un producto con variantes o sin variantes
   const hasVariants = product.variants.length > 0;
-  
+
   // Seleccionar la primera variante si existe, sino el producto mismo
-  const selectedVariant = hasVariants ? product.variants[0].options[0] : product;
+  const selectedVariant = hasVariants
+    ? product.variants[0].options[0]
+    : product;
 
   // Comprobar si está en el carrito (variante u opción)
-  const isInCart = items.some(item => 
+  const isInCart = items.some((item) =>
     hasVariants
       ? item.optionId === selectedVariant.id
       : item.productId === product.id
   );
 
   // Encontrar el item en el carrito si existe
-  const isInCartQuantity = items.find(item => 
+  const isInCartQuantity = items.find((item) =>
     hasVariants
       ? item.optionId === selectedVariant.id
       : item.productId === product.id
@@ -56,18 +58,20 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
 
   const addToCart = () => {
     // Calcular el precio correcto
-    const itemPrice = Number(selectedVariant.salePrice || selectedVariant.price || 0);
-    
+    const itemPrice = Number(
+      selectedVariant.salePrice || selectedVariant.price || 0
+    );
+
     if (isInCart && isInCartQuantity?.quantity) {
       // Actualizar cantidad si ya está en el carrito
       if (hasVariants) {
         // Si tiene variantes, usar optionId
-        updateItem(selectedVariant.id, '', isInCartQuantity.quantity + 1);
+        updateItem(selectedVariant.id, "", isInCartQuantity.quantity + 1);
       } else {
         // Si no tiene variantes, usar productId
-        updateItem('', product.id, isInCartQuantity.quantity + 1);
+        updateItem("", product.id, isInCartQuantity.quantity + 1);
       }
-      
+
       toast.success("Producto agregado al carrito", {
         position: "top-center",
       });
@@ -80,7 +84,7 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
         quantity: 1,
         total: itemPrice,
       });
-      
+
       toast.success("Producto agregado al carrito", {
         position: "top-center",
       });
@@ -100,14 +104,21 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
             alt={product.name}
             fill
           />
-          {selectedVariant.salePrice && selectedVariant.price && (
-            <span className="px-1 bg-red-500 text-white font-semibold text-md rounded-r-md absolute left-0 bottom-5">
-              {(
-                ((selectedVariant.salePrice - selectedVariant.price) /
-                  selectedVariant.price) *
-                100
-              ).toFixed(0)}
-              %
+          {selectedVariant.salePrice &&
+            selectedVariant.price &&
+            selectedVariant.status !== "AGOTADO" && (
+              <span className="px-1 bg-red-500 text-white font-semibold text-md rounded-r-md absolute left-0 bottom-5">
+                {(
+                  ((selectedVariant.salePrice - selectedVariant.price) /
+                    selectedVariant.price) *
+                  100
+                ).toFixed(0)}
+                %
+              </span>
+            )}
+          {selectedVariant.status === "AGOTADO" && (
+            <span className="px-1 bg-stone-500 text-white font-semibold text-md rounded-r-md absolute left-0 bottom-5">
+              AGOTADO
             </span>
           )}
         </Link>
