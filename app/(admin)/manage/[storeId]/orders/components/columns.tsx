@@ -6,6 +6,8 @@ import { CellAction } from "./cell-action";
 import { OrderStatus, OrderPayment } from "@prisma/client";
 import PaymentStatusBadge from "./paymentStatusBadge";
 import StatusBadge from "./statusBadge";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown } from "lucide-react";
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
@@ -22,7 +24,17 @@ export type OrderColumn = {
 export const columns: ColumnDef<OrderColumn>[] = [
   {
     accessorKey: "createdAt",
-    header: "Fecha de creacion",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Fecha de creacion
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) =>
       row.original.createdAt.toLocaleDateString("es-PY", {
         day: "2-digit",
@@ -32,11 +44,31 @@ export const columns: ColumnDef<OrderColumn>[] = [
   },
   {
     accessorKey: "customer",
-    header: "Cliente",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Cliente
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
   },
   {
     accessorKey: "status",
-    header: "Estado",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Estado
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => (
       <StatusBadge
         status={row.original.status}
@@ -47,7 +79,17 @@ export const columns: ColumnDef<OrderColumn>[] = [
   },
   {
     accessorKey: "paymentStatus",
-    header: "Pago",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Pago
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
     cell: ({ row }) => (
       <PaymentStatusBadge
         paymentStatus={row.original.paymentStatus}

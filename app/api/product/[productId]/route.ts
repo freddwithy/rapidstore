@@ -114,6 +114,10 @@ export async function PATCH(
         },
       });
 
+      // Verificamos si hay opciones/variantes definidas
+      const hasVariantOptions =
+        options.length > 0 && options[0].values.length > 0;
+
       // Update the product with new data
       return await prisma.product.update({
         where: { id: productId },
@@ -128,19 +132,21 @@ export async function PATCH(
             create: images.map((image: string) => ({ url: image })),
           },
           category: { connect: { id: category } },
-          variants: {
-            create: options.map((option: Option) => ({
-              name: option.name,
-              options: {
-                create: option.values.map((value: Values) => ({
-                  name: value.name,
-                  price: value.price,
-                  salePrice: value.salePrice,
-                  status: value.status,
+          variants: hasVariantOptions
+            ? {
+                create: options.map((option: Option) => ({
+                  name: option.name,
+                  options: {
+                    create: option.values.map((value: Values) => ({
+                      name: value.name,
+                      price: value.price,
+                      salePrice: value.salePrice,
+                      status: value.status,
+                    })),
+                  },
                 })),
-              },
-            })),
-          },
+              }
+            : {},
         },
         include: {
           images: true,
