@@ -80,7 +80,7 @@ export default async function SubdomainPage({
   //await new Promise((resolve) => setTimeout(resolve, 5000));
 
   return (
-    <div className="w-full py-8 px-4 md:py-14 space-y-2">
+    <div className="w-full py-8 px-4 md:py-14">
       <Avatar className="size-32 rounded-lg">
         <AvatarImage
           src={store?.logo || ""}

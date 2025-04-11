@@ -45,14 +45,14 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
   const hasVariants = product.variants.length > 0;
 
   // Comprobar si está en el carrito
-  const isInCart = items.some(item => 
+  const isInCart = items.some((item) =>
     hasVariants
       ? item.optionId === selectedVariant.id
       : item.productId === product.id
   );
 
   // Encontrar el item en el carrito si existe
-  const isInCartQuantity = items.find(item => 
+  const isInCartQuantity = items.find((item) =>
     hasVariants
       ? item.optionId === selectedVariant.id
       : item.productId === product.id
@@ -63,7 +63,7 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
 
     return (
       <div
-        className="prose text-muted-foreground prose-sm prose-p:text-sm"
+        className="prose text-muted-foreground prose-strong:text-muted-foreground prose-sm prose-p:text-sm"
         dangerouslySetInnerHTML={{ __html: sanitizedContent }}
       />
     );
@@ -71,10 +71,10 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
 
   const addToCart = () => {
     // Calcular el precio correcto según si es producto o variante
-    const itemPrice = hasVariants 
+    const itemPrice = hasVariants
       ? selectedVariant.salePrice || selectedVariant.price || 0
       : product.salePrice || product.price || 0;
-    
+
     const successToast = () => {
       toast.success("Producto agregado al carrito", {
         position: "top-center",
@@ -89,15 +89,19 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
         },
       });
     };
-    
+
     if (isInCart && isInCartQuantity?.quantity) {
       // Ya está en el carrito, actualizar cantidad
       if (hasVariants) {
         // Producto con variantes: usar optionId
-        updateItem(selectedVariant.id, '', isInCartQuantity.quantity + quantity);
+        updateItem(
+          selectedVariant.id,
+          "",
+          isInCartQuantity.quantity + quantity
+        );
       } else {
         // Producto sin variantes: usar productId
-        updateItem('', product.id, isInCartQuantity.quantity + quantity);
+        updateItem("", product.id, isInCartQuantity.quantity + quantity);
       }
       successToast();
     } else {
@@ -180,27 +184,36 @@ const Options: React.FC<OptionsProps> = ({ product }) => {
             </RadioGroup>
           </div>
         )}
-        <div className="space-y-2">
-          <p className="font-semibold">Cantidad</p>
-          <div className="flex gap-x-2 items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setQuantity((q) => (q > 1 ? q - 1 : q))}
-            >
-              -
-            </Button>
-            <p>{quantity}</p>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setQuantity((q) => (q < 10 ? q + 1 : q))}
-            >
-              +
-            </Button>
+        {selectedVariant.status !== "AGOTADO" && (
+          <div className="space-y-2">
+            <p className="font-semibold">Cantidad</p>
+            <div className="flex gap-x-2 items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setQuantity((q) => (q > 1 ? q - 1 : q))}
+              >
+                -
+              </Button>
+              <p>{quantity}</p>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setQuantity((q) => (q < 10 ? q + 1 : q))}
+              >
+                +
+              </Button>
+            </div>
           </div>
-        </div>
-        <Button onClick={addToCart}>Añadir al carrito</Button>
+        )}
+        {selectedVariant.status === "AGOTADO" && (
+          <Button disabled variant="secondary" type="button">
+            Agotado
+          </Button>
+        )}
+        {selectedVariant.status !== "AGOTADO" && (
+          <Button onClick={addToCart}>Añadir al carrito</Button>
+        )}
       </CardContent>
       <CardFooter>
         <div className="space-y-2">
