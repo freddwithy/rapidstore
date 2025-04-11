@@ -30,9 +30,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   // Determinar si es un producto con variantes o sin variantes
   const hasVariants = product.variants.length > 0;
 
-  // Seleccionar la primera variante si existe, sino el producto mismo
+  // Seleccionar la primera opción disponible dentro de las variantes si existe, sino la primera opción para mostrar "AGOTADO"
   const selectedVariant = hasVariants
-    ? product.variants[0].options[0]
+    ? product.variants.flatMap(variant => variant.options).find(option => option.status === "DISPONIBLE") || product.variants.flatMap(variant => variant.options)[0] || product
     : product;
 
   // Comprobar si está en el carrito (variante u opción)

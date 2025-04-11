@@ -73,8 +73,8 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!options) {
-      console.log("Missing options");
+    if (options.length === 0 && !price) {
+      console.log("Missing options or price");
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }

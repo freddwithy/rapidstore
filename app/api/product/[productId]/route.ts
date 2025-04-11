@@ -51,6 +51,7 @@ export async function PATCH(
     }
 
     if (!productId) {
+      console.log("Missing productId");
       return NextResponse.json(
         { error: "Product ID is required" },
         { status: 400 }
@@ -58,10 +59,12 @@ export async function PATCH(
     }
 
     if (!name) {
+      console.log("Missing name");
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
     if (!images || !images.length) {
+      console.log("Missing images");
       return NextResponse.json(
         { error: "Images are required" },
         { status: 400 }
@@ -69,15 +72,17 @@ export async function PATCH(
     }
 
     if (!category) {
+      console.log("Missing category");
       return NextResponse.json(
         { error: "Category is required" },
         { status: 400 }
       );
     }
 
-    if (!options || !price) {
+    if (options.length === 0 && !price) {
+      console.log("Missing options or price");
       return NextResponse.json(
-        { error: "Options are required" },
+        { error: "Options or price are required" },
         { status: 400 }
       );
     }
@@ -94,6 +99,7 @@ export async function PATCH(
     });
 
     if (!existingProduct) {
+      console.log("Product not found");
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
