@@ -92,10 +92,10 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
   };
 
   return (
-    <div className="border bg-secondary rounded-xl relative md:max-w-none max-w-60">
+    <div className="border bg-card rounded-2xl relative md:max-w-none max-w-60">
       <div className="flex flex-col relative group">
         <Link
-          className="rounded-xl size-52 md:w-72 bg-white overflow-hidden group relative"
+          className="rounded-xl size-52 md:w-72 shadow-md bg-white overflow-hidden group relative"
           href={`/${tenant}/${product.id}`}
         >
           <Image
@@ -122,15 +122,17 @@ const FeaturedProductCard: React.FC<FeaturedProductCardProps> = ({
             </span>
           )}
         </Link>
-        <Button
-          variant="secondary"
-          className="absolute top-1 right-1 z-10"
-          size="icon"
-          type="button"
-          onClick={addToCart}
-        >
-          <Plus />
-        </Button>
+        {selectedVariant.status !== "AGOTADO" && (
+          <Button
+            variant="secondary"
+            className="absolute top-1 right-1 z-10"
+            size="icon"
+            type="button"
+            onClick={addToCart}
+          >
+            <Plus />
+          </Button>
+        )}
         <Link className="space-y-2 px-4 py-4" href={`/${product.id}`}>
           <div>
             <p className="text-sm md:text-base font-medium dark:text-zinc-300 text-zinc-700">

@@ -103,10 +103,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
   };
 
   return (
-    <div className="border bg-secondary rounded-xl relative md:max-w-60">
+    <div className="border bg-card rounded-2xl relative md:max-w-60 overflow-hidden">
       <div className="flex flex-col relative group">
         <Link
-          className="rounded-xl w-full h-32 md:h-52 bg-white overflow-hidden group relative"
+          className="rounded-b-2xl w-full h-32 md:h-52 bg-white shadow-md overflow-hidden group relative"
           href={`/${tenant}/${product.id}`}
         >
           <Image
@@ -133,18 +133,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, tenant }) => {
             </span>
           )}
         </Link>
-        <Button
-          variant="secondary"
-          className="absolute top-1 right-1 z-10"
-          size="icon"
-          type="button"
-          onClick={addToCart}
-        >
-          <Plus />
-        </Button>
+        {selectedVariant.status !== "AGOTADO" && (
+          <Button
+            variant="secondary"
+            className="absolute top-1 right-1 z-10"
+            size="icon"
+            type="button"
+            onClick={addToCart}
+          >
+            <Plus />
+          </Button>
+        )}
         <Link className="space-y-2 px-4 py-4" href={`/${product.id}`}>
           <div>
-            <p className="text-sm md:text-base font-medium dark:text-zinc-300 text-zinc-600 line-clamp-3">
+            <p className="text-sm md:text-base font-medium dark:text-stone-300 text-stone-600 line-clamp-3">
               {product.name.slice(0, 35)}
             </p>
             <div className="flex flex-col">

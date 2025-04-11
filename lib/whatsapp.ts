@@ -18,6 +18,7 @@ interface Order {
     lastName: string;
     tel?: number;
     email?: string;
+    direction1?: string;
   };
 }
 
@@ -61,6 +62,9 @@ export function generateWhatsAppMessage(
     }
     if (order.customer.email) {
       message += `• Email: ${order.customer.email}\n`;
+    }
+    if (order.customer.direction1) {
+      message += `• Dirección: ${order.customer.direction1}\n`;
     }
   }
 

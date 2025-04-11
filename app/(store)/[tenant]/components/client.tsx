@@ -25,24 +25,26 @@ const ProductsClientComponent: React.FC<ClientComponentProps> = async ({
     },
   });
   return (
-    <div className="space-y-8">
-      <div className="space-y-4 animate-fade-up delay-100">
-        <Titles
-          title="Destacados"
-          description="Productos destacados de la tienda"
-        />
-        <div className="flex gap-4 overflow-x-scroll no-scrollbar">
-          <Suspense fallback={<ProductsSkeleton numberOfProducts={6} />}>
-            <ProductByCategories
-              storeId={storeId}
-              tenant={tenant}
-              isFeatured={true}
-              limit={10}
-              forScroll={true}
-            />
-          </Suspense>
+    <div className="space-y-4 mt-4">
+      {categories[0].products[0].isFeatured && (
+        <div className="space-y-4 animate-fade-up delay-100 bg-stone-300/10 border p-4 rounded-2xl">
+          <Titles
+            title="Destacados"
+            description="Productos destacados de la tienda"
+          />
+          <div className="flex gap-4 overflow-x-scroll no-scrollbar">
+            <Suspense fallback={<ProductsSkeleton numberOfProducts={6} />}>
+              <ProductByCategories
+                storeId={storeId}
+                tenant={tenant}
+                isFeatured={true}
+                limit={10}
+                forScroll={true}
+              />
+            </Suspense>
+          </div>
         </div>
-      </div>
+      )}
       {categories.map((cat) => (
         <div
           key={cat.id}
